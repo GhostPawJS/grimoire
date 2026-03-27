@@ -1,0 +1,34 @@
+[
+	{
+		"path": "development/git-workflow",
+		"content": "---\nname: git-workflow\ndescription: Branch and merge workflow for small teams.\n---\n\n## Steps\n\n1. Pull main.\n2. Branch.\n3. PR.\n\n"
+	},
+	{
+		"path": "development/code-review",
+		"content": "---\nname: code-review\ndescription: PR review checklist.\n---\n\n## Review\n\n- Ticket scope.\n- Tests.\n\n"
+	},
+	{
+		"path": "development/typescript-patterns",
+		"content": "---\nname: typescript-patterns\ndescription: TS patterns for strict mode.\n---\n\n## Patterns\n\n- Explicit types.\n\n"
+	},
+	{
+		"path": "devops/docker-deployment",
+		"content": "---\nname: docker-deployment\ndescription: Docker multi-stage builds.\n---\n\n## Deploy\n\n- Pin digests.\n\n"
+	},
+	{
+		"path": "devops/ci-pipeline",
+		"content": "---\nname: ci-pipeline\ndescription: CI: install, lint, test.\n---\n\n## Pipeline\n\nnpm ci\n\n"
+	},
+	{
+		"path": "testing/unit-testing",
+		"content": "---\nname: unit-testing\ndescription: Unit test structure.\n---\n\n## Tests\n\nOne theme per test.\n\n"
+	},
+	{
+		"path": "testing/integration-testing",
+		"content": "---\nname: integration-testing\ndescription: Integration tests.\n---\n\n## Scope\n\nAdapters.\n\n"
+	},
+	{
+		"path": "general/documentation",
+		"content": "---\nname: documentation\ndescription: SKILL.md writing.\n---\n\n## Docs\n\nOutcome first.\n\n"
+	}
+]

@@ -1,0 +1,32 @@
+[
+	{
+		"source": "agentskillhub",
+		"slug": "anthropics/mcp-builder",
+		"name": "mcp-builder",
+		"description": "Guide for creating MCP servers that connect LLMs to external tools.",
+		"adoptionCount": 0,
+		"sourceRepo": "anthropics/skills",
+		"sourcePath": "mcp-builder/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/anthropics/skills/main/mcp-builder/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "example/typescript-strict",
+		"name": "typescript-strict",
+		"description": "Strict TypeScript configuration patterns for libraries.",
+		"adoptionCount": 0,
+		"sourceRepo": "ghostpawjs/grimoire",
+		"sourcePath": "README.md",
+		"fetchUrl": "https://raw.githubusercontent.com/GhostPawJS/grimoire/main/README.md"
+	},
+	{
+		"source": "github",
+		"slug": "skills-demo/search-md",
+		"name": "SKILL.md",
+		"description": "SKILL.md in public skill repositories (demo index entry).",
+		"adoptionCount": 0,
+		"sourceRepo": "anthropics/skills",
+		"sourcePath": "skill-creator/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/anthropics/skills/main/skill-creator/SKILL.md"
+	}
+]

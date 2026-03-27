@@ -3,6 +3,10 @@ import type { SkillMdValidationResult } from './types.ts';
 
 const NAME_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
+export function isValidSpellName(name: string): boolean {
+	return name.length > 0 && name.length <= 64 && NAME_PATTERN.test(name);
+}
+
 const KNOWN_FIELDS = new Set([
 	'name',
 	'description',

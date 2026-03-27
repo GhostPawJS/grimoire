@@ -1,0 +1,10 @@
+export const searchGrimoireToolName = 'search_grimoire';
+export const reviewGrimoireToolName = 'review_grimoire';
+export const inspectGrimoireItemToolName = 'inspect_grimoire_item';
+export const inscribeSpellToolName = 'inscribe_spell';
+export const honeSpellToolName = 'hone_spell';
+export const manageSpellToolName = 'manage_spell';
+export const dropNoteToolName = 'drop_note';
+export const manageDraftToolName = 'manage_draft';
+export const runCatalogueToolName = 'run_catalogue';
+export const scoutSkillsToolName = 'scout_skills';

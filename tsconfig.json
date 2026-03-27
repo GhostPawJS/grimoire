@@ -3,7 +3,7 @@
 		"target": "ES2024",
 		"module": "Preserve",
 		"moduleResolution": "Bundler",
-		"lib": ["ES2024"],
+		"lib": ["ES2024", "DOM", "DOM.Iterable"],
 		"outDir": "dist",
 		"rootDir": "src",
 		"noEmit": true,
@@ -20,8 +20,10 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,
-		"exactOptionalPropertyTypes": true
+		"exactOptionalPropertyTypes": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "preact"
 	},
 	"include": ["src"],
-	"exclude": ["node_modules", "dist", "src/demo"]
+	"exclude": ["node_modules", "dist"]
 }

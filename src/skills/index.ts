@@ -1,0 +1,16 @@
+export { archiveAndPruneSpellsSkill } from './archive-and-prune-spells.ts';
+export { decomposeOversizedSpellsSkill } from './decompose-oversized-spells.ts';
+export { distillNotesIntoSpellsSkill } from './distill-notes-into-spells.ts';
+export { evolveSpellThroughTiersSkill } from './evolve-spell-through-tiers.ts';
+export { handleEdgeCasesGracefullySkill } from './handle-edge-cases-gracefully.ts';
+export { honeSpellFromEvidenceSkill } from './hone-spell-from-evidence.ts';
+export { inscribeSpellsCorrectlySkill } from './inscribe-spells-correctly.ts';
+export { maintainGrimoireHealthSkill } from './maintain-grimoire-health.ts';
+export { reconcileUpstreamUpdatesSkill } from './reconcile-upstream-updates.ts';
+export { reorganizeSpellChaptersSkill } from './reorganize-spell-chapters.ts';
+export { resolveValidationFailuresSkill } from './resolve-validation-failures.ts';
+export { scoutAndAdoptSkillsSkill } from './scout-and-adopt-skills.ts';
+export { searchAndRetrieveSpellsSkill } from './search-and-retrieve-spells.ts';
+export { getGrimoireSkillByName, grimoireSkills, listGrimoireSkills } from './skill_registry.ts';
+export type { GrimoireSkill, GrimoireSkillRegistry } from './skill_types.ts';
+export { defineGrimoireSkill } from './skill_types.ts';
