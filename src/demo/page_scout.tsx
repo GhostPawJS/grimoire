@@ -6,7 +6,12 @@ import type { RegistryEntry, SearchResult } from '../registry/types.ts';
 import { parseSkillMd } from '../spec/parse_skill_md.ts';
 import { useGrimoire } from './context.ts';
 import { demoInscribe } from './demo_operations.ts';
-import { adoptFromGitHub, getGitHubRateLimit, searchGitHubLive } from './demo_search.ts';
+import {
+	adoptFromGitHub,
+	didUseFallback,
+	getGitHubRateLimit,
+	searchGitHubLive,
+} from './demo_search.ts';
 import { navigate } from './router.ts';
 import { Panel, SourceBadge } from './ui/index.ts';
 
@@ -81,7 +86,12 @@ export function PageScout() {
 					/>
 				</label>
 				{mode === 'github' ? (
-					<p class="text-muted">Rate limit remaining: {String(getGitHubRateLimit().remaining)}</p>
+					<>
+						<p class="text-muted">Rate limit remaining: {String(getGitHubRateLimit().remaining)}</p>
+						<p class="text-muted" style={{ fontSize: '0.85em', opacity: 0.8 }}>
+							Live search may be limited on hosted demos. Cached results are shown as fallback.
+						</p>
+					</>
 				) : null}
 				{mode === 'github' ? (
 					<button
@@ -93,7 +103,8 @@ export function PageScout() {
 							void searchGitHubLive(query.trim())
 								.then((r) => {
 									setRemote(r);
-									toast(`Found ${String(r.length)} results`, true);
+									const suffix = didUseFallback() ? ' (cached fallback)' : '';
+									toast(`Found ${String(r.length)} results${suffix}`, true);
 								})
 								.catch((e: unknown) => {
 									toast(e instanceof Error ? e.message : 'Search failed', false);

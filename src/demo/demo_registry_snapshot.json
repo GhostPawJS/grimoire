@@ -1,32 +1,452 @@
 [
 	{
 		"source": "agentskillhub",
-		"slug": "anthropics/mcp-builder",
-		"name": "mcp-builder",
-		"description": "Guide for creating MCP servers that connect LLMs to external tools.",
-		"adoptionCount": 0,
-		"sourceRepo": "anthropics/skills",
-		"sourcePath": "mcp-builder/SKILL.md",
-		"fetchUrl": "https://raw.githubusercontent.com/anthropics/skills/main/mcp-builder/SKILL.md"
+		"slug": "devcraft/typescript-strict-mode",
+		"name": "typescript-strict-mode",
+		"description": "Enable TypeScript strict mode with noImplicitAny, strictNullChecks, and exhaustive switch checks for safer refactors across large codebases.",
+		"adoptionCount": 412,
+		"sourceRepo": "devcraft/ts-skills",
+		"sourcePath": "skills/typescript-strict-mode/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/devcraft/ts-skills/main/skills/typescript-strict-mode/SKILL.md"
 	},
 	{
 		"source": "agentskillhub",
-		"slug": "example/typescript-strict",
-		"name": "typescript-strict",
-		"description": "Strict TypeScript configuration patterns for libraries.",
-		"adoptionCount": 0,
-		"sourceRepo": "ghostpawjs/grimoire",
-		"sourcePath": "README.md",
-		"fetchUrl": "https://raw.githubusercontent.com/GhostPawJS/grimoire/main/README.md"
+		"slug": "pystack/python-packaging-hatch",
+		"name": "python-packaging-hatch",
+		"description": "Ship Python libraries with Hatch, pyproject.toml metadata, optional dependencies, and reproducible builds using uv or pip-tools lockfiles.",
+		"adoptionCount": 156,
+		"sourceRepo": "pystack/python-forge",
+		"sourcePath": "skills/python-packaging-hatch/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/pystack/python-forge/main/skills/python-packaging-hatch/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "rustlabs/rust-error-handling-thiserror",
+		"name": "rust-error-handling-thiserror",
+		"description": "Model recoverable failures with Result, thiserror enums, anyhow for applications, and context chains for actionable Rust error messages.",
+		"adoptionCount": 289,
+		"sourceRepo": "rustlabs/error-patterns",
+		"sourcePath": "skills/rust-error-handling-thiserror/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/rustlabs/error-patterns/main/skills/rust-error-handling-thiserror/SKILL.md"
 	},
 	{
 		"source": "github",
-		"slug": "skills-demo/search-md",
-		"name": "SKILL.md",
-		"description": "SKILL.md in public skill repositories (demo index entry).",
+		"slug": "gopherforge/concurrency-patterns/channels-select",
+		"name": "go-concurrency-channels-select",
+		"description": "Structure Go services with worker pools, buffered channels, select timeouts, and context cancellation for clean goroutine lifecycles.",
 		"adoptionCount": 0,
-		"sourceRepo": "anthropics/skills",
-		"sourcePath": "skill-creator/SKILL.md",
-		"fetchUrl": "https://raw.githubusercontent.com/anthropics/skills/main/skill-creator/SKILL.md"
+		"sourceRepo": "gopherforge/go-playbook",
+		"sourcePath": "skills/go-concurrency-channels-select/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/gopherforge/go-playbook/main/skills/go-concurrency-channels-select/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "sqlcraft/sql-query-optimization",
+		"name": "sql-query-optimization",
+		"description": "Tune PostgreSQL queries with EXPLAIN ANALYZE, index-only scans, join order hints, and statistics updates for predictable latency.",
+		"adoptionCount": 501,
+		"sourceRepo": "sqlcraft/query-tuning",
+		"sourcePath": "skills/sql-query-optimization/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/sqlcraft/query-tuning/main/skills/sql-query-optimization/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "reactguild/hooks-patterns/skills/use-effect-memo",
+		"name": "react-hooks-performance",
+		"description": "Stabilize React renders using useMemo, useCallback, useRef, and dependency arrays without over-memoizing or hiding stale closure bugs.",
+		"adoptionCount": 38,
+		"sourceRepo": "reactguild/hooks-patterns",
+		"sourcePath": "skills/use-effect-memo/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/reactguild/hooks-patterns/main/skills/use-effect-memo/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "vueallies/vue-composables-patterns",
+		"name": "vue-composables-patterns",
+		"description": "Build reusable Vue 3 composables with ref, computed, watchEffect, and inject for shared state without polluting the global store.",
+		"adoptionCount": 124,
+		"sourceRepo": "vueallies/composition-kit",
+		"sourcePath": "skills/vue-composables-patterns/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/vueallies/composition-kit/main/skills/vue-composables-patterns/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "svelteworks/store-patterns/skills/writable-derived",
+		"name": "svelte-stores-writable-derived",
+		"description": "Compose Svelte stores with writable, derived, and custom stores for predictable reactive data flow in SvelteKit applications.",
+		"adoptionCount": 7,
+		"sourceRepo": "svelteworks/store-patterns",
+		"sourcePath": "skills/writable-derived/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/svelteworks/store-patterns/main/skills/writable-derived/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "cloudops-hub/docker-multi-stage-builds",
+		"name": "docker-multi-stage-builds",
+		"description": "Shrink container images with multi-stage Dockerfiles, distroless bases, layer caching, and non-root users for production Node and Go services.",
+		"adoptionCount": 633,
+		"sourceRepo": "cloudops-hub/container-recipes",
+		"sourcePath": "skills/docker-multi-stage-builds/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/cloudops-hub/container-recipes/main/skills/docker-multi-stage-builds/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "k8scraft/pod-design/skills/resource-limits-probes",
+		"name": "kubernetes-pods-resources-probes",
+		"description": "Define Kubernetes Deployments with requests, limits, liveness, readiness, and startup probes for stable rollouts under load.",
+		"adoptionCount": 44,
+		"sourceRepo": "k8scraft/pod-design",
+		"sourcePath": "skills/resource-limits-probes/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/k8scraft/pod-design/main/skills/resource-limits-probes/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "tfstack/terraform-modules-reuse",
+		"name": "terraform-modules-reuse",
+		"description": "Author Terraform modules with clear variables, outputs, remote state backends, and workspace patterns for AWS and GCP infrastructure.",
+		"adoptionCount": 198,
+		"sourceRepo": "tfstack/infra-modules",
+		"sourcePath": "skills/terraform-modules-reuse/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/tfstack/infra-modules/main/skills/terraform-modules-reuse/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "webstack/github-actions-ci-matrix",
+		"name": "github-actions-ci-matrix",
+		"description": "Configure GitHub Actions workflows with reusable workflows, caching, concurrency groups, and matrix builds across Node and Python versions.",
+		"adoptionCount": 367,
+		"sourceRepo": "webstack/ci-templates",
+		"sourcePath": "skills/github-actions-ci-matrix/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/webstack/ci-templates/main/skills/github-actions-ci-matrix/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "cloudops-hub/gitlab-ci-pipelines/skills/cache-artifacts",
+		"name": "gitlab-ci-cache-artifacts",
+		"description": "Speed GitLab CI pipelines with cache keys, artifacts between stages, parallel jobs, and protected branch rules for release automation.",
+		"adoptionCount": 12,
+		"sourceRepo": "cloudops-hub/gitlab-ci-pipelines",
+		"sourcePath": "skills/cache-artifacts/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/cloudops-hub/gitlab-ci-pipelines/main/skills/cache-artifacts/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "helmhq/helm-charts-best-practices",
+		"name": "helm-charts-best-practices",
+		"description": "Package Kubernetes apps with Helm charts, values layering, hooks, and semver releases while keeping secrets out of committed values files.",
+		"adoptionCount": 91,
+		"sourceRepo": "helmhq/chart-library",
+		"sourcePath": "skills/helm-charts-best-practices/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/helmhq/chart-library/main/skills/helm-charts-best-practices/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "nginxpro/reverse-proxy-recipes/skills/ssl-http2",
+		"name": "nginx-reverse-proxy-ssl",
+		"description": "Tune Nginx reverse proxies with TLS certificates, HTTP/2, gzip, upstream health checks, and rate limiting for public APIs.",
+		"adoptionCount": 215,
+		"sourceRepo": "nginxpro/reverse-proxy-recipes",
+		"sourcePath": "skills/ssl-http2/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/nginxpro/reverse-proxy-recipes/main/skills/ssl-http2/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "sysdunified/systemd-service-units",
+		"name": "systemd-service-units",
+		"description": "Ship Linux services with systemd unit files, journald logging, restart policies, and security hardening directives for long-running daemons.",
+		"adoptionCount": 56,
+		"sourceRepo": "sysdunified/linux-ops",
+		"sourcePath": "skills/systemd-service-units/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/sysdunified/linux-ops/main/skills/systemd-service-units/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "ai-patterns/prompt-engineering-structured",
+		"name": "prompt-engineering-structured",
+		"description": "Design LLM prompts with clear roles, few-shot examples, JSON schema outputs, and guardrails to reduce hallucinations in production chat flows.",
+		"adoptionCount": 892,
+		"sourceRepo": "ai-patterns/llm-guides",
+		"sourcePath": "skills/prompt-engineering-structured/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/ai-patterns/llm-guides/main/skills/prompt-engineering-structured/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "ragstudio/rag-pipeline-chunking",
+		"name": "rag-pipeline-chunking",
+		"description": "Build RAG systems with semantic chunking, metadata filters, hybrid BM25 plus vector search, and citation-friendly retrieval over PDFs.",
+		"adoptionCount": 334,
+		"sourceRepo": "ragstudio/rag-pipeline-chunking",
+		"sourcePath": "SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/ragstudio/rag-pipeline-chunking/main/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "mcpforge/server-sdk/skills/typescript-transport",
+		"name": "mcp-server-typescript-transport",
+		"description": "Implement MCP servers in TypeScript with stdio and SSE transports, tool schemas, and structured logging for IDE and agent integrations.",
+		"adoptionCount": 0,
+		"sourceRepo": "mcpforge/server-sdk",
+		"sourcePath": "skills/typescript-transport/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/mcpforge/server-sdk/main/skills/typescript-transport/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "agentloop/agent-tool-loops-retry",
+		"name": "agent-tool-loops-retry",
+		"description": "Orchestrate autonomous agents with tool calling loops, exponential backoff, idempotent actions, and human-in-the-loop escalation policies.",
+		"adoptionCount": 177,
+		"sourceRepo": "agentloop/orchestration",
+		"sourcePath": "skills/agent-tool-loops-retry/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/agentloop/orchestration/main/skills/agent-tool-loops-retry/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "embedvec/strategy-docs/skills/openai-ada-voyage",
+		"name": "embedding-strategies-openai-voyage",
+		"description": "Choose embedding models, normalization, batching, and dimensionality tradeoffs for OpenAI, Voyage, and open-source sentence transformers.",
+		"adoptionCount": 23,
+		"sourceRepo": "embedvec/strategy-docs",
+		"sourcePath": "skills/openai-ada-voyage/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/embedvec/strategy-docs/main/skills/openai-ada-voyage/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "finetuners/fine-tuning-data-prep",
+		"name": "fine-tuning-data-prep",
+		"description": "Prepare supervised fine-tuning datasets with deduplication, PII redaction, train-validation splits, and JSONL formats for LoRA workflows.",
+		"adoptionCount": 145,
+		"sourceRepo": "finetuners/dataset-tools",
+		"sourcePath": "skills/fine-tuning-data-prep/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/finetuners/dataset-tools/main/skills/fine-tuning-data-prep/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "nextwave/app-router-recipes/skills/ssr-streaming",
+		"name": "nextjs-app-router-ssr-streaming",
+		"description": "Ship Next.js App Router pages with React Server Components, streaming SSR, Suspense boundaries, and edge-friendly caching headers.",
+		"adoptionCount": 428,
+		"sourceRepo": "nextwave/app-router-recipes",
+		"sourcePath": "skills/ssr-streaming/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/nextwave/app-router-recipes/main/skills/ssr-streaming/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "a11yfirst/accessibility-audit-wcag",
+		"name": "accessibility-audit-wcag",
+		"description": "Run WCAG-focused accessibility audits with keyboard navigation, focus order, color contrast checks, and screen reader labels for complex widgets.",
+		"adoptionCount": 261,
+		"sourceRepo": "a11yfirst/audit-kit",
+		"sourcePath": "skills/accessibility-audit-wcag/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/a11yfirst/audit-kit/main/skills/accessibility-audit-wcag/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "cwvwatch/core-web-vitals-optimization",
+		"name": "core-web-vitals-optimization",
+		"description": "Improve LCP, INP, and CLS with image priority hints, font loading, layout shift fixes, and RUM dashboards in production.",
+		"adoptionCount": 319,
+		"sourceRepo": "cwvwatch/perf-playbook",
+		"sourcePath": "skills/core-web-vitals-optimization/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/cwvwatch/perf-playbook/main/skills/core-web-vitals-optimization/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "ratelimitpro/api-guards/skills/token-bucket-redis",
+		"name": "api-rate-limiting-redis",
+		"description": "Protect HTTP APIs with token bucket rate limits backed by Redis, per-user keys, and graceful 429 responses with Retry-After headers.",
+		"adoptionCount": 19,
+		"sourceRepo": "ratelimitpro/api-guards",
+		"sourcePath": "skills/token-bucket-redis/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/ratelimitpro/api-guards/main/skills/token-bucket-redis/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "wsrelay/websocket-patterns-reconnect",
+		"name": "websocket-patterns-reconnect",
+		"description": "Design resilient WebSocket clients with heartbeat pings, exponential reconnect, backpressure handling, and auth token refresh over wss.",
+		"adoptionCount": 88,
+		"sourceRepo": "wsrelay/realtime-kit",
+		"sourcePath": "skills/websocket-patterns-reconnect/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/wsrelay/realtime-kit/main/skills/websocket-patterns-reconnect/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "pgperf/postgresql-indexing-strategies",
+		"name": "postgresql-indexing-strategies",
+		"description": "Choose B-tree, GiST, GIN, and partial indexes in PostgreSQL with covering indexes and concurrent CREATE INDEX for zero-downtime schema work.",
+		"adoptionCount": 402,
+		"sourceRepo": "pgperf/index-guides",
+		"sourcePath": "skills/postgresql-indexing-strategies/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/pgperf/index-guides/main/skills/postgresql-indexing-strategies/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "redislab/cache-patterns/skills/session-stampede",
+		"name": "redis-caching-session-stampede",
+		"description": "Implement Redis caching with TTL jitter, single-flight stampede protection, and cache-aside patterns for hot read-heavy microservices.",
+		"adoptionCount": 134,
+		"sourceRepo": "redislab/cache-patterns",
+		"sourcePath": "skills/session-stampede/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/redislab/cache-patterns/main/skills/session-stampede/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "dataforge/database-migrations-safe",
+		"name": "database-migrations-safe",
+		"description": "Ship zero-downtime database migrations using expand-contract patterns, backfills, feature flags, and rollback plans for PostgreSQL tables.",
+		"adoptionCount": 246,
+		"sourceRepo": "dataforge/migration-kit",
+		"sourcePath": "skills/database-migrations-safe/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/dataforge/migration-kit/main/skills/database-migrations-safe/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "etlstream/pipelines/skills/airflow-dbt",
+		"name": "etl-pipelines-airflow-dbt",
+		"description": "Orchestrate ETL with Apache Airflow DAGs, dbt models, incremental loads, and data quality tests across warehouses like Snowflake and BigQuery.",
+		"adoptionCount": 3,
+		"sourceRepo": "etlstream/pipelines",
+		"sourcePath": "skills/airflow-dbt/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/etlstream/pipelines/main/skills/airflow-dbt/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "timescaletips/time-series-queries",
+		"name": "time-series-queries",
+		"description": "Write efficient time-series SQL with window functions, downsampling, retention policies, and TimescaleDB hypertables for metrics dashboards.",
+		"adoptionCount": 71,
+		"sourceRepo": "timescaletips/ts-sql",
+		"sourcePath": "skills/time-series-queries/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/timescaletips/ts-sql/main/skills/time-series-queries/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "securityfirst/jwt-hardening/skills/rotation-claims",
+		"name": "jwt-authentication-rotation",
+		"description": "Harden JWT authentication with short-lived access tokens, refresh rotation, audience and issuer claims, and asymmetric signing keys.",
+		"adoptionCount": 512,
+		"sourceRepo": "securityfirst/jwt-hardening",
+		"sourcePath": "skills/rotation-claims/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/securityfirst/jwt-hardening/main/skills/rotation-claims/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "vaultops/secrets-management-vault",
+		"name": "secrets-management-vault",
+		"description": "Centralize secrets with HashiCorp Vault KV engines, dynamic database credentials, lease renewal, and Kubernetes auth for pod identities.",
+		"adoptionCount": 188,
+		"sourceRepo": "vaultops/secrets-runbook",
+		"sourcePath": "skills/secrets-management-vault/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/vaultops/secrets-runbook/main/skills/secrets-management-vault/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "owaspkit/web-checklist/skills/top-10-mitigations",
+		"name": "owasp-top-10-mitigations",
+		"description": "Map OWASP Top 10 risks to concrete mitigations covering injection, broken access control, SSRF, and insecure deserialization in APIs.",
+		"adoptionCount": 295,
+		"sourceRepo": "owaspkit/web-checklist",
+		"sourcePath": "skills/top-10-mitigations/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/owaspkit/web-checklist/main/skills/top-10-mitigations/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "cspstrict/content-security-policy-headers",
+		"name": "content-security-policy-headers",
+		"description": "Deploy strict Content-Security-Policy headers with nonces, trusted types, and report-only mode to block XSS while preserving third-party scripts.",
+		"adoptionCount": 62,
+		"sourceRepo": "cspstrict/browser-hardening",
+		"sourcePath": "skills/content-security-policy-headers/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/cspstrict/browser-hardening/main/skills/content-security-policy-headers/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "auditbot/supply-chain/skills/npm-pnpm-audit",
+		"name": "dependency-auditing-ci",
+		"description": "Automate dependency auditing with npm audit, pnpm overrides, SBOM exports, and CI gates that block known critical CVEs before deploy.",
+		"adoptionCount": 0,
+		"sourceRepo": "auditbot/supply-chain",
+		"sourcePath": "skills/npm-pnpm-audit/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/auditbot/supply-chain/main/skills/npm-pnpm-audit/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "reviewflow/code-review-checklist",
+		"name": "code-review-checklist",
+		"description": "Run thorough pull request reviews covering correctness, tests, security, performance, and documentation with constructive feedback templates.",
+		"adoptionCount": 441,
+		"sourceRepo": "reviewflow/team-practices",
+		"sourcePath": "skills/code-review-checklist/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/reviewflow/team-practices/main/skills/code-review-checklist/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "incidenos/incident-response-runbook",
+		"name": "incident-response-runbook",
+		"description": "Coordinate production incidents with severity tiers, communication channels, rollback steps, and blameless postmortems tied to action items.",
+		"adoptionCount": 203,
+		"sourceRepo": "incidenos/reliability",
+		"sourcePath": "skills/incident-response-runbook/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/incidenos/reliability/main/skills/incident-response-runbook/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "adrchive/architecture-decision-records",
+		"name": "architecture-decision-records",
+		"description": "Capture architecture decision records in Markdown with context, decision, consequences, and status for traceable design evolution across teams.",
+		"adoptionCount": 118,
+		"sourceRepo": "adrchive/design-notes",
+		"sourcePath": "skills/architecture-decision-records/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/adrchive/design-notes/main/skills/architecture-decision-records/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "paircoder/collab-guides/skills/driver-navigator",
+		"name": "pair-programming-driver-navigator",
+		"description": "Facilitate effective pair programming with clear driver and navigator roles, timeboxed rotations, and mob programming variants for knowledge spread.",
+		"adoptionCount": 31,
+		"sourceRepo": "paircoder/collab-guides",
+		"sourcePath": "skills/driver-navigator/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/paircoder/collab-guides/main/skills/driver-navigator/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "testpilot/property-based-testing-fastcheck",
+		"name": "property-based-testing-fastcheck",
+		"description": "Write property-based tests in TypeScript with fast-check generators, shrinking failures, and model-based testing for stateful UI components.",
+		"adoptionCount": 97,
+		"sourceRepo": "testpilot/property-suite",
+		"sourcePath": "skills/property-based-testing-fastcheck/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/testpilot/property-suite/main/skills/property-based-testing-fastcheck/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "playwrightguild/e2e-recipes/skills/fixtures-tracing",
+		"name": "e2e-testing-playwright",
+		"description": "Build reliable Playwright end-to-end suites with fixtures, trace viewers, network mocking, and flaky test quarantine strategies in CI.",
+		"adoptionCount": 376,
+		"sourceRepo": "playwrightguild/e2e-recipes",
+		"sourcePath": "skills/fixtures-tracing/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/playwrightguild/e2e-recipes/main/skills/fixtures-tracing/SKILL.md"
+	},
+	{
+		"source": "agentskillhub",
+		"slug": "k6storm/load-testing-k6-thresholds",
+		"name": "load-testing-k6-thresholds",
+		"description": "Design k6 load tests with ramping scenarios, percentile thresholds, distributed execution, and correlation with metrics and tracing backends.",
+		"adoptionCount": 154,
+		"sourceRepo": "k6storm/perf-lab",
+		"sourcePath": "skills/load-testing-k6-thresholds/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/k6storm/perf-lab/main/skills/load-testing-k6-thresholds/SKILL.md"
+	},
+	{
+		"source": "github",
+		"slug": "snapshottest/ui-snapshots/skills/jest-vitest",
+		"name": "snapshot-testing-jest-vitest",
+		"description": "Maintain Jest and Vitest snapshot tests for React components with deterministic serializers, reviewable diffs, and intentional update workflows.",
+		"adoptionCount": 9,
+		"sourceRepo": "snapshottest/ui-snapshots",
+		"sourcePath": "skills/jest-vitest/SKILL.md",
+		"fetchUrl": "https://raw.githubusercontent.com/snapshottest/ui-snapshots/main/skills/jest-vitest/SKILL.md"
 	}
 ]
