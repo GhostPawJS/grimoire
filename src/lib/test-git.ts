@@ -34,6 +34,8 @@ export function createTestGitRoot(layout?: TestRootLayout): {
 	mkdirSync(root, { recursive: true });
 
 	execSync(`git init --bare "${gitDir}"`, { encoding: 'utf-8' });
+	execSync(`git config -f "${gitDir}/config" user.name "Test"`, { encoding: 'utf-8' });
+	execSync(`git config -f "${gitDir}/config" user.email "test@test.com"`, { encoding: 'utf-8' });
 
 	if (layout?.chapters) {
 		for (const chapter of layout.chapters) {
