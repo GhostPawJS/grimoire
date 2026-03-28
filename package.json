@@ -1,7 +1,7 @@
 {
 	"name": "@ghostpaw/grimoire",
 	"version": "0.2.0",
-	"description": "Skill and capability model for Node.js — SQLite, zero dependencies, with a built-in LLM tool facade",
+	"description": "Procedural knowledge management for Node.js — Git, SQLite, zero dependencies, with a built-in LLM tool facade",
 	"type": "module",
 	"exports": {
 		".": {
@@ -49,11 +49,17 @@
 		"access": "public"
 	},
 	"keywords": [
-		"skill",
-		"capability",
 		"grimoire",
+		"knowledge-management",
+		"knowledge-base",
 		"procedure",
-		"proficiency",
+		"procedures",
+		"runbook",
+		"playbook",
+		"skill",
+		"skills",
+		"workflow",
+		"git",
 		"sqlite",
 		"local-first",
 		"llm",
