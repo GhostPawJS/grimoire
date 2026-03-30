@@ -1,17 +1,18 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { allRanks } from '../git/all_ranks.ts';
 import { isGitAvailable } from '../git/is_git_available.ts';
 import { tier } from '../git/tier.ts';
+import { resolveGitDir } from '../lib/exec_git.ts';
 import { parseSkillMd } from '../spec/parse_skill_md.ts';
 import { discoverSpells } from '../spells/discover_spells.ts';
 import type { IndexEntry, IndexOptions } from './types.ts';
 
 export function buildIndex(root: string, options?: IndexOptions): IndexEntry[] {
 	const spells = discoverSpells(root);
-	const gitDir = resolve(root, '..', '.grimoire-git');
+	const gitDir = resolveGitDir(root, options?.gitDir);
 	const gitContext = isGitAvailable() && existsSync(gitDir);
-	const ranks = gitContext ? allRanks({ root }) : {};
+	const ranks = gitContext ? allRanks({ root, gitDir }) : {};
 
 	const entries: IndexEntry[] = [];
 

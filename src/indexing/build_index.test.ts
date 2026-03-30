@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
+import { createTestGitRoot } from '../lib/test-git.ts';
 import { createTestRoot } from '../lib/test-root.ts';
 import { buildIndex } from './build_index.ts';
 
@@ -89,5 +90,44 @@ describe('buildIndex', () => {
 		const entries = buildIndex(root);
 		const names = entries.map((e) => e.name);
 		assert.ok(!names.includes('broken-spell'));
+	});
+});
+
+describe('buildIndex with explicit gitDir', () => {
+	it('reads ranks from a custom gitDir location', () => {
+		const {
+			root: gitRoot,
+			gitDir,
+			seal,
+			cleanup,
+		} = createTestGitRoot({
+			chapters: [
+				{
+					name: 'core',
+					spells: [{ name: 'lumos' }, { name: 'nox' }],
+				},
+			],
+		});
+		try {
+			seal(['core/lumos/SKILL.md'], 'first seal');
+			// Write a new version so git records a real change in the second commit
+			writeFileSync(
+				join(gitRoot, 'core', 'lumos', 'SKILL.md'),
+				'---\nname: lumos\ndescription: Updated\n---\n\n# lumos v2\n',
+			);
+			seal(['core/lumos/SKILL.md'], 'second seal');
+
+			const entries = buildIndex(gitRoot, { gitDir });
+			const lumos = entries.find((e) => e.name === 'lumos');
+			const nox = entries.find((e) => e.name === 'nox');
+
+			assert.ok(lumos, 'lumos should be in the index');
+			assert.equal(lumos.rank, 2);
+
+			// nox has rank 0 and git context is active, so it is filtered out
+			assert.equal(nox, undefined);
+		} finally {
+			cleanup();
+		}
 	});
 });

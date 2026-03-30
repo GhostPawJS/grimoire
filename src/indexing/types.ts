@@ -11,4 +11,5 @@ export type IndexEntry = {
 
 export type IndexOptions = {
 	chapters?: string[];
+	gitDir?: string;
 };
