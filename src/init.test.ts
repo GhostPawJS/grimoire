@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
+import { execSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, describe, it } from 'node:test';
 import { DEFAULTS } from './defaults.ts';
+import { isGitAvailable } from './git/is_git_available.ts';
 import { init } from './init.ts';
+import { resolveGitDir } from './lib/exec_git.ts';
 import { openTestDatabase } from './lib/open-test-database.ts';
 import { createTestRoot } from './lib/test-root.ts';
 
@@ -62,5 +65,23 @@ describe('init', () => {
 		const subRoot = join(root, 'grimoire');
 		init(subRoot);
 		assert.doesNotThrow(() => init(subRoot));
+	});
+
+	it('seeds an initial commit so git log exits cleanly on a fresh repo', () => {
+		if (!isGitAvailable()) return;
+
+		const { root, cleanup: c } = createTestRoot();
+		cleanup = c;
+
+		const subRoot = join(root, 'grimoire');
+		const gitDir = resolveGitDir(subRoot);
+		init(subRoot);
+
+		assert.doesNotThrow(() => {
+			execSync(`git --work-tree="${subRoot}" --git-dir="${gitDir}" log --oneline`, {
+				encoding: 'utf-8',
+				stdio: 'pipe',
+			});
+		}, 'git log should exit 0 — repo must not be in "no commits yet" state');
 	});
 });
