@@ -24,7 +24,9 @@ export function createTestRoot(layout?: TestRootLayout): {
 	root: string;
 	cleanup: () => void;
 } {
-	const root = mkdtempSync(join(tmpdir(), 'grimoire-test-root-'));
+	const base = mkdtempSync(join(tmpdir(), 'grimoire-test-root-'));
+	const root = join(base, 'root');
+	mkdirSync(root);
 
 	if (layout?.chapters) {
 		for (const chapter of layout.chapters) {
@@ -38,6 +40,6 @@ export function createTestRoot(layout?: TestRootLayout): {
 
 	return {
 		root,
-		cleanup: () => rmSync(root, { recursive: true, force: true }),
+		cleanup: () => rmSync(base, { recursive: true, force: true }),
 	};
 }
