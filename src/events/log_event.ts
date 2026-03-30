@@ -4,8 +4,9 @@ import type { LogEventInput } from './types.ts';
 
 export function logEvent(db: GrimoireDb, input: LogEventInput): { id: number } {
 	const ts = resolveNow(input.now);
+	const contextId = input.contextId != null ? String(input.contextId) : null;
 	const result = db
 		.prepare('INSERT INTO spell_events (spell, event, context_id, ts) VALUES (?, ?, ?, ?)')
-		.run(input.spell, input.event, input.contextId ?? null, ts);
+		.run(input.spell, input.event, contextId, ts);
 	return { id: Number(result.lastInsertRowid) };
 }

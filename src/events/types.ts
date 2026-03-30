@@ -27,7 +27,7 @@ export interface SpellEvent {
 export interface LogEventInput {
 	spell: string;
 	event: SpellEventType;
-	contextId?: string;
+	contextId?: string | number;
 	now?: number;
 }
 

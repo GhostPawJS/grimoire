@@ -43,7 +43,7 @@ describe('logEvent', () => {
 		db.close();
 	});
 
-	it('works with contextId', () => {
+	it('works with string contextId', () => {
 		const db = createTestDb();
 		const { id } = logEvent(db, { spell: 'y', event: 'hone', contextId: 'z', now: 4 });
 		const row = db
@@ -51,6 +51,17 @@ describe('logEvent', () => {
 			.get<{ context_id: string | null }>(id);
 		assert.ok(row);
 		assert.equal(row.context_id, 'z');
+		db.close();
+	});
+
+	it('coerces numeric contextId to string', () => {
+		const db = createTestDb();
+		const { id } = logEvent(db, { spell: 'n', event: 'read', contextId: 42, now: 5 });
+		const row = db
+			.prepare('SELECT context_id FROM spell_events WHERE id = ?')
+			.get<{ context_id: string | null }>(id);
+		assert.ok(row);
+		assert.equal(row.context_id, '42');
 		db.close();
 	});
 });

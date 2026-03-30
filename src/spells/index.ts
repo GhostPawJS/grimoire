@@ -5,6 +5,7 @@ export { inscribe } from './inscribe.ts';
 export { listChapters } from './list_chapters.ts';
 export { listSpells } from './list_spells.ts';
 export { moveSpell } from './move_spell.ts';
+export type { RenderContentOptions } from './render_content.ts';
 export { renderContent } from './render_content.ts';
 export { repair } from './repair.ts';
 export { repairAll } from './repair_all.ts';

@@ -23,7 +23,16 @@ function extractCompiledSummary(body: string): string | undefined {
 	return section.trim() || undefined;
 }
 
-export function renderContent(root: string, path: string, db?: GrimoireDb): RenderedContent {
+export interface RenderContentOptions {
+	contextId?: string | number;
+}
+
+export function renderContent(
+	root: string,
+	path: string,
+	db?: GrimoireDb,
+	options?: RenderContentOptions,
+): RenderedContent {
 	assertSpellExists(root, path);
 
 	const skillMdPath = join(root, path, 'SKILL.md');
@@ -41,7 +50,11 @@ export function renderContent(root: string, path: string, db?: GrimoireDb): Rend
 	const spellTier = tier(rank);
 
 	if (db) {
-		logEvent(db, { spell: path, event: 'read' });
+		logEvent(db, {
+			spell: path,
+			event: 'read',
+			...(options?.contextId !== undefined ? { contextId: options.contextId } : {}),
+		});
 	}
 
 	const result: RenderedContent = {

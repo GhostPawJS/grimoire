@@ -95,9 +95,46 @@ describe('renderContent', () => {
 			renderContent(root, 'general/test', db);
 			const row = db
 				.prepare('SELECT * FROM spell_events WHERE spell = ? AND event = ?')
-				.get<{ spell: string; event: string }>('general/test', 'read');
+				.get<{ spell: string; event: string; context_id: string | null }>('general/test', 'read');
 			assert.ok(row);
 			assert.equal(row.event, 'read');
+			assert.equal(row.context_id, null);
+		} finally {
+			db.close();
+			cleanup();
+		}
+	});
+
+	it('stores contextId in the read event when provided', () => {
+		const { root, cleanup } = createTestRoot({
+			chapters: [{ name: 'general', spells: [{ name: 'test', content: baseContent }] }],
+		});
+		const db = createTestDb();
+		try {
+			renderContent(root, 'general/test', db, { contextId: 'session-abc' });
+			const row = db
+				.prepare('SELECT context_id FROM spell_events WHERE spell = ? AND event = ?')
+				.get<{ context_id: string | null }>('general/test', 'read');
+			assert.ok(row);
+			assert.equal(row.context_id, 'session-abc');
+		} finally {
+			db.close();
+			cleanup();
+		}
+	});
+
+	it('stores numeric contextId as string in the read event', () => {
+		const { root, cleanup } = createTestRoot({
+			chapters: [{ name: 'general', spells: [{ name: 'test', content: baseContent }] }],
+		});
+		const db = createTestDb();
+		try {
+			renderContent(root, 'general/test', db, { contextId: 99 });
+			const row = db
+				.prepare('SELECT context_id FROM spell_events WHERE spell = ? AND event = ?')
+				.get<{ context_id: string | null }>('general/test', 'read');
+			assert.ok(row);
+			assert.equal(row.context_id, '99');
 		} finally {
 			db.close();
 			cleanup();
