@@ -15,5 +15,6 @@ export function execGit(ctx: GitContext, args: string): string {
 	return execSync(`git --work-tree="${ctx.root}" --git-dir="${dir}" ${args}`, {
 		encoding: 'utf-8',
 		timeout: 10_000,
+		stdio: 'pipe',
 	}).trim();
 }

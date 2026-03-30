@@ -12,6 +12,7 @@ function statusPorcelain(ctx: GitContext): string {
 	return execSync(`git --work-tree="${ctx.root}" --git-dir="${dir}" status --porcelain -uall`, {
 		encoding: 'utf-8',
 		timeout: 10_000,
+		stdio: 'pipe',
 	}).trimEnd();
 }
 
