@@ -54,6 +54,7 @@ export type InscribeInput = {
 	chapter?: string;
 	content: string;
 	now?: number;
+	gitDir?: string;
 };
 
 export type InscribeResult = {

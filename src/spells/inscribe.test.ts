@@ -3,6 +3,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { GrimoireValidationError } from '../errors.ts';
+import { allRanks } from '../git/all_ranks.ts';
+import { createTestGitRoot } from '../lib/test-git.ts';
 import { createTestRoot } from '../lib/test-root.ts';
 import { inscribe } from './inscribe.ts';
 
@@ -80,6 +82,17 @@ describe('inscribe', () => {
 				() => inscribe(root, undefined, { name: 'bad', content: 'no frontmatter here' }),
 				GrimoireValidationError,
 			);
+		} finally {
+			cleanup();
+		}
+	});
+
+	it('seals into a custom gitDir when provided', () => {
+		const { root, gitDir, cleanup } = createTestGitRoot();
+		try {
+			inscribe(root, undefined, { name: 'my-spell', content: validContent, gitDir });
+			const ranks = allRanks({ root, gitDir });
+			assert.equal(ranks['general/my-spell'], 1);
 		} finally {
 			cleanup();
 		}

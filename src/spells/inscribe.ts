@@ -39,7 +39,12 @@ export function inscribe(
 	const warnings = detectDuplicates(root, path, parsed.frontmatter.description);
 
 	if (isGitAvailable()) {
-		seal({ root }, db, [path], `inscribe ${path}`);
+		seal(
+			{ root, ...(input.gitDir !== undefined ? { gitDir: input.gitDir } : {}) },
+			db,
+			[path],
+			`inscribe ${path}`,
+		);
 	}
 
 	const perform = (): InscribeResult => {
