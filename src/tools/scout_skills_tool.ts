@@ -4,13 +4,7 @@ import { checkUpdates } from '../scouting/check_updates.ts';
 import { scout } from '../scouting/scout.ts';
 import { translateToolError } from './tool_errors.ts';
 import type { GrimoireToolContext } from './tool_metadata.ts';
-import {
-	defineGrimoireTool,
-	literalSchema,
-	objectSchema,
-	oneOfSchema,
-	stringSchema,
-} from './tool_metadata.ts';
+import { defineGrimoireTool, enumSchema, objectSchema, stringSchema } from './tool_metadata.ts';
 import { scoutSkillsToolName } from './tool_names.ts';
 import { inspectSpellNext, useToolNext } from './tool_next.ts';
 import { toSpellPathRef, toSpellRef } from './tool_ref.ts';
@@ -44,38 +38,19 @@ export const scoutSkillsTool = defineGrimoireTool<ScoutInput, ToolResult<Record<
 	},
 	outputDescription:
 		'Action-specific result: adopted spells, search results, update checks, or apply result.',
-	inputSchema: oneOfSchema(
-		[
-			objectSchema(
-				{
-					action: literalSchema('adopt'),
-					source: stringSchema('Source URL or identifier'),
-					chapter: stringSchema('Chapter for adopted spells'),
-				},
-				['action', 'source'],
+	inputSchema: objectSchema(
+		{
+			action: enumSchema(
+				'Scout action to perform: adopt (import from source), search (find skills), check_updates, or apply_update.',
+				['adopt', 'search', 'check_updates', 'apply_update'],
 			),
-			objectSchema(
-				{
-					action: literalSchema('search'),
-					query: stringSchema('Search query'),
-				},
-				['action', 'query'],
-			),
-			objectSchema(
-				{
-					action: literalSchema('check_updates'),
-				},
-				['action'],
-			),
-			objectSchema(
-				{
-					action: literalSchema('apply_update'),
-					path: stringSchema('Spell path'),
-				},
-				['action', 'path'],
-			),
-		],
-		'Scout action.',
+			source: stringSchema('Source URL or identifier — required for adopt.'),
+			chapter: stringSchema('Chapter for adopted spells — optional for adopt.'),
+			query: stringSchema('Search query — required for search.'),
+			path: stringSchema('Spell path — required for apply_update.'),
+		},
+		['action'],
+		'Scout, search, adopt, and update spells from external sources.',
 	),
 	async handler(ctx: GrimoireToolContext, input: ScoutInput) {
 		try {

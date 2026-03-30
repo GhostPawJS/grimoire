@@ -30,7 +30,15 @@ describe('manageSpellTool', () => {
 		assert.equal(manageSpellTool.readOnly, false);
 		assert.equal(manageSpellTool.sideEffects, 'writes_state');
 		assert.deepEqual(manageSpellTool.targetKinds, ['spell']);
-		assert.ok(manageSpellTool.inputSchema.oneOf);
+		assert.deepEqual(manageSpellTool.inputSchema.properties?.action?.enum, [
+			'shelve',
+			'unshelve',
+			'move',
+			'delete',
+			'repair',
+			'repair_all',
+			'rollback',
+		]);
 	});
 
 	it('deletes a spell', async () => {

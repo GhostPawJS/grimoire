@@ -24,8 +24,13 @@ describe('scoutSkillsTool metadata', () => {
 		assert.deepEqual(scoutSkillsTool.targetKinds, ['spell', 'provenance']);
 	});
 
-	it('has a oneOf input schema with four variants', () => {
-		assert.equal(scoutSkillsTool.inputSchema.oneOf?.length, 4);
+	it('has a flat input schema with four action variants', () => {
+		assert.deepEqual(scoutSkillsTool.inputSchema.properties?.action?.enum, [
+			'adopt',
+			'search',
+			'check_updates',
+			'apply_update',
+		]);
 	});
 });
 

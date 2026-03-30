@@ -6,13 +6,7 @@ import { repairAll } from '../spells/repair_all.ts';
 import { shelve } from '../spells/shelve.ts';
 import { unshelve } from '../spells/unshelve.ts';
 import { translateToolError } from './tool_errors.ts';
-import {
-	defineGrimoireTool,
-	literalSchema,
-	objectSchema,
-	oneOfSchema,
-	stringSchema,
-} from './tool_metadata.ts';
+import { defineGrimoireTool, enumSchema, objectSchema, stringSchema } from './tool_metadata.ts';
 import { manageSpellToolName } from './tool_names.ts';
 import { inspectSpellNext, reviewViewNext, searchNext } from './tool_next.ts';
 import { toSpellPathRef } from './tool_ref.ts';
@@ -50,46 +44,20 @@ export const manageSpellTool = defineGrimoireTool<ManageInput, ToolResult<Record
 			ref: 'Git commit hash to rollback to (rollback only). Use inspect_grimoire_item to find seal hashes from history.',
 		},
 		outputDescription: 'Action-specific result with the affected spell path(s).',
-		inputSchema: oneOfSchema(
-			[
-				objectSchema({ action: literalSchema('shelve'), path: stringSchema('Spell path') }, [
-					'action',
-					'path',
-				]),
-				objectSchema(
-					{
-						action: literalSchema('unshelve'),
-						path: stringSchema('Shelved spell path'),
-					},
-					['action', 'path'],
+		inputSchema: objectSchema(
+			{
+				action: enumSchema(
+					'The management action to perform: shelve, unshelve, move, delete, repair, repair_all, or rollback.',
+					['shelve', 'unshelve', 'move', 'delete', 'repair', 'repair_all', 'rollback'],
 				),
-				objectSchema(
-					{
-						action: literalSchema('move'),
-						path: stringSchema('Current path'),
-						target: stringSchema('Target path'),
-					},
-					['action', 'path', 'target'],
+				path: stringSchema('Spell path — required for all actions except repair_all.'),
+				target: stringSchema('Target path — required for move.'),
+				ref: stringSchema(
+					'Git commit hash to revert to — required for rollback. Use inspect_grimoire_item to find seal hashes from history.',
 				),
-				objectSchema({ action: literalSchema('delete'), path: stringSchema('Spell path') }, [
-					'action',
-					'path',
-				]),
-				objectSchema({ action: literalSchema('repair'), path: stringSchema('Spell path') }, [
-					'action',
-					'path',
-				]),
-				objectSchema({ action: literalSchema('repair_all') }, ['action']),
-				objectSchema(
-					{
-						action: literalSchema('rollback'),
-						path: stringSchema('Spell path'),
-						ref: stringSchema('Git commit hash to revert to'),
-					},
-					['action', 'path', 'ref'],
-				),
-			],
-			'One of the 7 management actions.',
+			},
+			['action'],
+			'Manage a spell. Use action to select the operation.',
 		),
 		handler(ctx, input) {
 			try {

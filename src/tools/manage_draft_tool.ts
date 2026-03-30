@@ -5,10 +5,9 @@ import { translateToolError } from './tool_errors.ts';
 import {
 	arraySchema,
 	defineGrimoireTool,
+	enumSchema,
 	integerSchema,
-	literalSchema,
 	objectSchema,
-	oneOfSchema,
 	stringSchema,
 } from './tool_metadata.ts';
 import { inscribeSpellToolName, manageDraftToolName } from './tool_names.ts';
@@ -43,34 +42,24 @@ export const manageDraftTool = defineGrimoireTool<
 		draftId: 'ID of the draft (approve/dismiss only).',
 	},
 	outputDescription: 'The result of the draft action.',
-	inputSchema: oneOfSchema(
-		[
-			objectSchema(
-				{
-					action: literalSchema('submit'),
-					title: stringSchema('Draft title'),
-					rationale: stringSchema('Rationale'),
-					noteIds: arraySchema(integerSchema('Note ID'), 'Note IDs'),
-					chapter: stringSchema('Chapter'),
-				},
-				['action', 'title', 'rationale', 'noteIds', 'chapter'],
+	inputSchema: objectSchema(
+		{
+			action: enumSchema('Draft action to perform: submit, approve, or dismiss.', [
+				'submit',
+				'approve',
+				'dismiss',
+			]),
+			title: stringSchema('Draft title — required for submit.'),
+			rationale: stringSchema('Why this draft should become a spell — required for submit.'),
+			noteIds: arraySchema(
+				integerSchema('Note ID'),
+				'Note IDs backing this draft — required for submit.',
 			),
-			objectSchema(
-				{
-					action: literalSchema('approve'),
-					draftId: integerSchema('Draft ID'),
-				},
-				['action', 'draftId'],
-			),
-			objectSchema(
-				{
-					action: literalSchema('dismiss'),
-					draftId: integerSchema('Draft ID'),
-				},
-				['action', 'draftId'],
-			),
-		],
-		'Draft management action.',
+			chapter: stringSchema('Chapter for the potential spell — required for submit.'),
+			draftId: integerSchema('Draft ID — required for approve and dismiss.'),
+		},
+		['action'],
+		'Manage draft spells: submit, approve, or dismiss.',
 	),
 	handler(ctx, input) {
 		if (!ctx.db) {
