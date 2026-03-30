@@ -61,7 +61,12 @@ export function adoptSpell(
 	}
 
 	if (isGitAvailable()) {
-		seal({ root }, db, [spellPath], `adopt ${spellPath}`);
+		seal(
+			{ root, ...(options?.gitDir !== undefined ? { gitDir: options.gitDir } : {}) },
+			db,
+			[spellPath],
+			`adopt ${spellPath}`,
+		);
 	}
 
 	const perform = (): AdoptSpellResult => {
@@ -73,7 +78,11 @@ export function adoptSpell(
 				...(options.now !== undefined ? { now: options.now } : {}),
 			});
 			const prov = getProvenance(db, spellPath);
-			return { spell: getSpell(root, spellPath), warnings, ...(prov ? { provenance: prov } : {}) };
+			return {
+				spell: getSpell(root, spellPath, undefined, options?.gitDir),
+				warnings,
+				...(prov ? { provenance: prov } : {}),
+			};
 		}
 
 		if (db) {
@@ -84,7 +93,7 @@ export function adoptSpell(
 			});
 		}
 
-		return { spell: getSpell(root, spellPath), warnings };
+		return { spell: getSpell(root, spellPath, undefined, options?.gitDir), warnings };
 	};
 
 	return db ? withTransaction(db, perform) : perform();

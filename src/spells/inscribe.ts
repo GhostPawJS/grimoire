@@ -55,7 +55,7 @@ export function inscribe(
 				...(input.now !== undefined ? { now: input.now } : {}),
 			});
 		}
-		const spell = getSpell(root, path);
+		const spell = getSpell(root, path, undefined, input.gitDir);
 		return { spell, warnings };
 	};
 

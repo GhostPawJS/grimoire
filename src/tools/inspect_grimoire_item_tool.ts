@@ -51,7 +51,7 @@ export const inspectGrimoireItemTool = defineGrimoireTool<InspectInput, ToolResu
 	),
 	handler(ctx, input) {
 		try {
-			const spell = getSpell(ctx.root, input.path, ctx.db);
+			const spell = getSpell(ctx.root, input.path, ctx.db, ctx.gitDir);
 			const ti = tierInfo(spell.rank);
 			const validationResult = validate(ctx.root, input.path);
 

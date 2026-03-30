@@ -34,6 +34,7 @@ export type AdoptSpellOptions = {
 	chapter?: string;
 	provenance?: ProvenanceInput;
 	now?: number;
+	gitDir?: string;
 };
 
 export type AdoptSpellResult = {

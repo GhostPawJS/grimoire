@@ -12,7 +12,7 @@ import { assertSpellExists } from './assert_spell_exists.ts';
 import { scanSpellDir } from './scan_spell_dir.ts';
 import type { Spell } from './types.ts';
 
-export function getSpell(root: string, path: string, db?: GrimoireDb): Spell {
+export function getSpell(root: string, path: string, db?: GrimoireDb, gitDir?: string): Spell {
 	assertSpellExists(root, path);
 
 	const sep = path.indexOf('/');
@@ -29,7 +29,9 @@ export function getSpell(root: string, path: string, db?: GrimoireDb): Spell {
 		);
 	}
 
-	const ranks = isGitAvailable() ? allRanks({ root }) : {};
+	const ranks = isGitAvailable()
+		? allRanks({ root, ...(gitDir !== undefined ? { gitDir } : {}) })
+		: {};
 	const rank = ranks[path] ?? 0;
 
 	if (db) {

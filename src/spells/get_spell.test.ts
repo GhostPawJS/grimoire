@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { GrimoireNotFoundError } from '../errors.ts';
 import { createTestDb } from '../lib/test-db.ts';
+import { createTestGitRoot } from '../lib/test-git.ts';
 import { createTestRoot } from '../lib/test-root.ts';
 import { getSpell } from './get_spell.ts';
 
@@ -49,6 +50,20 @@ describe('getSpell', () => {
 		const { root, cleanup } = createTestRoot();
 		try {
 			assert.throws(() => getSpell(root, 'general/nonexistent'), GrimoireNotFoundError);
+		} finally {
+			cleanup();
+		}
+	});
+
+	it('reads rank from a custom gitDir when provided', () => {
+		const { root, gitDir, seal, cleanup } = createTestGitRoot({
+			chapters: [{ name: 'general', spells: [{ name: 'writing' }] }],
+		});
+		try {
+			seal(['general/writing/SKILL.md'], 'first seal');
+			const spell = getSpell(root, 'general/writing', undefined, gitDir);
+			assert.equal(spell.rank, 1);
+			assert.equal(spell.tier, 'Apprentice');
 		} finally {
 			cleanup();
 		}

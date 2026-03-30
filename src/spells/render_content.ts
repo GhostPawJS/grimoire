@@ -25,6 +25,7 @@ function extractCompiledSummary(body: string): string | undefined {
 
 export interface RenderContentOptions {
 	contextId?: string | number;
+	gitDir?: string;
 }
 
 export function renderContent(
@@ -45,7 +46,9 @@ export function renderContent(
 		);
 	}
 
-	const ranks = isGitAvailable() ? allRanks({ root }) : {};
+	const ranks = isGitAvailable()
+		? allRanks({ root, ...(options?.gitDir !== undefined ? { gitDir: options.gitDir } : {}) })
+		: {};
 	const rank = ranks[path] ?? 0;
 	const spellTier = tier(rank);
 
