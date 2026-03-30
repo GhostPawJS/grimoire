@@ -1,6 +1,6 @@
 {
 	"name": "@ghostpaw/grimoire",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"description": "Procedural knowledge management for Node.js — Git, SQLite, zero dependencies, with a built-in LLM tool facade",
 	"type": "module",
 	"exports": {
