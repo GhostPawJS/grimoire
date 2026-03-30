@@ -113,6 +113,7 @@ describe('oneOfSchema', () => {
 		const a = stringSchema('option a');
 		const b = numberSchema('option b');
 		const s = oneOfSchema([a, b], 'either');
+		assert.equal(s.type, 'object');
 		assert.deepEqual(s.oneOf, [a, b]);
 		assert.equal(s.description, 'either');
 	});

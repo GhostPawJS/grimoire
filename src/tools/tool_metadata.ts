@@ -112,7 +112,7 @@ export function objectSchema(
 }
 
 export function oneOfSchema(schemas: ReadonlyArray<JsonSchema>, description?: string): JsonSchema {
-	const schema: JsonSchema = { oneOf: schemas };
+	const schema: JsonSchema = { type: 'object', oneOf: schemas };
 	if (description !== undefined) schema.description = description;
 	return schema;
 }
