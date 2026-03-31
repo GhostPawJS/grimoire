@@ -122,9 +122,9 @@ All queries are synchronous, deterministic, and require no LLM.
 |----------|---------|
 | `read.listChapters(root)` | All discovered chapter names |
 | `read.listSpells(root, options?)` | All spells, filterable by chapter(s) |
-| `read.getSpell(root, path, db?)` | Full spell record with absolute paths |
+| `read.getSpell(root, path, db?, gitDir?)` | Full spell record with absolute paths |
 | `read.getContent(root, path, db?)` | Raw SKILL.md text |
-| `read.renderContent(root, path, db?)` | Tier-aware transformed content |
+| `read.renderContent(root, path, db?, options?)` | Tier-aware transformed content; `options` accepts `contextId?` and `gitDir?` |
 
 When `db` is passed to `getSpell`, `getContent`, or `renderContent`, a
 `read` event is logged transparently for resonance tracking.
@@ -140,13 +140,13 @@ When `db` is passed to `getSpell`, `getContent`, or `renderContent`, a
 
 | Function | Returns |
 |----------|---------|
-| `read.rank(root, path)` | Seal count for one spell |
-| `read.allRanks(root)` | All seal counts |
+| `read.rank({ root, gitDir? }, path)` | Seal count for one spell |
+| `read.allRanks({ root, gitDir? })` | All seal counts |
 | `read.tier(rank)` | Tier from rank number |
 | `read.tierInfo(rank)` | Tier with `sealsToNextTier` |
-| `read.pendingChanges(root, path?)` | Uncommitted modifications |
-| `read.diff(root, path)` | Detailed diff since last seal |
-| `read.history(root, path?)` | Git log entries |
+| `read.pendingChanges({ root, gitDir? }, path?)` | Uncommitted modifications |
+| `read.diff({ root, gitDir? }, path)` | Detailed diff since last seal |
+| `read.history({ root, gitDir? }, path?)` | Git log entries |
 | `read.isGitAvailable()` | Whether git is on the system |
 
 ### Lifecycle (requires SQLite)
@@ -182,6 +182,7 @@ When `db` is passed to `getSpell`, `getContent`, or `renderContent`, a
 
 | Function | Returns |
 |----------|---------|
+| `read.catalogueReadiness(db)` | Whether new work exists since the last catalogue run |
 | `read.readCatalogue(db)` | Latest health snapshot |
 | `read.pendingDrafts(db)` | Queued spell suggestions |
 | `read.getProvenance(db, spellPath)` | Origin record for one spell |
@@ -201,7 +202,7 @@ Every write is synchronous and returns the mutated state.
 | `write.shelve(root, path, db?)` | Archive to `.shelved/` — preserves history |
 | `write.unshelve(root, path, db?)` | Restore from `.shelved/` |
 | `write.moveSpell(root, from, to, db?)` | Rename or transfer between chapters |
-| `write.seal(root, db?, paths?, message?)` | Commit changes, advance rank |
+| `write.seal({ root, gitDir? }, db?, paths?, message?)` | Commit changes, advance rank |
 | `write.rollback(root, path, ref)` | Revert to a previous seal |
 | `write.repair(root, path)` | Auto-fix structural issues |
 | `write.repairAll(root)` | Auto-fix all spells |
@@ -217,7 +218,7 @@ Every write is synchronous and returns the mutated state.
 
 | Function | What it does |
 |----------|--------------|
-| `write.logEvent(db, spell, event, contextId?)` | Track reads, seals, inscriptions |
+| `write.logEvent(db, input)` | Track reads, seals, inscriptions; `input` accepts `spell`, `event`, and optional `contextId` |
 
 ### Notes (requires SQLite)
 

@@ -41,6 +41,19 @@ export interface CatalogueSnapshot {
 	sealVelocity: Record<string, number>;
 }
 
+export type CatalogueReadinessReason = 'no_prior_run' | 'new_notes' | 'new_events' | 'idle';
+
+export interface CatalogueReadiness {
+	ready: boolean;
+	reason: CatalogueReadinessReason;
+	/** ISO timestamp of the most recent catalogue run, or null if never run. */
+	lastCatalogueAt: string | null;
+	/** Pending notes created after the last catalogue run. */
+	newNotesSince: number;
+	/** Spell events recorded after the last catalogue run. */
+	newEventsSince: number;
+}
+
 export type SaveCatalogueInput = {
 	computedAt: string;
 	totalSpells: number;

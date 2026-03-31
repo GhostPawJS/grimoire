@@ -15,11 +15,23 @@ sub-100ms.
 
 ## How To Use It
 
-1. `write.catalogue(root, db)` — compute and store a health snapshot
-2. `read.readCatalogue(db)` — retrieve the latest snapshot
+1. `read.catalogueReadiness(db)` — check if there is new work since the last run
+2. `write.catalogue(root, db)` — compute and store a health snapshot
+3. `read.readCatalogue(db)` — retrieve the latest snapshot
 
-Call catalogue on startup, on a schedule, or on demand. The consumer decides
-when.
+The typical call pattern is:
+
+```ts
+const { ready, reason } = read.catalogueReadiness(db);
+if (ready) {
+  write.catalogue(root, db);
+}
+```
+
+`catalogueReadiness` is the readiness gate. It returns `ready: false` when
+nothing has changed since the last catalogue run, preventing redundant passes.
+Call catalogue on startup, on a schedule, or on demand — but gate it on
+readiness to avoid repeated runs against an idle grimoire.
 
 ## What Catalogue Computes
 
@@ -63,4 +75,5 @@ when.
 
 ### Reads
 
-- `read.readCatalogue(db)`
+- `read.catalogueReadiness(db)` — readiness gate: new notes, new events, or no prior run
+- `read.readCatalogue(db)` — latest snapshot

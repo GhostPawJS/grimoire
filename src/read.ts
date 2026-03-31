@@ -10,7 +10,7 @@ export {
 	tier,
 	tierInfo,
 } from './git/index.ts';
-export { readCatalogue } from './health/index.ts';
+export { catalogueReadiness, readCatalogue } from './health/index.ts';
 export { buildIndex, formatIndex } from './indexing/index.ts';
 export { listNotes, noteCounts, pendingNoteCount, pendingNotes } from './notes/index.ts';
 export { allProvenance, getProvenance } from './provenance/index.ts';

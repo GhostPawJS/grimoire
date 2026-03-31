@@ -32,28 +32,28 @@ import { init, read, write } from '@ghostpaw/grimoire';
 const db = new DatabaseSync(':memory:');
 const root = '/path/to/my-grimoire';
 
-await init({ root, db });
+// Bootstrap: filesystem + SQLite tables + bare git repo with initial commit
+init(root, db);
 
-// Inscribe a new spell from scratch
-const spell = await write.inscribe(root, {
+// Inscribe a new spell (content is a spec-compliant SKILL.md string)
+const { spell } = write.inscribe(root, db, {
   name: 'deploy-service',
-  title: 'Deploy a service to production',
-  tags: ['devops', 'deploy'],
-  body: '## Steps\n\n1. Run `npm run build`\n2. Push to registry\n3. Apply manifests',
+  chapter: 'engineering',
+  content: '---\nname: deploy-service\ndescription: Deploy a service to production\n---\n\n# deploy-service\n\n## Steps\n\n1. Run `npm run build`\n2. Push to registry\n3. Apply manifests\n',
 });
 
 // Drop an observation note as evidence
 write.dropNote(db, {
-  topic: 'deploy-service',
-  body: 'Build step fails if DOCKER_REGISTRY is not exported first.',
+  source: 'practice',
+  content: 'Build step fails if DOCKER_REGISTRY is not exported first.',
 });
 
 // Seal the improvement into a git commit, advancing rank
-await write.seal(root, 'Fix: document required env var for build step');
+write.seal({ root }, db, [`engineering/${spell.name}`], 'Fix: document required env var for build step');
 
 // Read back the enriched spell
-const detail = await read.getSpell(root, db, 'deploy-service');
-const chapters = await read.listChapters(root);
+const detail = read.getSpell(root, 'engineering/deploy-service', db);
+const chapters = read.listChapters(root);
 ```
 
 ## The Model
@@ -131,12 +131,12 @@ Use the `read` and `write` namespaces for direct-code access to the domain:
 import { read, write } from '@ghostpaw/grimoire';
 
 // Inscribe and evolve a spell
-await write.inscribe(root, { name: 'lint-fix', title: 'Run lint with autofix' });
-write.dropNote(db, { topic: 'lint-fix', body: 'Biome needs --unsafe for some rules.' });
-await write.seal(root, 'Add note about unsafe flag');
+write.inscribe(root, db, { name: 'lint-fix', chapter: 'general', content: '---\nname: lint-fix\ndescription: Run lint with autofix\n---\n\n# lint-fix\n\nRun `npx biome check --fix .`\n' });
+write.dropNote(db, { source: 'practice', content: 'Biome needs --unsafe for some rules.' });
+write.seal({ root }, db, ['general/lint-fix'], 'Add note about unsafe flag');
 
 // Read derived state
-const spell = await read.getSpell(root, db, 'lint-fix');
+const spell = read.getSpell(root, 'general/lint-fix', db);
 const resonance = read.allResonance(db);
 const catalogue = read.readCatalogue(db);
 ```
