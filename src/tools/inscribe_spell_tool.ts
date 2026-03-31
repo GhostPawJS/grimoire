@@ -18,7 +18,8 @@ export const inscribeSpellTool = defineGrimoireTool<
 	name: inscribeSpellToolName,
 	description: 'Create a new spell in the grimoire.',
 	whenToUse: 'When writing a new skill/spell into the grimoire from scratch.',
-	whenNotToUse: 'When updating existing spell content — use hone_spell (seal) instead.',
+	whenNotToUse:
+		'When updating existing spell content — use update_spell to edit, then hone_spell to seal.',
 	sideEffects: 'writes_state',
 	readOnly: false,
 	supportsClarification: false,

@@ -173,7 +173,7 @@ and skills.
 
 ## Tools
 
-Ten tools shaped around operator intent, not raw storage operations:
+Twelve tools shaped around operator intent, not raw storage operations:
 
 | Tool | What it does |
 |---|---|
@@ -181,9 +181,11 @@ Ten tools shaped around operator intent, not raw storage operations:
 | `review_grimoire` | Dashboard views: chapters, health, resonance, notes, drafts, validation, provenance |
 | `inspect_grimoire_item` | Detailed inspection of one spell: tier, resonance, validation, provenance, history |
 | `inscribe_spell` | Create a new spell in the grimoire |
+| `update_spell` | Write new content to an existing spell, leaving it uncommitted for `hone_spell` |
 | `hone_spell` | Seal pending changes into a git commit, advancing rank |
 | `manage_spell` | Shelve, unshelve, move, delete, repair, or rollback a spell |
 | `drop_note` | Drop an observation note for later cataloguing |
+| `distill_note` | Mark a note as distilled into a spell after incorporating its evidence |
 | `manage_draft` | Submit, approve, or dismiss proposed spells |
 | `run_catalogue` | Full maintenance pass: staleness, dormancy, oversizing, note routing, health |
 | `scout_skills` | Scout, search, adopt, and update spells from external sources |

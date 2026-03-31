@@ -8,8 +8,8 @@ import {
 } from './tool_registry.ts';
 
 describe('grimoireTools', () => {
-	it('contains exactly 10 tools', () => {
-		assert.equal(grimoireTools.length, 10);
+	it('contains exactly 12 tools', () => {
+		assert.equal(grimoireTools.length, 12);
 	});
 
 	it('has unique names', () => {

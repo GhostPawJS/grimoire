@@ -198,6 +198,7 @@ Every write is synchronous and returns the mutated state.
 | Function | What it does |
 |----------|--------------|
 | `write.inscribe(root, db?, input)` | Create a new spell, auto-seal to Apprentice |
+| `write.updateSpell(root, path, content)` | Write new SKILL.md content, leave uncommitted for `seal` |
 | `write.deleteSpell(root, path, db?)` | Remove from filesystem |
 | `write.shelve(root, path, db?)` | Archive to `.shelved/` — preserves history |
 | `write.unshelve(root, path, db?)` | Restore from `.shelved/` |

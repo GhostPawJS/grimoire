@@ -86,7 +86,7 @@ with 3+ members from 2+ sources are surfaced as draft candidates.
 
 - `write.dropNote(db, input)`
 - `write.dropNotes(db, inputs)`
-- `write.distill(db, noteId, spellPath)`
+- `write.distill(db, noteId, spellPath)` — also available as the `distill_note` LLM tool
 - `write.expireNotes(db, days?)`
 - `write.enforceNoteCap(db, cap?)`
 

@@ -12,4 +12,5 @@ export {
 	repairAll,
 	shelve,
 	unshelve,
+	updateSpell,
 } from './spells/index.ts';

@@ -33,6 +33,15 @@ nothing has changed since the last catalogue run, preventing redundant passes.
 Call catalogue on startup, on a schedule, or on demand — but gate it on
 readiness to avoid repeated runs against an idle grimoire.
 
+## Persistence Semantics
+
+Every `catalogue()` call inserts a new row into `grimoire_health` — it does
+not overwrite the previous snapshot. This is intentional: each row is an
+audit point. `read.readCatalogue(db)` always returns the most recent row.
+
+Use `read.catalogueReadiness(db)` to avoid running catalogue against an idle
+grimoire; the readiness check is a pure read that never inserts rows.
+
 ## What Catalogue Computes
 
 - **Total spells** per chapter and overall

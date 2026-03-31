@@ -1,4 +1,5 @@
 import {
+	distillNoteToolName,
 	dropNoteToolName,
 	honeSpellToolName,
 	inscribeSpellToolName,
@@ -9,6 +10,7 @@ import {
 	runCatalogueToolName,
 	scoutSkillsToolName,
 	searchGrimoireToolName,
+	updateSpellToolName,
 } from './tool_names.ts';
 
 export interface ToolMappingEntry {
@@ -47,6 +49,7 @@ export const toolMapping: readonly ToolMappingEntry[] = [
 	{ api: 'eventsSince', tool: reviewGrimoireToolName, view: 'health' },
 
 	// Read — health
+	{ api: 'catalogueReadiness', tool: runCatalogueToolName },
 	{ api: 'readCatalogue', tool: reviewGrimoireToolName, view: 'health' },
 
 	// Read — notes
@@ -75,6 +78,7 @@ export const toolMapping: readonly ToolMappingEntry[] = [
 
 	// Write — spells
 	{ api: 'inscribe', tool: inscribeSpellToolName },
+	{ api: 'updateSpell', tool: updateSpellToolName },
 	{ api: 'shelve', tool: manageSpellToolName, action: 'shelve' },
 	{ api: 'unshelve', tool: manageSpellToolName, action: 'unshelve' },
 	{ api: 'moveSpell', tool: manageSpellToolName, action: 'move' },
@@ -92,7 +96,7 @@ export const toolMapping: readonly ToolMappingEntry[] = [
 	// Write — notes
 	{ api: 'dropNote', tool: dropNoteToolName },
 	{ api: 'dropNotes', tool: dropNoteToolName },
-	{ api: 'distill', tool: runCatalogueToolName },
+	{ api: 'distill', tool: distillNoteToolName },
 	{ api: 'enforceNoteCap', tool: runCatalogueToolName },
 	{ api: 'expireNotes', tool: runCatalogueToolName },
 

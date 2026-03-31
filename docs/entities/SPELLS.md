@@ -21,7 +21,7 @@ and how has it evolved through practice.
 Spells flow through the lifecycle:
 
 1. `write.inscribe()` — create and auto-seal to Apprentice (rank 1)
-2. Edit the SKILL.md content on disk
+2. `write.updateSpell()` — write new SKILL.md content, leaving it uncommitted
 3. `write.seal()` — commit changes and advance rank
 4. `read.renderContent()` — tier-aware read for prompt injection
 5. `write.shelve()` / `write.unshelve()` — archive and restore
@@ -92,11 +92,12 @@ Chapters are discovered, not declared. Default chapter: `general`.
 ### Writes
 
 - `write.inscribe(root, db?, input)`
+- `write.updateSpell(root, path, content)` — write new SKILL.md, leave uncommitted for `write.seal`
 - `write.deleteSpell(root, path, db?)`
 - `write.shelve(root, path, db?)`
 - `write.unshelve(root, path, db?)`
 - `write.moveSpell(root, from, to, db?)`
-- `write.seal(root, db?, paths?, message?)`
+- `write.seal({ root, gitDir? }, db?, paths?, message?)`
 - `write.rollback(root, path, ref)`
 - `write.repair(root, path)`
 - `write.repairAll(root)`

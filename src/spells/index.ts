@@ -12,3 +12,4 @@ export { repairAll } from './repair_all.ts';
 export { shelve } from './shelve.ts';
 export type * from './types.ts';
 export { unshelve } from './unshelve.ts';
+export { updateSpell } from './update_spell.ts';
