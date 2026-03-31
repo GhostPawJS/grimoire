@@ -41,7 +41,7 @@ Dismissed drafts are archived.
 ## Do Not Use It For
 
 - bypassing the inscription gate — drafts are proposals, not shortcuts
-- revising existing spell content — use `write.updateSpell` + `write.seal` (or the `update_spell` and `hone_spell` LLM tools) for that; drafts are for net-new spells only
+- revising existing spell content — use `update_spell` then `hone_spell` (with `note_ids` to close absorbed notes); drafts are for net-new spells only
 
 ## Related Concepts
 

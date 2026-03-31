@@ -9,4 +9,3 @@ export const manageDraftToolName = 'manage_draft';
 export const runCatalogueToolName = 'run_catalogue';
 export const scoutSkillsToolName = 'scout_skills';
 export const updateSpellToolName = 'update_spell';
-export const distillNoteToolName = 'distill_note';

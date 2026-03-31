@@ -12,6 +12,7 @@ export type ToolWarningCode =
 	| 'duplication_detected'
 	| 'degraded_no_db'
 	| 'degraded_no_git'
+	| 'invalid_state'
 	| 'oversize'
 	| 'stale';
 export type ToolClarificationCode =

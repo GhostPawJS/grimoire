@@ -1,5 +1,4 @@
 import {
-	distillNoteToolName,
 	dropNoteToolName,
 	honeSpellToolName,
 	inscribeSpellToolName,
@@ -96,7 +95,7 @@ export const toolMapping: readonly ToolMappingEntry[] = [
 	// Write — notes
 	{ api: 'dropNote', tool: dropNoteToolName },
 	{ api: 'dropNotes', tool: dropNoteToolName },
-	{ api: 'distill', tool: distillNoteToolName },
+	{ api: 'distill', tool: honeSpellToolName },
 	{ api: 'enforceNoteCap', tool: runCatalogueToolName },
 	{ api: 'expireNotes', tool: runCatalogueToolName },
 

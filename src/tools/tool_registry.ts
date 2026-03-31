@@ -1,4 +1,3 @@
-import { distillNoteTool } from './distill_note_tool.ts';
 import { dropNoteTool } from './drop_note_tool.ts';
 import { honeSpellTool } from './hone_spell_tool.ts';
 import { inscribeSpellTool } from './inscribe_spell_tool.ts';
@@ -21,7 +20,6 @@ export const grimoireTools = [
 	honeSpellTool,
 	manageSpellTool,
 	dropNoteTool,
-	distillNoteTool,
 	manageDraftTool,
 	runCatalogueTool,
 	scoutSkillsTool,
