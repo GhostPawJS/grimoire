@@ -142,10 +142,10 @@ sealed improvements:
 >
 > | | | |
 > |:---:|---|---|
-> | $\color{SteelBlue}{\textsf{◎}}$ | *deploy-service* | `apprentice · rank 1–4` |
-> | $\color{MediumSeaGreen}{\textsf{◎}}$ | *deploy-service* | `journeyman · rank 5–14` |
-> | $\color{Goldenrod}{\textsf{◎}}$ | *deploy-service* | `expert · rank 15–29` |
-> | $\color{Orchid}{\textsf{◎}}$ | *deploy-service* | `master · rank 30+` |
+> | $\color{SteelBlue}{\textsf{◎}}$ | *deploy-service* | `apprentice · rank 1–2` |
+> | $\color{MediumSeaGreen}{\textsf{◎}}$ | *deploy-service* | `journeyman · rank 3–5` |
+> | $\color{Goldenrod}{\textsf{◎}}$ | *deploy-service* | `expert · rank 6–9` |
+> | $\color{Orchid}{\textsf{◎}}$ | *deploy-service* | `master · rank 10+` |
 >
 > **Attention signals**
 >
@@ -156,8 +156,9 @@ sealed improvements:
 
 &nbsp;
 
-Rank is the only experience counter. Tier boundaries gate real capabilities
-(history, diff, rollback), not badges.
+Rank is the only experience counter. Each tier raises the validation bar:
+from Journeyman on, a spell is expected to include failure and recovery paths;
+from Expert on, edge cases; at Master, a compiled summary.
 
 ## Two Audiences
 
@@ -235,7 +236,7 @@ so harnesses can wire them without parsing vague prose.
 - **Zero runtime dependencies.** Only `node:sqlite` (built into Node 24+) for the SQLite layer.
 - **Single prebundled blob.** One ESM + one CJS entry in `dist/`. No subpath exports, no code splitting.
 - **Three storage backends.** Filesystem for spell content, git for versioning and rank, SQLite for metadata. Each is optional — the package degrades gracefully without any of them.
-- **Evidence-first progression.** Rank is earned by sealing validated improvements. Speculative edits do not count as experience. Tier gates real capabilities, not badges.
+- **Evidence-first progression.** Rank is earned by sealing validated improvements. Speculative edits do not count as experience. Higher tiers raise what validation expects of a spell.
 - **Derived health signals.** Resonance, staleness, dormancy, and health scores are computed at read time from evidence and commit history — never stored as flags.
 - **Intention-shaped writes.** `inscribe`, `seal`, `hone`, `dropNote`, `distill`, `adoptSpell`: operations that say what happened, not generic CRUD.
 - **Additive AI runtime.** `soul` for posture, `tools` for actions, `skills` for workflow guidance — layered over the same direct-code API.

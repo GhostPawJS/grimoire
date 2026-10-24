@@ -145,6 +145,6 @@ Reduced motion: no sweep or flash.
 - Never present voices as customers. V041
 
 ## Changelog
-- 2026-10-24: first concept from the 2026-10-24 research batch (60 voices, 12 peers); sealed history chosen; replay of a real grimoire 0.3.0 run. Tier boundaries left off the page because the README table (journeyman 5–14) and the code (journeyman from 3) disagree.
+- 2026-10-24: first concept from the 2026-10-24 research batch (60 voices, 12 peers); sealed history chosen; replay of a real grimoire 0.3.0 run. Tier boundaries left off the page because the README table (journeyman 5–14) and the code (journeyman from 3) disagreed; the README now matches the code.
 - 2026-10-24: depth pass (15 more voices, now 75, the last five from Bluesky and GitHub to keep Hacker News at 40%); replay re-run against the current release; import time re-measured; comparison section added; page moved to https://grimoire.ghostpaw.dev/.
 - 2026-10-24: portal chrome pass. Shared top bar (GhostPaw/<lib>, Live demo or Docs, GitHub, npm), version badge, footer row of all seven libraries; sibling links row dropped from the start section; the ruled grid on the page ground was replaced by one radial glow (lfm 0.1.9 rejects ruled ground textures); share card relabelled GhostPaw/<lib> with the install line.
