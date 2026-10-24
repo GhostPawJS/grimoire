@@ -1,6 +1,6 @@
 {
   "name": "ghostpaw-grimoire",
-  "version": "0.2.15",
+  "version": "0.3.0",
   "description": "Local procedural knowledge with spells, notes, and revision history.",
   "author": {
     "name": "Anonyfox",
@@ -41,7 +41,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@ghostpaw/grimoire@0.2.15",
+        "@ghostpaw/grimoire@0.3.0",
         "mcp"
       ]
     }
