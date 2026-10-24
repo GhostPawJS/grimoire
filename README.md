@@ -5,7 +5,7 @@
 [![license](https://img.shields.io/npm/l/@ghostpaw/grimoire)](LICENSE)
 [![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Live Demo](https://img.shields.io/badge/demo-live-06d6a0?style=flat&logo=github)](https://ghostpawjs.github.io/grimoire)
+[![Live Demo](https://img.shields.io/badge/demo-live-06d6a0?style=flat&logo=github)](https://grimoire.ghostpaw.dev/docs/)
 [![MCP Registry](https://img.shields.io/badge/MCP_Registry-io.github.GhostPawJS%2Fgrimoire-06d6a0)](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.GhostPawJS%2Fgrimoire/versions/latest)
 
 A procedural knowledge engine for Node.js, built on Git, SQLite, and the filesystem.

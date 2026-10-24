@@ -1,0 +1,236 @@
+<!DOCTYPE html><html lang=en><head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width, initial-scale=1">
+<title>grimoire: agent skills as SKILL.md folders with git history and rollback</title>
+<meta name=description content="@ghostpaw/grimoire keeps agent skills as plain SKILL.md folders, seals each proven improvement as a git commit, ranks skills by sealed commits and rolls back to any version. Notes and health in SQLite. Node.js 24, zero dependencies, MIT.">
+<link rel=canonical href=https://grimoire.ghostpaw.dev/>
+<meta property=og:type content=website>
+<meta property=og:url content=https://grimoire.ghostpaw.dev/>
+<meta property=og:title content="grimoire: agent skills as SKILL.md folders with git history and rollback">
+<meta property=og:description content="@ghostpaw/grimoire keeps agent skills as plain SKILL.md folders, seals each proven improvement as a git commit, ranks skills by sealed commits and rolls back to any version. Notes and health in SQLite. Node.js 24, zero dependencies, MIT.">
+<meta property=og:image content=https://grimoire.ghostpaw.dev/share-9a5116ec4109.png><meta property=og:image:width content=1200><meta property=og:image:height content=630>
+<meta property=og:image:alt content="An open book drawn in cyan light with a ghost paw on its page and a violet rune, beside the line: Your agent edits its SKILL.md. Who keeps the history?">
+<meta name=twitter:card content=summary_large_image>
+<link rel=preload href=./tektur-var-4c711ade6b7f.woff2 as=font type=font/woff2 crossorigin>
+<link rel=preload href=./martian-mono-var-3048bdad51b1.woff2 as=font type=font/woff2 crossorigin>
+<meta name=theme-color content=#04070b>
+
+
+<style>@font-face{font-family:Tektur;src:url("./tektur-var-4c711ade6b7f.woff2") format("woff2");font-weight:500 900;font-stretch:75% 100%;font-style:normal;font-display:swap}@font-face{font-family:Martian Mono;src:url("./martian-mono-var-3048bdad51b1.woff2") format("woff2");font-weight:400 700;font-style:normal;font-display:swap}:root{--void: #04070b;--panel: #0a1119;--rule: #1d2c3c;--ghost: #e3edf5;--haze: #93a5b9;--spectral: #62e6f2;--wraith: #b39dff;--alarm: #ff7aa6;--ward: #7af0b4;--glow: rgba(98, 230, 242, .28);--display: "Tektur", Bahnschrift, "Arial Narrow", sans-serif;--body: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;--mono: "Martian Mono", "Cascadia Mono", Consolas, monospace;--edge: 1px solid var(--rule);--cut: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);--wrap: 72rem;color-scheme:dark}*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;background:var(--void)}body{margin:0;color:var(--ghost);font:400 1.0625rem/1.6 var(--body);font-synthesis:none;background-color:var(--void);background-image:linear-gradient(rgba(98,230,242,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(98,230,242,.035) 1px,transparent 1px);background-size:48px 48px}img{display:block;max-width:100%;height:auto}code,input,kbd,samp{font-family:var(--mono);font-synthesis:none}code{font-size:.86em;letter-spacing:-.01em}a{color:var(--ghost);text-decoration-color:var(--spectral);text-decoration-thickness:1px;text-underline-offset:.22em}a:hover{color:var(--spectral)}:focus-visible{outline:2px solid var(--spectral);outline-offset:3px}h1,h2,h3,h4{font-family:var(--display);line-height:1.06;margin:0 0 .5em;text-wrap:balance;font-weight:700}h1{font-size:clamp(2.35rem,6.4vw,4.7rem);font-stretch:88%;letter-spacing:-.01em;text-shadow:0 0 34px rgba(98,230,242,.18)}h2{font-size:clamp(1.75rem,3.7vw,2.7rem);font-stretch:90%;font-weight:650}h3{font-size:1.3rem;font-weight:600;font-stretch:95%}h4{font-size:1rem;font-weight:600;font-stretch:95%}p{margin:0 0 1em}::selection{background:var(--spectral);color:var(--void)}.top,main>section,.foot{max-width:var(--wrap);margin:0 auto;padding-left:1.25rem;padding-right:1.25rem}.top{display:flex;justify-content:space-between;align-items:center;padding-top:1.1rem;padding-bottom:1.1rem;border-bottom:var(--edge)}.brand{font:700 1.2rem/1 var(--display);font-stretch:85%;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem}.brand:after{content:"";width:.5rem;height:1.05rem;background:var(--spectral);box-shadow:0 0 12px var(--glow)}.top nav{display:flex;gap:1.25rem}.top nav a{text-decoration:none;color:var(--haze)}.top nav a:hover{color:var(--spectral)}.cmd{display:flex;align-items:stretch;border:var(--edge);background:var(--panel);max-width:30rem}.cmd:before{content:"$";font:400 .9rem/1 var(--mono);color:var(--haze);padding:0 0 0 .75rem;align-self:center}.cmd input{flex:1;min-width:0;border:0;background:transparent;color:var(--ghost);font-size:.8rem;padding:.75rem .6rem}.copy{border:0;background:var(--spectral);color:var(--void);font:650 .95rem var(--display);padding:0 .9rem;cursor:pointer;min-width:4.75rem}.copy:hover{background:var(--ghost)}.button{display:inline-block;background:var(--spectral);color:var(--void);text-decoration:none;font:650 1rem var(--display);padding:.8rem 1.4rem .8rem 1.2rem;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%)}.button:hover{background:var(--ghost);color:var(--void)}.note{color:var(--haze);font-size:.9rem;margin-top:1rem;max-width:46rem}.scope{position:relative;overflow:hidden}.scope img{mix-blend-mode:screen;width:100%}.scope:before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0 3px,rgba(4,7,11,.38) 3px 4px);z-index:1}.scan{position:absolute;inset:0;z-index:2;pointer-events:none;transform:translateY(101%);background:linear-gradient(to bottom,var(--spectral) 0 2px,rgba(4,7,11,.92) 2px);box-shadow:0 -6px 24px var(--glow)}.js .scan{animation:sweep .9s cubic-bezier(.45,.05,.35,1) .15s both}@keyframes sweep{0%{transform:translateY(0);opacity:1}92%{opacity:1}to{transform:translateY(101%);opacity:0}}.scan{opacity:0}.frame{position:relative;margin:0}.frame:after{content:"";position:absolute;inset:-.5rem;pointer-events:none;background:linear-gradient(var(--spectral),var(--spectral)) top left / 18px 1px no-repeat,linear-gradient(var(--spectral),var(--spectral)) top left / 1px 18px no-repeat,linear-gradient(var(--spectral),var(--spectral)) top right / 18px 1px no-repeat,linear-gradient(var(--spectral),var(--spectral)) top right / 1px 18px no-repeat,linear-gradient(var(--spectral),var(--spectral)) bottom left / 18px 1px no-repeat,linear-gradient(var(--spectral),var(--spectral)) bottom left / 1px 18px no-repeat,linear-gradient(var(--spectral),var(--spectral)) bottom right / 18px 1px no-repeat,linear-gradient(var(--spectral),var(--spectral)) bottom right / 1px 18px no-repeat;opacity:.7}.foot{padding-top:2rem;padding-bottom:3rem;border-top:var(--edge);color:var(--haze)}.foot-links{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem}.foot a{color:var(--haze)}.foot a:hover{color:var(--spectral)}@media(min-width:52rem){.cmd input{font-size:.9rem}}@media(prefers-reduced-motion:reduce){.js .scan{animation:none}*{transition:none!important}}.hero{display:grid;gap:2.5rem;padding-top:2.5rem;padding-bottom:3.5rem;align-items:center}.hero-copy{min-width:0}.lede{font-size:1.22rem;color:var(--ghost)}.lede code{white-space:nowrap;color:var(--spectral)}.hero-copy>p:not(.lede):not(.actions):not(.terms){color:var(--haze)}.install label{display:block;font:600 .95rem var(--display);color:var(--haze);margin-bottom:.4rem}.actions{display:flex;flex-wrap:wrap;gap:1rem 1.5rem;align-items:center;margin-top:1.5rem}.terms{color:var(--haze);font-size:.95rem}.hero-art{min-width:0}.readout{position:absolute;left:.75rem;bottom:.75rem;z-index:3;margin:0;display:grid;grid-template-columns:auto 1fr;column-gap:.7rem;align-items:center;padding:.55rem 1rem .55rem .8rem;background:#04070bd1;border:1px solid rgba(98,230,242,.45);clip-path:var(--cut)}.readout .big{grid-row:span 2;font:700 2.6rem/1 var(--display);color:var(--spectral);text-shadow:0 0 18px var(--glow)}.readout span:not(.big){font:600 1rem/1.15 var(--display)}.readout small{color:var(--haze);font-size:.8rem}.readout{display:flex;gap:.7rem}.kicker{margin:0 0 .85rem;color:var(--haze)}.kicker code{color:var(--spectral)}.cmd-label{font:600 .95rem var(--display);color:var(--haze);margin:0 0 .4rem}.intro{max-width:46rem;color:var(--haze)}.board-sec .intro:first-of-type,.todo>.intro:first-of-type{color:var(--ghost);font:600 1.25rem var(--display)}.links{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;margin:1.2rem 0 0}.links .more{font-weight:700;color:var(--spectral)}.board-sec,.todo,.time,.worry,.numbers,.start{padding-top:3.5rem;padding-bottom:2.5rem;border-top:var(--edge)}pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:1rem 0 0;background:var(--void);color:var(--ghost);border:var(--edge);border-left:2px solid var(--wraith);padding:1rem 1.1rem;overflow-x:auto;font-size:.8rem;line-height:1.65}pre code{font-size:inherit;color:var(--ghost)}.button.ghost{background:transparent;color:var(--spectral);border:1px solid var(--spectral);cursor:pointer;padding:.55rem 1.1rem .55rem 1rem}.button.ghost:hover,.button.ghost[aria-pressed=true]{background:var(--spectral);color:var(--void)}.sec{padding-top:3.5rem;padding-bottom:2.5rem;border-top:var(--edge)}.sec>.intro:first-of-type{color:var(--ghost);font:600 1.25rem var(--display)}.note code,.form code,.worry code,.start code,.step code,.state code,h2 code,.intro code{color:var(--spectral)}pre code{color:var(--ghost)}h2 code{font-size:.8em}.run{display:grid;gap:1.25rem;margin-top:1.5rem}.run>*{min-width:0}.state{background:var(--panel);border:var(--edge);padding:1rem 1.15rem 1.1rem;clip-path:var(--cut);box-shadow:inset 0 3px 0 var(--spectral);align-self:start}.state-label{font:600 .95rem var(--display);color:var(--haze);margin:0 0 .6rem;letter-spacing:.04em;text-transform:uppercase}.state ul{list-style:none;margin:0;padding:0}.state li{display:grid;grid-template-columns:auto 1fr;gap:.1rem .75rem;padding:.5rem 0;border-bottom:1px solid rgba(29,44,60,.9)}.state li:last-child{border-bottom:0}.state .k{font:600 1.05rem var(--display);color:var(--ghost)}.state .v{font:400 .8rem/1.5 var(--body);color:var(--haze);text-align:right;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.state .bar{grid-column:1 / -1;height:3px;background:var(--rule);position:relative;display:none}.js .state .bar{display:block}.state .bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--spectral);box-shadow:0 0 10px var(--glow);transition:width .3s ease}.state .t-violet .k,.state .t-violet .v{color:var(--wraith)}.state .t-violet .bar i{background:var(--wraith);box-shadow:none}.state .t-alarm .k,.state .t-alarm .v{color:var(--alarm)}.state .t-alarm .bar i{background:var(--alarm);box-shadow:none}.state .t-ward .k,.state .t-ward .v{color:var(--ward)}.state .t-ward .bar i{background:var(--ward)}.state .t-cyan .v{color:var(--spectral)}.state-foot{margin:.75rem 0 0;color:var(--haze);font-size:.85rem}.steps{list-style:none;margin:0;padding:0;display:grid;gap:1rem;counter-reset:step}.step{background:var(--panel);border:var(--edge);padding:1rem 1.15rem 1.15rem;clip-path:var(--cut);box-shadow:inset 0 3px 0 var(--rule);transition:box-shadow .3s ease}.step h3{display:flex;gap:.6rem;align-items:baseline;font-size:1.2rem;margin-bottom:.35rem}.step h3 .n{font:600 .85rem var(--body);color:var(--spectral);font-variant-numeric:tabular-nums}.step>p{color:var(--haze);margin-bottom:.25rem}.step pre{margin-top:.7rem;font-size:.78rem}.step .result pre{border-left-color:var(--ward)}.step.refused .result pre{border-left-color:var(--alarm)}.result .say{margin:.6rem 0 0;color:var(--ghost)}.step.refused .say{color:var(--alarm)}.run-btn,.run-tools{display:none}.js .step.next .run-btn{display:inline-block;margin-top:.85rem}.js .step:not(.done) .result{display:none}.js .step.next{box-shadow:inset 0 3px 0 var(--spectral)}.js .step.done{box-shadow:inset 0 3px 0 var(--ward)}.js .step.done.refused{box-shadow:inset 0 3px 0 var(--alarm)}.js .step.flash{animation:flash .42s ease-out}@keyframes flash{0%{border-color:var(--alarm)}to{border-color:var(--rule)}}.js .run-tools{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1rem;align-items:center}.run-tools p{margin:0;color:var(--haze);font-size:.9rem}.act{font:650 .95rem var(--display);background:var(--spectral);color:var(--void);border:0;padding:.5rem 1rem;cursor:pointer}.act:hover{background:var(--ghost)}.sec-head{display:grid;gap:.5rem;align-items:end}.graph{mix-blend-mode:screen;width:100%;max-width:22rem;justify-self:end;margin:-.5rem 0}.form{margin:1.5rem 0 0;border:var(--edge);background:var(--panel)}.form div{display:grid;grid-template-columns:minmax(0,1fr);gap:.15rem 1.5rem;padding:.8rem 1.1rem;border-bottom:var(--edge)}.form dt,.form dd{min-width:0;overflow-wrap:anywhere}.form div:last-child{border-bottom:0}.form dt{font:600 1rem var(--display);color:var(--ghost)}.form dd{margin:0;color:var(--haze)}.worry ul{padding:0;margin:0;list-style:none;max-width:46rem}.worry li{margin-bottom:.7rem;padding-left:1.4rem;position:relative}.worry li:before{content:"";position:absolute;left:0;top:.62em;width:.5rem;height:.5rem;border:1px solid var(--spectral)}.worry-grid>p{color:var(--haze);font-size:1.1rem}.ledger{margin:0;border-top:var(--edge);max-width:40rem}.ledger div{display:flex;justify-content:space-between;gap:1rem;border-bottom:var(--edge);padding:.55rem 0}.ledger dt{color:var(--haze)}.ledger dd{margin:0;color:var(--spectral);font:500 .9rem/1.6 var(--body);text-align:right;font-variant-numeric:tabular-nums}.start pre{max-width:46rem}.start>p{max-width:46rem;margin-top:1.25rem}.cmd input{padding:.75rem .5rem}.copy{min-width:4rem;padding:0 .7rem}@media(min-width:52rem){.hero{grid-template-columns:1.08fr 1fr;padding-top:4rem;padding-bottom:4.5rem}.run{grid-template-columns:minmax(17rem,.8fr) 1.6fr;gap:1.75rem;align-items:start}.state{position:sticky;top:1rem}.sec-head{grid-template-columns:1fr 22rem}.form div{grid-template-columns:11rem minmax(0,1fr)}.worry-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:3rem;align-items:start}pre{font-size:.84rem}.step pre{font-size:.8rem}}@media(prefers-reduced-motion:reduce){.js .step.flash{animation:none}}
+</style><link rel=icon type=image/png sizes=96x96 href=./favicon.png></head>
+<body>
+<header class=top>
+  <a class=brand href=https://ghostpaw.dev/>GhostPaw</a>
+  <nav aria-label="grimoire elsewhere">
+    <a href=https://github.com/GhostPawJS/grimoire>GitHub</a>
+    <a href=https://www.npmjs.com/package/@ghostpaw/grimoire>npm</a>
+    <a href=https://grimoire.ghostpaw.dev/docs/>Live demo</a>
+  </nav>
+</header>
+<main>
+  <section class=hero aria-labelledby=hero-title>
+    <div class=hero-copy>
+      <p class=kicker><code>@ghostpaw/grimoire</code> 0.3.0</p>
+      <h1 id=hero-title>Your agent edits its <code>SKILL.md</code>. Who keeps the history?</h1>
+      <p class=lede>grimoire keeps skills as plain <code>SKILL.md</code> folders, seals each proven improvement as a git commit and keeps the evidence notes in SQLite. A skill&#39;s rank is the number of sealed commits, so an edit counts only once it is sealed, and any earlier version can be restored.</p>
+      <div class=install>
+        <p class=cmd-label id=lib-label>As a library</p>
+        <div class=cmd><input id=cmd-lib readonly value="npm install @ghostpaw/grimoire" aria-labelledby=lib-label spellcheck=false><button type=button class=copy data-copy=cmd-lib>Copy</button></div>
+        <p class=cmd-label id=mcp-label>As a local MCP server</p>
+        <div class=cmd><input id=cmd-mcp readonly value="npx -y @ghostpaw/grimoire mcp" aria-labelledby=mcp-label spellcheck=false><button type=button class=copy data-copy=cmd-mcp>Copy</button></div>
+      </div>
+      <p class=actions><a class=button href=#run>Replay the run</a> <a href=https://github.com/GhostPawJS/grimoire>Read the source on GitHub</a></p>
+      <p class=terms>Free and MIT licensed for Node.js 24 or newer, with zero runtime dependencies. Spells are files on your disk, history is a git repository next to them, and metadata is SQLite.</p>
+    </div>
+    <figure class="hero-art frame">
+      <div class=scope><picture><source media="(min-width: 52rem)" srcset=./hero-720-4e1ee5ea561f.webp width=720 height=540><img src=./hero-480-76f6fcf5a523.webp width=480 height=360 alt="An open book drawn in cyan light, a ghost paw resting on the right-hand page among lines of glyphs, a violet hexagonal rune floating above." fetchpriority=high></picture><span class=scan aria-hidden=true></span></div>
+      <p class=readout aria-label="Zero runtime dependencies"><span class=big>0</span><span>runtime dependencies</span></p>
+    </figure>
+  </section>
+
+  <section id=run class="sec run-sec" aria-labelledby=run-title>
+    <h2 id=run-title>One spell, seven calls</h2>
+    <p class=intro>The agent&#39;s edit waits, uncommitted, until somebody seals it.</p>
+    <p class=intro>This is the <code>deploy-service</code> spell from the README quick start, replayed from a real run: we made these calls against grimoire 0.3.0 on 2026-10-24 with the git date fixed to 10:00 UTC, so the commit hashes are the real ones. Run the steps in order.</p>
+    <div class=run>
+      <div class=state role=region aria-labelledby=state-title aria-live=polite>
+        <p class=state-label id=state-title>Spell</p>
+        <ul id=state-list>
+          <li><span class=k>Spell</span><span class=v>not inscribed</span></li>
+          <li><span class=k>Rank</span><span class=v>—</span></li>
+          <li><span class=k>Commits</span><span class=v>0</span></li>
+          <li><span class=k>Notes</span><span class=v>0</span></li>
+          <li><span class=k>Uncommitted</span><span class=v>0</span></li>
+          <li><span class=k>Step 1</span><span class=v>—</span></li>
+        </ul>
+        <p class=state-foot id=state-foot>An empty grimoire after init(root, db).</p>
+      </div>
+      <ol class=steps>
+        <li class="step refused" id=step-1>
+          <h3><span class=n>01</span> Inscribe a file without frontmatter</h3>
+          <p>A spell has to be a valid <code>SKILL.md</code>.</p>
+          <pre class=call><code>write.inscribe(root, db, {
+  name: &#39;deploy-service&#39;,
+  chapter: &#39;engineering&#39;,
+  content: &#39;# deploy-service\n\nRun the build, push, apply.\n&#39;,
+});</code></pre>
+          <div class=result><pre><code>// GrimoireValidationError
+// Invalid SKILL.md content: Missing opening frontmatter delimiter (---)</code></pre><p class=say>Refused, and no folder was created. This is a format check, not a security scan.</p></div>
+          <button type=button class="act run-btn">Run step 1</button>
+        </li>
+        <li class=step id=step-2>
+          <h3><span class=n>02</span> Inscribe the README spell</h3>
+          <p>Same call with frontmatter, as in the quick start.</p>
+          <pre class=call><code>write.inscribe(root, db, {
+  name: &#39;deploy-service&#39;,
+  chapter: &#39;engineering&#39;,
+  content: &#39;---\nname: deploy-service\ndescription: Deploy a service to production\n---\n\n&#39;
+    + &#39;# deploy-service\n\n## Steps\n\n1. Run `npm run build`\n2. Push to registry\n3. Apply manifests\n&#39;,
+});</code></pre>
+          <div class=result><pre><code>// { spell: { path: &#39;engineering/deploy-service&#39;, rank: 1, tier: &#39;Apprentice&#39;,
+//   description: &#39;Deploy a service to production&#39;, bodyLines: 9, ... }, warnings: [] }</code></pre><p class=say>The folder <code>engineering/deploy-service/</code> now holds a <code>SKILL.md</code>, and the first commit gives it rank 1.</p></div>
+          <button type=button class="act run-btn">Run step 2</button>
+        </li>
+        <li class=step id=step-3>
+          <h3><span class=n>03</span> Drop a note from practice</h3>
+          <p>Evidence comes first and waits.</p>
+          <pre class=call><code>write.dropNote(db, {
+  source: &#39;practice&#39;,
+  content: &#39;Build step fails if DOCKER_REGISTRY is not exported first.&#39;,
+});</code></pre>
+          <div class=result><pre><code>// { id: 1 }</code></pre><p class=say>One note pending. The spell has not changed.</p></div>
+          <button type=button class="act run-btn">Run step 3</button>
+        </li>
+        <li class=step id=step-4>
+          <h3><span class=n>04</span> The agent edits the spell</h3>
+          <p>It adds the missing step at the top.</p>
+          <pre class=call><code>write.updateSpell(root, &#39;engineering/deploy-service&#39;, newContent);
+read.pendingChanges({ root }, &#39;engineering/deploy-service&#39;);</code></pre>
+          <div class=result><pre><code>// [{ spellPath: &#39;engineering/deploy-service&#39;,
+//    changes: [{ status: &#39;modified&#39;, filePath: &#39;engineering/deploy-service/SKILL.md&#39; }] }]</code></pre><p class=say>The edit is on disk and still uncommitted. Rank stays at 1.</p></div>
+          <button type=button class="act run-btn">Run step 4</button>
+        </li>
+        <li class=step id=step-5>
+          <h3><span class=n>05</span> Seal the improvement</h3>
+          <p>Sealing is the moment someone says the edit is proven.</p>
+          <pre class=call><code>write.seal({ root }, db, [&#39;engineering/deploy-service&#39;],
+  &#39;Fix: document required env var for build step&#39;);</code></pre>
+          <div class=result><pre><code>// { commitHash: &#39;26141d857cead85fd67855a7f7574ab7ed454764&#39;,
+//   sealedPaths: [&#39;engineering/deploy-service&#39;],
+//   ranks: { &#39;engineering/deploy-service&#39;: 2 } }</code></pre><p class=say>A real git commit, and rank 2.</p></div>
+          <button type=button class="act run-btn">Run step 5</button>
+        </li>
+        <li class=step id=step-6>
+          <h3><span class=n>06</span> Distill the note</h3>
+          <p>The note is now part of the spell.</p>
+          <pre class=call><code>write.distill(db, 1, &#39;engineering/deploy-service&#39;);</code></pre>
+          <div class=result><pre><code>read.pendingNotes(db).length
+// 0</code></pre><p class=say>No notes pending.</p></div>
+          <button type=button class="act run-btn">Run step 6</button>
+        </li>
+        <li class=step id=step-7>
+          <h3><span class=n>07</span> Read the history and roll back</h3>
+          <p>Say the new first step turns out to be wrong.</p>
+          <pre class=call><code>const log = read.history({ root }, &#39;engineering/deploy-service&#39;);
+write.rollback({ root }, &#39;engineering/deploy-service&#39;, log.at(-1).hash);</code></pre>
+          <div class=result><pre><code>// history
+// 26141d8  Fix: document required env var for build step
+// c40ce35  inscribe engineering/deploy-service
+
+// { success: true, restoredRef: &#39;c40ce353576648772363ce66a2568bcf72d67d7c&#39; }</code></pre><p class=say>The first version is back on disk as an uncommitted change, and rank stays at 2 until that change is sealed.</p></div>
+          <button type=button class="act run-btn">Run step 7</button>
+        </li>
+      </ol>
+    </div>
+    <div class=run-tools><button type=button class="button ghost" id=reset>Start over</button><p id=run-status role=status></p></div>
+    <p class=note>After the run, the <code>inspect_grimoire_item</code> tool reported “Inspected spell <code>engineering/deploy-service</code> (Apprentice, rank 2).” with one seal to the next tier.</p>
+    <p class=note>Tier names come from the library at read time. The tier table in the README gives different rank boundaries from the code, so this page only shows what the run returned.</p>
+  </section>
+
+  <section class="sec explain" aria-labelledby=explain-title>
+    <div class=sec-head>
+    <h2 id=explain-title>Eight words for one skills folder</h2>
+    <img class=graph src=./art-640-469b5d145ffb.webp width=640 height=360 alt="A branching tree of glowing nodes in dashed tiers, cyan lines climbing upward and one violet node at the top right." loading=lazy>
+    </div>
+    <p class=intro>Files for content, git for history and rank, SQLite for the rest.</p>
+    <dl class=form>
+      <div><dt>Spell</dt><dd>A learned procedure stored as <code>SKILL.md</code>, YAML frontmatter plus a markdown body.</dd></div>
+      <div><dt>Chapter</dt><dd>A folder of related spells, such as <code>engineering/</code>.</dd></div>
+      <div><dt>Seal</dt><dd>A git commit that marks a proven improvement. Rank is the number of seals.</dd></div>
+      <div><dt>Tier</dt><dd>A name computed from rank on every read.</dd></div>
+      <div><dt>Note</dt><dd>Raw evidence, such as an observation, a failure path or a correction, waiting to be distilled.</dd></div>
+      <div><dt>Resonance</dt><dd>A read-time signal for which spell is most worth improving next.</dd></div>
+      <div><dt>Draft</dt><dd>A proposed new spell held for review before it is inscribed.</dd></div>
+      <div><dt>Catalogue</dt><dd>A health pass over the grimoire covering staleness, dormancy, oversized spells and note routing.</dd></div>
+    </dl>
+    <p class=note>Each of the three stores is optional, and the package degrades without any of them, as the README says. Without git there are no seals, so rank and rollback go too.</p>
+  </section>
+
+  <section class="sec worry" aria-labelledby=worry-title>
+    <h2 id=worry-title>If skills already feel like a supply-chain risk</h2>
+    <div class=worry-grid>
+      <p>Marketplace skills have shipped with vulnerabilities, and a <code>SKILL.md</code> can tell an agent to do things you never asked for. grimoire does not fix that, and does not claim to.</p>
+      <ul>
+        <li>It validates the format of a <code>SKILL.md</code>. It does not judge what the instructions say.</li>
+        <li>Every change to a spell is either uncommitted or a commit you can read, diff and roll back.</li>
+        <li><code>scout_skills</code> can adopt spells from outside sources. Treat those like any other code you pull in.</li>
+        <li>Eleven tools with JSON Schemas, among them <code>update_spell</code>, <code>hone_spell</code>, <code>manage_spell</code> and <code>run_catalogue</code>.</li>
+        <li>Node.js 24 or newer, because it uses the built-in <code>node:sqlite</code>, and git on the machine for seals.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec numbers" aria-labelledby=numbers-title>
+    <h2 id=numbers-title>What it costs to add</h2>
+    <dl class=ledger>
+      <div><dt>Runtime dependencies</dt><dd>0</dd></div>
+      <div><dt>Node.js</dt><dd>24 or newer (node:sqlite)</dd></div>
+      <div><dt>Size of dist/index.js, gzip</dt><dd>46.4 KB</dd></div>
+      <div><dt>Import time</dt><dd>about 9.4 ms</dd></div>
+      <div><dt>Tests</dt><dd>872 passing</dd></div>
+      <div><dt>Line coverage</dt><dd>95.6%</dd></div>
+      <div><dt>Agent tools</dt><dd>11</dd></div>
+    </dl>
+    <p class=note>Measured 2026-10-24 on the maintainer&#39;s machine with Node.js 24.14.0 against grimoire 0.3.0: size of the published dist/index.js at gzip -9, median of 11 cold imports, tests and coverage from the v0.3.0 tag.</p>
+  </section>
+
+  <section class="sec start" aria-labelledby=start-title>
+    <h2 id=start-title>Start from the README</h2>
+    <pre><code>import { DatabaseSync } from &#39;node:sqlite&#39;;
+import { init, read, write } from &#39;@ghostpaw/grimoire&#39;;
+
+const db = new DatabaseSync(&#39;:memory:&#39;);
+const root = &#39;/path/to/my-grimoire&#39;;
+
+// filesystem + SQLite tables + bare git repo with initial commit
+init(root, db);
+
+const { spell } = write.inscribe(root, db, {
+  name: &#39;deploy-service&#39;,
+  chapter: &#39;engineering&#39;,
+  content: &#39;---\nname: deploy-service\ndescription: Deploy a service to production\n---\n\n# deploy-service\n\n## Steps\n\n1. Run `npm run build`\n2. Push to registry\n3. Apply manifests\n&#39;,
+});
+
+write.dropNote(db, {
+  source: &#39;practice&#39;,
+  content: &#39;Build step fails if DOCKER_REGISTRY is not exported first.&#39;,
+});
+
+write.seal({ root }, db, [`engineering/${spell.name}`], &#39;Fix: document required env var for build step&#39;);
+
+const detail = read.getSpell(root, &#39;engineering/deploy-service&#39;, db);</code></pre>
+    <p>To run it as an MCP server, add <code>npx -y @ghostpaw/grimoire mcp</code> to your client.</p>
+    <p class=links><a class=more href=https://github.com/GhostPawJS/grimoire#readme>Read the README</a><a href=https://grimoire.ghostpaw.dev/docs/>Open the live demo</a><a href=https://www.npmjs.com/package/@ghostpaw/grimoire>grimoire on npm</a></p>
+    <p class=links><a href=https://ghostpaw.dev/>All seven GhostPaw libraries</a><a href=https://codex.ghostpaw.dev/>codex, for memory</a><a href=https://questlog.ghostpaw.dev/>questlog, for tasks</a><a href=https://affinity.ghostpaw.dev/>affinity, for contacts</a><a href=https://souls.ghostpaw.dev/>souls, for identity</a><a href=https://email.ghostpaw.dev/>email, for mail</a><a href=https://telegram.ghostpaw.dev/>telegram, for chats</a></p>
+  </section>
+</main>
+<footer class=foot>
+  <p>grimoire is maintained in the open by GhostPaw under the MIT licence.</p>
+  <p class=foot-links><a href=https://github.com/GhostPawJS/grimoire>Source</a><a href=https://lab.anonyfox.com/impressum/>Impressum</a><a href=https://lab.anonyfox.com/datenschutz/>Datenschutz</a></p>
+</footer>
+
+
+
+<script type=application/ld+json>{"@context":"https://schema.org","@graph":[{"@type":"SoftwareSourceCode","author":{"@id":"https://ghostpaw.dev/#org","@type":"Organization","name":"GhostPaw"},"codeRepository":"https://github.com/GhostPawJS/grimoire","description":"@ghostpaw/grimoire keeps agent skills as plain SKILL.md folders, seals each proven improvement as a git commit, ranks skills by sealed commits and rolls back to any version. Notes and health in SQLite. Node.js 24, zero dependencies, MIT.","license":"https://opensource.org/license/mit","name":"@ghostpaw/grimoire","programmingLanguage":"TypeScript","runtimePlatform":"Node.js 24","version":"0.3.0"}]}</script><script>document.documentElement.classList.add("js");
+</script><script type=module>var E=[{rows:[{k:"Spell",v:"not inscribed"},{k:"Rank",v:"—"},{k:"Commits",v:"0"},{k:"Notes",v:"0"},{k:"Uncommitted",v:"0"},{k:"Step 1",v:"—"}],foot:"An empty grimoire after init(root, db)."},{rows:[{k:"Spell",v:"not inscribed · refused",t:"alarm"},{k:"Rank",v:"—"},{k:"Commits",v:"0"},{k:"Notes",v:"0"},{k:"Uncommitted",v:"0"},{k:"Step 1",v:"—"}],foot:"Nothing was written."},{rows:[{k:"Spell",v:"engineering/deploy-service",t:"cyan"},{k:"Rank",v:"1 · Apprentice"},{k:"Commits",v:"1"},{k:"Notes",v:"0"},{k:"Uncommitted",v:"0"},{k:"Step 1",v:"Run `npm run build`"}],foot:"The inscribe commit counts as the first seal."},{rows:[{k:"Spell",v:"engineering/deploy-service"},{k:"Rank",v:"1 · Apprentice"},{k:"Commits",v:"1"},{k:"Notes",v:"1 · practice",t:"violet"},{k:"Uncommitted",v:"0"},{k:"Step 1",v:"Run `npm run build`"}],foot:"read.pendingNotes waits for distillation."},{rows:[{k:"Spell",v:"engineering/deploy-service"},{k:"Rank",v:"1 · Apprentice"},{k:"Commits",v:"1"},{k:"Notes",v:"1 · practice",t:"violet"},{k:"Uncommitted",v:"1 · SKILL.md modified",t:"violet"},{k:"Step 1",v:"Export `DOCKER_REGISTRY`",t:"violet"}],foot:"The edit is on disk, not in history."},{rows:[{k:"Spell",v:"engineering/deploy-service"},{k:"Rank",v:"2 · Apprentice",t:"cyan"},{k:"Commits",v:"2 · 26141d8"},{k:"Notes",v:"1 · practice",t:"violet"},{k:"Uncommitted",v:"0"},{k:"Step 1",v:"Export `DOCKER_REGISTRY`",t:"cyan"}],foot:"Sealed. Rank follows the commit count."},{rows:[{k:"Spell",v:"engineering/deploy-service"},{k:"Rank",v:"2 · Apprentice",t:"cyan"},{k:"Commits",v:"2 · 26141d8"},{k:"Notes",v:"0 · distilled",t:"ward"},{k:"Uncommitted",v:"0"},{k:"Step 1",v:"Export `DOCKER_REGISTRY`",t:"cyan"}],foot:"The note is marked as absorbed by this spell."},{rows:[{k:"Spell",v:"engineering/deploy-service"},{k:"Rank",v:"2 · Apprentice"},{k:"Commits",v:"2"},{k:"Notes",v:"0"},{k:"Uncommitted",v:"1 · restored c40ce35",t:"violet"},{k:"Step 1",v:"Run `npm run build`",t:"violet"}],foot:"Rollback is an edit too. Seal it to keep it."}];(()=>{let r=document.getElementById("state-list"),f=document.getElementById("state-foot"),s=Array.from(document.querySelectorAll(".step")),y=document.getElementById("reset"),S=document.getElementById("run-status");if(!r||!s.length)return;let a=!matchMedia("(prefers-reduced-motion: reduce)").matches,o=0;function l(t){let n=E[t];r.textContent="";for(let e of n.rows){let i=document.createElement("li");e.t&&(i.className="t-"+e.t);let d=document.createElement("span");d.className="k",d.textContent=e.k;let p=document.createElement("span");if(p.className="v",p.textContent=e.v,i.append(d,p),e.w!=null){let v=document.createElement("span");v.className="bar";let k=document.createElement("i");v.append(k),i.append(v);let g=Math.max(0,Math.min(1,e.w))*100+"%",u=r.dataset.prev&&JSON.parse(r.dataset.prev)[e.k];k.style.width=a&&u!=null?u:g,a&&u!=null&&requestAnimationFrame(()=>requestAnimationFrame(()=>{k.style.width=g}))}r.append(i)}let c={};for(let e of n.rows)e.w!=null&&(c[e.k]=Math.max(0,Math.min(1,e.w))*100+"%");r.dataset.prev=JSON.stringify(c),f&&(f.textContent=n.foot||"")}function m(){s.forEach((t,n)=>{t.classList.toggle("done",n<o),t.classList.toggle("next",n===o)}),S&&(S.textContent=o<s.length?"Step "+(o+1)+" of "+s.length+" is next.":"All "+s.length+" steps replayed.")}s.forEach((t,n)=>{t.querySelector(".run-btn").addEventListener("click",()=>{if(n!==o)return;o=n+1,l(o),m(),t.classList.contains("refused")&&a&&(t.classList.add("flash"),t.addEventListener("animationend",()=>t.classList.remove("flash"),{once:!0}));let e=s[o]&&s[o].querySelector(".run-btn"),i=t.querySelector(".result");i&&(i.setAttribute("tabindex","-1"),i.focus({preventScroll:!0})),e&&e.setAttribute("aria-describedby","run-status")})}),y&&y.addEventListener("click",()=>{o=0,r.dataset.prev="",l(0),m(),s[0].querySelector(".run-btn").focus()}),l(0),m(),document.querySelectorAll(".copy").forEach(t=>{t.addEventListener("click",async()=>{let n=document.getElementById(t.dataset.copy);try{await navigator.clipboard.writeText(n.value)}catch{n.select(),document.execCommand("copy")}let c=t.textContent;t.textContent="Copied",setTimeout(()=>{t.textContent=c},1400)})})})();
+</script></body></html>

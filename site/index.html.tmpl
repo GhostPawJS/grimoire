@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="{{.language}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.title}}</title>
+<meta name="description" content="{{.description}}">
+<link rel="canonical" href="{{.url}}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{.url}}">
+<meta property="og:title" content="{{.title}}">
+<meta property="og:description" content="{{.description}}">
+<meta property="og:image" content="{{.socialImage.src}}">
+<meta property="og:image:alt" content="{{.socialImage.alt}}">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="assets/fonts/tektur-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/martian-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="theme-color" content="#04070b">
+<script>document.documentElement.classList.add("js")</script>
+{{style "assets/styles/main.css"}}
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="{{.urls.home}}">GhostPaw</a>
+  <nav aria-label="grimoire elsewhere">
+    <a href="{{.urls.github}}">GitHub</a>
+    <a href="{{.urls.npm}}">npm</a>
+    <a href="{{.urls.demo}}">Live demo</a>
+  </nav>
+</header>
+<main>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <p class="kicker"><code>@ghostpaw/grimoire</code> 0.3.0</p>
+      <h1 id="hero-title">Your agent edits its <code>SKILL.md</code>. Who keeps the history?</h1>
+      <p class="lede">grimoire keeps skills as plain <code>SKILL.md</code> folders, seals each proven improvement as a git commit and keeps the evidence notes in SQLite. A skill's rank is the number of sealed commits, so an edit counts only once it is sealed, and any earlier version can be restored.</p>
+      <div class="install">
+        <p class="cmd-label" id="lib-label">As a library</p>
+        <div class="cmd"><input id="cmd-lib" readonly value="npm install @ghostpaw/grimoire" aria-labelledby="lib-label" spellcheck="false"><button type="button" class="copy" data-copy="cmd-lib">Copy</button></div>
+        <p class="cmd-label" id="mcp-label">As a local MCP server</p>
+        <div class="cmd"><input id="cmd-mcp" readonly value="npx -y @ghostpaw/grimoire mcp" aria-labelledby="mcp-label" spellcheck="false"><button type="button" class="copy" data-copy="cmd-mcp">Copy</button></div>
+      </div>
+      <p class="actions"><a class="button" href="#run">Replay the run</a> <a href="{{.urls.github}}">Read the source on GitHub</a></p>
+      <p class="terms">Free and MIT licensed for Node.js 24 or newer, with zero runtime dependencies. Spells are files on your disk, history is a git repository next to them, and metadata is SQLite.</p>
+    </div>
+    <figure class="hero-art frame">
+      <div class="scope"><picture><source media="(min-width: 52rem)" srcset="assets/images/hero-720.webp" width="720" height="540"><img src="assets/images/hero-480.webp" width="480" height="360" alt="An open book drawn in cyan light, a ghost paw resting on the right-hand page among lines of glyphs, a violet hexagonal rune floating above." fetchpriority="high"></picture><span class="scan" aria-hidden="true"></span></div>
+      <p class="readout" aria-label="Zero runtime dependencies"><span class="big">0</span><span>runtime dependencies</span></p>
+    </figure>
+  </section>
+
+  <section id="run" class="sec run-sec" aria-labelledby="run-title">
+    <h2 id="run-title">One spell, seven calls</h2>
+    <p class="intro">The agent's edit waits, uncommitted, until somebody seals it.</p>
+    <p class="intro">This is the <code>deploy-service</code> spell from the README quick start, replayed from a real run: we made these calls against grimoire 0.3.0 on 2026-10-24 with the git date fixed to 10:00 UTC, so the commit hashes are the real ones. Run the steps in order.</p>
+    <div class="run">
+      <div class="state" role="region" aria-labelledby="state-title" aria-live="polite">
+        <p class="state-label" id="state-title">Spell</p>
+        <ul id="state-list">
+          <li><span class="k">Spell</span><span class="v">not inscribed</span></li>
+          <li><span class="k">Rank</span><span class="v">—</span></li>
+          <li><span class="k">Commits</span><span class="v">0</span></li>
+          <li><span class="k">Notes</span><span class="v">0</span></li>
+          <li><span class="k">Uncommitted</span><span class="v">0</span></li>
+          <li><span class="k">Step 1</span><span class="v">—</span></li>
+        </ul>
+        <p class="state-foot" id="state-foot">An empty grimoire after init(root, db).</p>
+      </div>
+      <ol class="steps">
+        <li class="step refused" id="step-1">
+          <h3><span class="n">01</span> Inscribe a file without frontmatter</h3>
+          <p>A spell has to be a valid <code>SKILL.md</code>.</p>
+          <pre class="call"><code>write.inscribe(root, db, {
+  name: 'deploy-service',
+  chapter: 'engineering',
+  content: '# deploy-service\n\nRun the build, push, apply.\n',
+});</code></pre>
+          <div class="result"><pre><code>// GrimoireValidationError
+// Invalid SKILL.md content: Missing opening frontmatter delimiter (---)</code></pre><p class="say">Refused, and no folder was created. This is a format check, not a security scan.</p></div>
+          <button type="button" class="act run-btn">Run step 1</button>
+        </li>
+        <li class="step" id="step-2">
+          <h3><span class="n">02</span> Inscribe the README spell</h3>
+          <p>Same call with frontmatter, as in the quick start.</p>
+          <pre class="call"><code>write.inscribe(root, db, {
+  name: 'deploy-service',
+  chapter: 'engineering',
+  content: '---\nname: deploy-service\ndescription: Deploy a service to production\n---\n\n'
+    + '# deploy-service\n\n## Steps\n\n1. Run `npm run build`\n2. Push to registry\n3. Apply manifests\n',
+});</code></pre>
+          <div class="result"><pre><code>// { spell: { path: 'engineering/deploy-service', rank: 1, tier: 'Apprentice',
+//   description: 'Deploy a service to production', bodyLines: 9, ... }, warnings: [] }</code></pre><p class="say">The folder <code>engineering/deploy-service/</code> now holds a <code>SKILL.md</code>, and the first commit gives it rank 1.</p></div>
+          <button type="button" class="act run-btn">Run step 2</button>
+        </li>
+        <li class="step" id="step-3">
+          <h3><span class="n">03</span> Drop a note from practice</h3>
+          <p>Evidence comes first and waits.</p>
+          <pre class="call"><code>write.dropNote(db, {
+  source: 'practice',
+  content: 'Build step fails if DOCKER_REGISTRY is not exported first.',
+});</code></pre>
+          <div class="result"><pre><code>// { id: 1 }</code></pre><p class="say">One note pending. The spell has not changed.</p></div>
+          <button type="button" class="act run-btn">Run step 3</button>
+        </li>
+        <li class="step" id="step-4">
+          <h3><span class="n">04</span> The agent edits the spell</h3>
+          <p>It adds the missing step at the top.</p>
+          <pre class="call"><code>write.updateSpell(root, 'engineering/deploy-service', newContent);
+read.pendingChanges({ root }, 'engineering/deploy-service');</code></pre>
+          <div class="result"><pre><code>// [{ spellPath: 'engineering/deploy-service',
+//    changes: [{ status: 'modified', filePath: 'engineering/deploy-service/SKILL.md' }] }]</code></pre><p class="say">The edit is on disk and still uncommitted. Rank stays at 1.</p></div>
+          <button type="button" class="act run-btn">Run step 4</button>
+        </li>
+        <li class="step" id="step-5">
+          <h3><span class="n">05</span> Seal the improvement</h3>
+          <p>Sealing is the moment someone says the edit is proven.</p>
+          <pre class="call"><code>write.seal({ root }, db, ['engineering/deploy-service'],
+  'Fix: document required env var for build step');</code></pre>
+          <div class="result"><pre><code>// { commitHash: '26141d857cead85fd67855a7f7574ab7ed454764',
+//   sealedPaths: ['engineering/deploy-service'],
+//   ranks: { 'engineering/deploy-service': 2 } }</code></pre><p class="say">A real git commit, and rank 2.</p></div>
+          <button type="button" class="act run-btn">Run step 5</button>
+        </li>
+        <li class="step" id="step-6">
+          <h3><span class="n">06</span> Distill the note</h3>
+          <p>The note is now part of the spell.</p>
+          <pre class="call"><code>write.distill(db, 1, 'engineering/deploy-service');</code></pre>
+          <div class="result"><pre><code>read.pendingNotes(db).length
+// 0</code></pre><p class="say">No notes pending.</p></div>
+          <button type="button" class="act run-btn">Run step 6</button>
+        </li>
+        <li class="step" id="step-7">
+          <h3><span class="n">07</span> Read the history and roll back</h3>
+          <p>Say the new first step turns out to be wrong.</p>
+          <pre class="call"><code>const log = read.history({ root }, 'engineering/deploy-service');
+write.rollback({ root }, 'engineering/deploy-service', log.at(-1).hash);</code></pre>
+          <div class="result"><pre><code>// history
+// 26141d8  Fix: document required env var for build step
+// c40ce35  inscribe engineering/deploy-service
+
+// { success: true, restoredRef: 'c40ce353576648772363ce66a2568bcf72d67d7c' }</code></pre><p class="say">The first version is back on disk as an uncommitted change, and rank stays at 2 until that change is sealed.</p></div>
+          <button type="button" class="act run-btn">Run step 7</button>
+        </li>
+      </ol>
+    </div>
+    <div class="run-tools"><button type="button" class="button ghost" id="reset">Start over</button><p id="run-status" role="status"></p></div>
+    <p class="note">After the run, the <code>inspect_grimoire_item</code> tool reported “Inspected spell <code>engineering/deploy-service</code> (Apprentice, rank 2).” with one seal to the next tier.</p>
+    <p class="note">Tier names come from the library at read time. The tier table in the README gives different rank boundaries from the code, so this page only shows what the run returned.</p>
+  </section>
+
+  <section class="sec explain" aria-labelledby="explain-title">
+    <div class="sec-head">
+    <h2 id="explain-title">Eight words for one skills folder</h2>
+    <img class="graph" src="assets/images/art-640.webp" width="640" height="360" alt="A branching tree of glowing nodes in dashed tiers, cyan lines climbing upward and one violet node at the top right." loading="lazy">
+    </div>
+    <p class="intro">Files for content, git for history and rank, SQLite for the rest.</p>
+    <dl class="form">
+      <div><dt>Spell</dt><dd>A learned procedure stored as <code>SKILL.md</code>, YAML frontmatter plus a markdown body.</dd></div>
+      <div><dt>Chapter</dt><dd>A folder of related spells, such as <code>engineering/</code>.</dd></div>
+      <div><dt>Seal</dt><dd>A git commit that marks a proven improvement. Rank is the number of seals.</dd></div>
+      <div><dt>Tier</dt><dd>A name computed from rank on every read.</dd></div>
+      <div><dt>Note</dt><dd>Raw evidence, such as an observation, a failure path or a correction, waiting to be distilled.</dd></div>
+      <div><dt>Resonance</dt><dd>A read-time signal for which spell is most worth improving next.</dd></div>
+      <div><dt>Draft</dt><dd>A proposed new spell held for review before it is inscribed.</dd></div>
+      <div><dt>Catalogue</dt><dd>A health pass over the grimoire covering staleness, dormancy, oversized spells and note routing.</dd></div>
+    </dl>
+    <p class="note">Each of the three stores is optional, and the package degrades without any of them, as the README says. Without git there are no seals, so rank and rollback go too.</p>
+  </section>
+
+  <section class="sec worry" aria-labelledby="worry-title">
+    <h2 id="worry-title">If skills already feel like a supply-chain risk</h2>
+    <div class="worry-grid">
+      <p>Marketplace skills have shipped with vulnerabilities, and a <code>SKILL.md</code> can tell an agent to do things you never asked for. grimoire does not fix that, and does not claim to.</p>
+      <ul>
+        <li>It validates the format of a <code>SKILL.md</code>. It does not judge what the instructions say.</li>
+        <li>Every change to a spell is either uncommitted or a commit you can read, diff and roll back.</li>
+        <li><code>scout_skills</code> can adopt spells from outside sources. Treat those like any other code you pull in.</li>
+        <li>Eleven tools with JSON Schemas, among them <code>update_spell</code>, <code>hone_spell</code>, <code>manage_spell</code> and <code>run_catalogue</code>.</li>
+        <li>Node.js 24 or newer, because it uses the built-in <code>node:sqlite</code>, and git on the machine for seals.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec numbers" aria-labelledby="numbers-title">
+    <h2 id="numbers-title">What it costs to add</h2>
+    <dl class="ledger">
+      <div><dt>Runtime dependencies</dt><dd>0</dd></div>
+      <div><dt>Node.js</dt><dd>24 or newer (node:sqlite)</dd></div>
+      <div><dt>Size of dist/index.js, gzip</dt><dd>46.4 KB</dd></div>
+      <div><dt>Import time</dt><dd>about 9.4 ms</dd></div>
+      <div><dt>Tests</dt><dd>872 passing</dd></div>
+      <div><dt>Line coverage</dt><dd>95.6%</dd></div>
+      <div><dt>Agent tools</dt><dd>11</dd></div>
+    </dl>
+    <p class="note">Measured 2026-10-24 on the maintainer's machine with Node.js 24.14.0 against grimoire 0.3.0: size of the published dist/index.js at gzip -9, median of 11 cold imports, tests and coverage from the v0.3.0 tag.</p>
+  </section>
+
+  <section class="sec start" aria-labelledby="start-title">
+    <h2 id="start-title">Start from the README</h2>
+    <pre><code>import { DatabaseSync } from 'node:sqlite';
+import { init, read, write } from '@ghostpaw/grimoire';
+
+const db = new DatabaseSync(':memory:');
+const root = '/path/to/my-grimoire';
+
+// filesystem + SQLite tables + bare git repo with initial commit
+init(root, db);
+
+const { spell } = write.inscribe(root, db, {
+  name: 'deploy-service',
+  chapter: 'engineering',
+  content: '---\nname: deploy-service\ndescription: Deploy a service to production\n---\n\n# deploy-service\n\n## Steps\n\n1. Run `npm run build`\n2. Push to registry\n3. Apply manifests\n',
+});
+
+write.dropNote(db, {
+  source: 'practice',
+  content: 'Build step fails if DOCKER_REGISTRY is not exported first.',
+});
+
+write.seal({ root }, db, [`engineering/${spell.name}`], 'Fix: document required env var for build step');
+
+const detail = read.getSpell(root, 'engineering/deploy-service', db);</code></pre>
+    <p>To run it as an MCP server, add <code>npx -y @ghostpaw/grimoire mcp</code> to your client.</p>
+    <p class="links"><a class="more" href="{{.urls.readme}}">Read the README</a><a href="{{.urls.demo}}">Open the live demo</a><a href="{{.urls.npm}}">grimoire on npm</a></p>
+    <p class="links"><a href="{{.urls.home}}">All seven GhostPaw libraries</a><a href="{{.urls.agentMemory}}">codex, for memory</a><a href="{{.urls.agentTasks}}">questlog, for tasks</a><a href="{{.urls.agentContacts}}">affinity, for contacts</a><a href="{{.urls.agentIdentity}}">souls, for identity</a><a href="{{.urls.agentEmail}}">email, for mail</a><a href="{{.urls.agentTelegram}}">telegram, for chats</a></p>
+  </section>
+</main>
+<footer class="foot">
+  <p>grimoire is maintained in the open by GhostPaw under the MIT licence.</p>
+  <p class="foot-links"><a href="{{.urls.github}}">Source</a><a href="{{.urls.impressum}}">Impressum</a><a href="{{.urls.privacy}}">Datenschutz</a></p>
+</footer>
+{{script "assets/scripts/main.js"}}
+</body>
+</html>

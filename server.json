@@ -8,7 +8,7 @@
     "url": "https://github.com/GhostPawJS/grimoire.git",
     "source": "github"
   },
-  "websiteUrl": "https://github.com/GhostPawJS/grimoire",
+  "websiteUrl": "https://grimoire.ghostpaw.dev/",
   "packages": [
     {
       "registryType": "npm",

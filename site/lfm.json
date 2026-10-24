@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "url": "https://grimoire.ghostpaw.dev/",
+  "language": "en",
+  "title": "grimoire: agent skills as SKILL.md folders with git history and rollback",
+  "description": "@ghostpaw/grimoire keeps agent skills as plain SKILL.md folders, seals each proven improvement as a git commit, ranks skills by sealed commits and rolls back to any version. Notes and health in SQLite. Node.js 24, zero dependencies, MIT.",
+  "socialImage": {
+    "src": "assets/images/share.png",
+    "alt": "An open book drawn in cyan light with a ghost paw on its page and a violet rune, beside the line: Your agent edits its SKILL.md. Who keeps the history?"
+  },
+  "urls": {
+    "home": "https://ghostpaw.dev/",
+    "github": "https://github.com/GhostPawJS/grimoire",
+    "readme": "https://github.com/GhostPawJS/grimoire#readme",
+    "npm": "https://www.npmjs.com/package/@ghostpaw/grimoire",
+    "demo": "https://grimoire.ghostpaw.dev/docs/",
+    "impressum": "https://lab.anonyfox.com/impressum/",
+    "privacy": "https://lab.anonyfox.com/datenschutz/",
+    "mit": "https://opensource.org/license/mit",
+    "orgId": "https://ghostpaw.dev/#org",
+    "agentMemory": "https://codex.ghostpaw.dev/",
+    "agentTasks": "https://questlog.ghostpaw.dev/",
+    "agentContacts": "https://affinity.ghostpaw.dev/",
+    "agentIdentity": "https://souls.ghostpaw.dev/",
+    "agentEmail": "https://email.ghostpaw.dev/",
+    "agentTelegram": "https://telegram.ghostpaw.dev/"
+  },
+  "jsonld": {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareSourceCode",
+        "name": "@ghostpaw/grimoire",
+        "description": "{{.description}}",
+        "codeRepository": "{{.urls.github}}",
+        "programmingLanguage": "TypeScript",
+        "runtimePlatform": "Node.js 24",
+        "version": "0.3.0",
+        "license": "{{.urls.mit}}",
+        "author": {
+          "@type": "Organization",
+          "@id": "{{.urls.orgId}}",
+          "name": "GhostPaw"
+        }
+      }
+    ]
+  }
+}
