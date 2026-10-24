@@ -2,6 +2,7 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import * as esbuild from 'esbuild';
+import { addDocsChrome, minifyCss } from './docs_chrome.mjs';
 
 const OUT_DIR = 'demo';
 const ENTRY = 'src/demo/main.tsx';
@@ -16,6 +17,7 @@ const buildOptions = {
 	platform: 'browser',
 	target: ['es2022'],
 	sourcemap: true,
+	minify: !WATCH,
 	jsx: 'automatic',
 	jsxImportSource: 'preact',
 	loader: { '.wasm': 'file', '.json': 'json' },
@@ -30,6 +32,14 @@ const buildOptions = {
 		'node:os': EMPTY,
 	},
 };
+
+// The top bar and footer sit in the page flow; on phones the menu button
+// sticks below them instead of covering the top bar.
+const LAYOUT_CSS = `
+@media (max-width: 768px) {
+	.hamburger { position: sticky; top: 12px; justify-self: start; margin: 12px 0 -2.5rem 12px; }
+}
+`;
 
 async function writeHtmlShell() {
 	const cssPath = join(process.cwd(), 'scripts', 'demo.css');
@@ -53,7 +63,7 @@ async function writeHtmlShell() {
 <meta name="twitter:card" content="summary_large_image" />
 <!-- ghostpaw-docs-shell -->
 <style>.pre{max-width:42rem;margin:4rem auto;padding:0 1.25rem;font:400 1rem/1.6 system-ui,sans-serif;color:#dce7f3}.pre h1{font-size:1.6rem;line-height:1.25;margin:0 0 .75rem}.pre a{color:#62e6f2}.pre li{margin:.25rem 0}#app:not(:empty)~.pre{display:none}@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}</style>
-<style>${css}</style>
+<style>${minifyCss(css)}</style>
 </head>
 <body>
 <div id="app"></div>
@@ -71,7 +81,11 @@ async function writeHtmlShell() {
 </body>
 </html>
 `;
-	await writeFile(join(OUT_DIR, 'index.html'), html, 'utf-8');
+	await writeFile(
+		join(OUT_DIR, 'index.html'),
+		addDocsChrome(html, { lib: 'grimoire', layoutCss: LAYOUT_CSS }),
+		'utf-8',
+	);
 }
 
 async function buildDemo() {
