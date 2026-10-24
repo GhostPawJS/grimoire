@@ -1,13 +1,14 @@
+<a href="https://grimoire.ghostpaw.dev/"><img src="https://raw.githubusercontent.com/GhostPawJS/grimoire/main/.github/social-preview.png" alt="GhostPaw grimoire: Your agent edits its SKILL.md. Who keeps the history?" width="100%"></a>
+
 # @ghostpaw/grimoire
 
-[![npm](https://img.shields.io/npm/v/@ghostpaw/grimoire)](https://www.npmjs.com/package/@ghostpaw/grimoire)
-[![node](https://img.shields.io/node/v/@ghostpaw/grimoire)](https://nodejs.org)
-[![license](https://img.shields.io/npm/l/@ghostpaw/grimoire)](LICENSE)
-[![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](package.json)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Live Demo](https://img.shields.io/badge/demo-live-06d6a0?style=flat&logo=github)](https://grimoire.ghostpaw.dev/docs/)
-[![MCP Registry](https://img.shields.io/badge/MCP_Registry-io.github.GhostPawJS%2Fgrimoire-06d6a0)](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.GhostPawJS%2Fgrimoire/versions/latest)
-[![Site](https://img.shields.io/badge/site-grimoire.ghostpaw.dev-62e6f2)](https://grimoire.ghostpaw.dev/)
+[![npm](https://img.shields.io/npm/v/@ghostpaw/grimoire?style=flat-square&labelColor=0a1119&color=62e6f2&label=npm)](https://www.npmjs.com/package/@ghostpaw/grimoire) [![CI](https://img.shields.io/github/actions/workflow/status/GhostPawJS/grimoire/ci.yml?branch=main&style=flat-square&labelColor=0a1119&label=CI)](https://github.com/GhostPawJS/grimoire/actions/workflows/ci.yml) [![site](https://img.shields.io/badge/site-grimoire.ghostpaw.dev-62e6f2?style=flat-square&labelColor=0a1119)](https://grimoire.ghostpaw.dev/) [![runtime deps](https://img.shields.io/badge/runtime_deps-0-7af0b4?style=flat-square&labelColor=0a1119)](package.json) [![MCP Registry](https://img.shields.io/badge/MCP_Registry-io.github.GhostPawJS%2Fgrimoire-b39dff?style=flat-square&labelColor=0a1119)](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.GhostPawJS%2Fgrimoire/versions/latest) [![node](https://img.shields.io/badge/node-%E2%89%A524-93a5b9?style=flat-square&labelColor=0a1119)](https://nodejs.org) [![license](https://img.shields.io/npm/l/@ghostpaw/grimoire?style=flat-square&labelColor=0a1119&color=93a5b9)](LICENSE)
+
+**Agent skills as SKILL.md folders, every improvement sealed as a git commit you can roll back.**
+
+```bash
+npm install @ghostpaw/grimoire
+```
 
 A procedural knowledge engine for Node.js, built on Git, SQLite, and the filesystem.
 
