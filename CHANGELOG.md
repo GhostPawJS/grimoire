@@ -4,6 +4,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-24
+
 ### Added
 
 - MCP stdio server and CLI backed by the existing tool registry.
@@ -117,7 +119,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 - Initial procedural knowledge library, tool facade, documentation, and browser demo. Early setup and demo improvements are grouped here.
 
-[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.2.15...HEAD
+[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/GhostPawJS/grimoire/compare/v0.2.15...v0.3.0
 [0.2.15]: https://github.com/GhostPawJS/grimoire/compare/v0.2.14...v0.2.15
 [0.2.1]: https://github.com/GhostPawJS/grimoire/compare/v0.2.0...v0.2.1
 [0.2.2]: https://github.com/GhostPawJS/grimoire/compare/v0.2.1...v0.2.2
