@@ -482,3 +482,144 @@ Observer note: 1 likes at fetch
 >
 > MIT, one-command plugin install: github.com/agentkitco/agentkit-dev-skills
 <https://bsky.app/profile/agentkitco.bsky.social/post/3mykdocewmm2j>
+
+## Batch 2026-10-24 · ongoing: depth pass for the subdomain move · queries: "SKILL.md agent skills", "claude skills versioning", "agent learns skills over time", "skills folder agent", "agent skills SKILL.md", "claude skills", "SKILL.md versioning skills" · unreachable: YouTube (429), Reddit (challenge page)
+
+### V061 · GitHub (Shopify/hydrogen issue #4000) · buyer · posted 2026-09-09 · fetched 2026-10-24 · via fetch
+> The agent skills in `.claude/skills/` contain three stale references that send contributors (and coding agents reading them) to paths and skills that do not exist. All three are present on `main` as of `b543c6d2`.
+>
+> ### 1. Wrong path for the Hydrogen CLI source
+>
+> [`.claude/skills/hydrogen-dev-workflow/SKILL.md:132`](https://github.com/Shopify/hydrogen/blob/main/.claude/skills/hydrogen-dev-workflow/SKILL.md#L132) states:
+>
+> > The Hydrogen CLI source code lives at `packages/cli-hydrogen` in the Hydrogen repo.
+>
+> There is no `packages/cli-hydrogen` directory. …
+<https://github.com/Shopify/hydrogen/issues/4000>
+Observer note: issue title: Agent skills reference a non-existent CLI path and two skills that don't exist
+
+### V062 · Hacker News (What's inside the trending "skills" repos for Claude Code) · expert · posted 2026-06-03 · fetched 2026-10-24 · via fetch
+> Five of the top 10 AI repos on GitHub trending this week are "skills" packs for Claude Code. The label is doing wildly different work across them.
+>
+> forrestchang/andrej-karpathy-skills (~70k stars). One CLAUDE.md file, four behavioral rules, derived from Karpathy's January tweet about agent coding failure modes (silent wrong assumptions, over-complication, not surfacing tradeoffs). Karpathy didn't write the file or endorse it. The README has had a typo in the install command (andrej-karpthy-skills, missing the second "a") since launch. A second repo, multica-ai/andrej-karpathy-skills, is trending in parallel with the same content republished.
+>
+> mattpocock/skills (~115k stars). …
+<https://news.ycombinator.com/item?id=48383439>
+
+### V063 · GitHub (tkottke90/amazing-hashbrown issue #233) · creator · posted 2026-09-29 · fetched 2026-10-24 · via fetch
+> ## Description
+>
+> Adds a versioning system for skills so a skill eval run can be pinned to an immutable snapshot of the skill's configuration at the time it ran, and lets users compare a skill's eval results across versions to catch regressions. Also adds the skill-filtered Evaluations view reachable from the skill drawer's existing (currently stubbed) evaluations tab.
+>
+> Not yet spec'd in detail — needs its own brainstorming/design pass. No `version` field exists on skills anywhere in the API today.
+>
+> ## Expected Behavior
+>
+> - A skill author can bump a skill's version after making changes they want tracked. …
+<https://github.com/tkottke90/amazing-hashbrown/issues/233>
+Observer note: issue title: Enhancement - Evaluations skill versioning (Phase 3)
+
+### V064 · Hacker News (Ask HN: How do you manage skills files?) · buyer · posted 2026-09-07 · fetched 2026-10-24 · via fetch
+> 5 Stages using local GIT (no remote, don't need it) to prevent preloading in the prompt:
+>
+> 1. A single Skill finder skill, loaded in the prompt, prevents having to import all the summaries in the prompt the harness would add. Uses git's own search.
+>
+> 2. Private repo, per agent, contains main (production) and draft-<name of skill> branches.
+>
+> 3. Shared repo, like 2, but general access for all group agents.
+>
+> 4. Fallback mode, search the harness for skills using the harness mechanism when a relevant skill cannot be found.
+>
+> 5. Skill audit cron. Identify junk skills / drafts that have never changed / not in any recent sessions history, and categorise monthly for me to decide. …
+<https://news.ycombinator.com/item?id=49595315>
+
+### V065 · Hacker News (Show HN: Sx 2.0 – Share AI skills with your team through a Dropbox folder) · buyer · posted 2026-07-14 · fetched 2026-10-24 · via fetch
+> We've adopted a simple/similar Dropbox-based approach for skills and rules - each person's ~/.claude/skills is actually symlinked to a folder just for them inside a shared Dropbox folder, one that others on our (small) team can see and edit as well.
+>
+> This solves a set of problems around people writing skills that reference artifacts or other skills that only exist on their system, and/or that reference their own name/information as the creator, and not knowing to make them self-contained and replicable. Luckily, adapting your colleagues' skills to self-contained versions and pulling them into your folder is trivial to instruct an agent to do. …
+<https://news.ycombinator.com/item?id=48901611>
+
+### V066 · Hacker News (Ask HN: How do you manage skills files?) · buyer · posted 2026-09-07 · fetched 2026-10-24 · via fetch
+> To the extent that skills are contextual guidance (for this author, this project, etc) and not just (raw) capabilities they are unlikely to be eaten by models.
+>
+> I maintain all my skill files in a central location (like dotfile management) and have guix home sync it to the skill folders of various harnesses that I'm playing with (codex, pi, antigravity, Claude Code, Deepseek harness, etc). They're set up to be bidirectional links rather than read-only like the default configuration, so I can keep editing them / adding to the corpus from any harness.
+>
+> This works well for skills since all harnesses expect the same format, but is more annoying for other features. …
+<https://news.ycombinator.com/item?id=49593732>
+
+### V067 · Hacker News (Ask HN: How do you manage skills files?) · buyer · posted 2026-09-07 · fetched 2026-10-24 · via fetch
+> I don’t find skills. I write my own skills based on things I do frequently and repeatably. I keep them version controlled locally and in GitHub, and I symlink that folder to my various agent skill folders so they all stay up to date.
+>
+> I feel like downloading a bunch of skills is another one of those useless collections people make purely because they have infinite options. It’s like those collections of thousands of bookmarks you’re never going to click or pirated ebooks you’re never going to read.
+>
+> It’s trivial to write your own skills with agents. …
+<https://news.ycombinator.com/item?id=49599924>
+
+### V068 · Hacker News (Claude Code reads AGENTS.md only when telemetry is on [fixed]) · buyer · posted 2026-09-23 · fetched 2026-10-24 · via fetch
+> I use cursor and claude, its kinda annoying having to have the same skills in both so I made a ~/.agents/skills folder then ln both cursor and claude skills to point to that folder.
+>
+> which works except that claude uses .skills/synced which is uses to sync changes to skills from claude servers into the skills folder.
+>
+> every other agent I have used just directly syncs into .skills so it ends up duplicating skills
+<https://news.ycombinator.com/item?id=49815311>
+
+### V069 · Hacker News (Etymon – Get rid of all your Claude.md, AGENTS.md, cursor/rules, mcp.json, etc.) · buyer · posted 2026-10-01 · fetched 2026-10-24 · via fetch
+> I use a bunch of different harnesses depending on model need, usage limits, harness-specific capabilities, and other factors. I often switch between ClaudeCode for heavy coding, hit the 5hr limit, switch to Codex to finish it up. If I'm at limits for all, I'll go to OpenCode(DeepSeek) and finish up there.
+>
+> This is a great problem to have, coding has never been easier. But, it also introduces a problem that I've had issues with for a while. The whole ecosystem is fragmented. …
+<https://news.ycombinator.com/item?id=49926106>
+
+### V070 · GitHub (camunda/skills issue #110) · creator · posted 2026-09-22 · fetched 2026-10-24 · via fetch
+> ## Description
+>
+> Makes the skills **semantically versioned for stable, pinnable deployments** using the hybrid model decided in #109.
+>
+> **What's in it:**
+>
+> 1. **Hybrid SemVer policy** (`CONTRIBUTING.md`) — bundle version is the deployable/pinnable unit (Git tag / GitHub Release); per-skill `requires{}` is informational. Documents what major/minor/patch mean for skills.
+> 2. **`make version-check`** — asserts all four version manifests (`plugin.json` = source of truth, `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.github/plugin/marketplace.json`) agree. Stdlib-only; wired into the compatibility workflow.
+> 3. …
+<https://github.com/camunda/skills/pull/110>
+Observer note: issue title: feat: semantic versioning for stable skill deployments
+
+### V071 · Bluesky (post) · buyer · posted 2026-10-23 · fetched 2026-10-24 · via fetch
+> Agent Skills (Anthropic), Open Responses (OpenAI), OpenEnv (Hugging Face) and OpenSandbox (Alibaba) all moved to the Agentic AI Foundation yesterday.
+>
+> Neutral owner, good. But a skill can ship scripts, so I'd still pin and review one like any dependency.
+>
+> #AIAgents #OpenSource
+<https://bsky.app/profile/dhanushkumarsivaji.bsky.social/post/3myjmd5lonc2m>
+Observer note: 5 likes at fetch
+
+### V072 · Bluesky (post) · buyer · posted 2026-10-24 · fetched 2026-10-24 · via fetch
+> I want portable skills. Fine. Seventy platforms is a press release until one skill fires the same way in Claude Code, Copilot and Cursor. Name what fired in each one. Then I'll cheer.
+<https://bsky.app/profile/dukeemnukeem.bsky.social/post/3myn2wcu6ic2q>
+
+### V073 · GitHub (aniruddhaadak80/skills issue #268) · buyer · posted 2026-10-10 · fetched 2026-10-24 · via fetch
+> ## Summary
+> Implement skill versioning and migration system so agents can handle skill updates gracefully.
+>
+> ## Motivation
+> Skills evolve but agents have installed versions. No mechanism exists for:
+> - Detecting skill updates (new version available)
+> - Migration guidance (what changed, breaking changes)
+> - Backward compatibility (old agents using old skills)
+> - Changelog per skill
+>
+> Currently `npx skills add` just overwrites. No semantic versioning, no diff view.
+>
+> ## Proposed Solution
+> 1. …
+<https://github.com/aniruddhaadak80/skills/issues/268>
+Observer note: issue title: [Feature] Skill versioning and migration system
+
+### V074 · Bluesky (post) · expert · posted 2026-10-21 · fetched 2026-10-24 · via fetch
+> Skills aren't just MD files
+>
+> Very often they are. But a great way to unlock more capabilities and reduce your anxiety is to include tested scripts that perform deterministic actions
+<https://bsky.app/profile/armenvardanyan.dev/post/3myfkja5q5s2y>
+Observer note: 2 likes at fetch
+
+### V075 · Bluesky (post) · adjacent · posted 2026-10-24 · fetched 2026-10-24 · via fetch
+> Skill folders written for Claude Code also load in OpenCode on a local model: OpenCode reads the same ~/.claude/skills directory, and ollama launch opencode wires it to Ollama.
+<https://bsky.app/profile/selfhostedsi.bsky.social/post/3myn3e6675r2a>

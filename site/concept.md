@@ -1,5 +1,8 @@
 # Concept: GhostPaw Grimoire
 
+## Diagnosis
+Depth pass on 2026-10-24 for the subdomain move. What stays strong: the replayed run, re-run against grimoire 0.3.0 with identical output apart from commit hashes and timestamps. What was thin: the page treated git-versioned skills as new, while many developers already keep skills in git and symlink them into every harness. Added: a section that starts from that habit and names what git alone does not record.
+
 ## Voices
 - Agents are told to update their own skill files when they hit errors, and nobody tracks what changed. V017 V013 V009
 - Skills and agent manifests have no version history; edits overwrite the last good version. V037 V038 V036
@@ -10,6 +13,11 @@
 - SKILL.md files bloat and get slimmed back down. V035 V053 V016
 - Self-improvement loops built on skills draw scepticism. V018 V022
 - Skills folders sit next to SOUL.md and HEARTBEAT.md in the agent's home. V044 V048
+- Developers already keep skills in a git repo and symlink it into every harness they use. V064 V066 V067 V068 V069
+- Skills go stale: wrong paths and references to skills that do not exist. V061
+- Some run a monthly skill audit to find drafts and skills nobody used. V064
+- Teams version skill bundles with SemVer or pin skills to evaluation runs. V070 V063
+- Downloaded skill packs are compared to unread bookmark collections; writing your own is the advice. V067 V062
 
 ## Buyer
 A Node.js developer whose agent writes and edits SKILL.md files, or who keeps a skills folder by hand (V017 V012). They arrive from a thread about skill sprawl or skill security (V029 V049), compare against skills.sh, ClawHub, the Agent Skills spec and Letta's skill learning (P003 P005 P004 P002), and need to see that every edit is kept, that only a sealed change counts, and that a bad edit can be rolled back (V037 V038). The hesitation most likely to stop them: another skills store sounds like another marketplace (V026 V025).
@@ -44,7 +52,7 @@ Delivery: `npm install @ghostpaw/grimoire` into a Node.js 24+ project, or `npx -
 - In the recorded run, inscribe produced rank 1, an edit stayed pending at rank 1, and seal created commit 26141d8 and rank 2. https://github.com/GhostPawJS/grimoire
 - In the recorded run, rollback to the inscribe commit c40ce35 restored the first version as an uncommitted change and left rank at 2. https://github.com/GhostPawJS/grimoire
 - 872 tests with 95.58% line, 89.21% branch and 95.40% function coverage, measured 2026-10-24. https://github.com/GhostPawJS/grimoire
-- dist is 46.4 KB gzip and imports in about 9.4 ms on the maintainer box, measured 2026-10-24. https://github.com/GhostPawJS/grimoire
+- dist is 46.4 KB gzip and imports in about 7.6 ms on the maintainer box, measured 2026-10-24. https://github.com/GhostPawJS/grimoire
 - Agents and skills often have no version history when edited. V037
 
 ## Axes
@@ -89,7 +97,7 @@ Every SKILL.md edit is kept, and only a sealed one counts. The page centres on t
 2. The run: deploy-service, seven replayed steps. V038 V049
 3. Explainer: spell, chapter, seal, tier, note, resonance, draft, catalogue. V029 V044
 4. Worry: what grimoire checks and what it does not. V049 V051
-5. Numbers: 0 deps, Node 24+, 872 tests, 95.6% lines, 46.4 KB gzip, about 9.4 ms import, 11 tools.
+5. Numbers: 0 deps, Node 24+, 872 tests, 95.6% lines, 46.4 KB gzip, about 7.6 ms import, 11 tools.
 6. Start: install, quick start, GitHub, README, live demo, home and siblings.
 7. Footer: Impressum, Datenschutz.
 
@@ -138,3 +146,4 @@ Reduced motion: no sweep or flash.
 
 ## Changelog
 - 2026-10-24: first concept from the 2026-10-24 research batch (60 voices, 12 peers); sealed history chosen; replay of a real grimoire 0.3.0 run. Tier boundaries left off the page because the README table (journeyman 5–14) and the code (journeyman from 3) disagree.
+- 2026-10-24: depth pass (15 more voices, now 75, the last five from Bluesky and GitHub to keep Hacker News at 40%); replay re-run against the current release; import time re-measured; comparison section added; page moved to https://grimoire.ghostpaw.dev/.

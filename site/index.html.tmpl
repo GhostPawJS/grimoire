@@ -181,18 +181,28 @@ write.rollback({ root }, 'engineering/deploy-service', log.at(-1).hash);</code><
     </div>
   </section>
 
+  <section class="sec field" aria-labelledby="field-title">
+    <h2 id="field-title">How people keep skills today</h2>
+    <p class="intro">Many developers already keep their SKILL.md files in git and symlink the folder into every agent harness they use. grimoire keeps that layout and adds what git alone does not record.</p>
+    <div class="field-rows">
+      <article class="field-row"><h3>A skills folder in git, linked into each harness</h3><p class="gap">Git versions the text. It does not record what went wrong that made a step change, or which skills nobody has used in months.</p><p class="here">Each change is sealed as a git commit, and the notes that led to it stay in SQLite next to the spell.</p></article>
+      <article class="field-row"><h3>Skill packs downloaded from a repo</h3><p class="gap">Written for someone else's setup. Paths and cross-references go stale without anyone noticing.</p><p class="here">Spells come from your own notes. The catalogue reports staleness, dormancy and oversized spells.</p></article>
+      <article class="field-row"><h3>Semantic versions per skill</h3><p class="gap">A version number pins a release. It says nothing about whether the procedure works.</p><p class="here">Tier and health are computed at read time from evidence and commit history.</p></article>
+    </div>
+  </section>
+
   <section class="sec numbers" aria-labelledby="numbers-title">
     <h2 id="numbers-title">What it costs to add</h2>
     <dl class="ledger">
       <div><dt>Runtime dependencies</dt><dd>0</dd></div>
       <div><dt>Node.js</dt><dd>24 or newer (node:sqlite)</dd></div>
       <div><dt>Size of dist/index.js, gzip</dt><dd>46.4 KB</dd></div>
-      <div><dt>Import time</dt><dd>about 9.4 ms</dd></div>
+      <div><dt>Import time</dt><dd>about 7.6 ms</dd></div>
       <div><dt>Tests</dt><dd>872 passing</dd></div>
       <div><dt>Line coverage</dt><dd>95.6%</dd></div>
       <div><dt>Agent tools</dt><dd>11</dd></div>
     </dl>
-    <p class="note">Measured 2026-10-24 on the maintainer's machine with Node.js 24.14.0 against grimoire 0.3.0: size of the published dist/index.js at gzip -9, median of 11 cold imports, tests and coverage from the v0.3.0 tag.</p>
+    <p class="note">Measured 2026-10-24 on the maintainer's machine with Node.js 24.14.0 against grimoire 0.3.0: size of the published dist/index.js at gzip -9, median of 11 cold imports, tests and coverage from the v0.3.0 tag. The replay above was re-run against the same release on that day and gave the same output.</p>
   </section>
 
   <section class="sec start" aria-labelledby="start-title">
