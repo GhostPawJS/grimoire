@@ -1,0 +1,133 @@
+{
+  "manifest_version": "0.3",
+  "name": "ghostpaw-grimoire",
+  "display_name": "GhostPaw Grimoire",
+  "version": "0.2.15",
+  "description": "Local procedural knowledge with spells, notes, and revision history.",
+  "long_description": "Local procedural knowledge with spells, notes, and revision history. Stores data in a local SQLite database.",
+  "author": {
+    "name": "Anonyfox",
+    "email": "max@anonyfox.com",
+    "url": "https://anonyfox.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GhostPawJS/grimoire.git"
+  },
+  "homepage": "https://github.com/GhostPawJS/grimoire",
+  "documentation": "https://github.com/GhostPawJS/grimoire/blob/main/README.md",
+  "support": "https://github.com/GhostPawJS/grimoire/issues",
+  "license": "MIT",
+  "keywords": [
+    "grimoire",
+    "knowledge-management",
+    "knowledge-base",
+    "procedure",
+    "procedures",
+    "runbook",
+    "playbook",
+    "skill",
+    "skills",
+    "workflow",
+    "git",
+    "sqlite",
+    "local-first",
+    "llm",
+    "ai",
+    "agent",
+    "tools",
+    "typescript",
+    "zero-dependencies",
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "agent-skills",
+    "cli"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "server/mcp-server.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/mcp-server.js"
+      ],
+      "env": {
+        "GHOSTPAW_GRIMOIRE_DB": "${user_config.db_path}",
+        "GHOSTPAW_GRIMOIRE_ROOT": "${user_config.root_path}"
+      }
+    }
+  },
+  "user_config": {
+    "root_path": {
+      "type": "string",
+      "title": "Spells directory",
+      "description": "Local spells directory.",
+      "required": false,
+      "default": "${HOME}/.ghostpaw/grimoire"
+    },
+    "db_path": {
+      "type": "string",
+      "title": "Database path",
+      "description": "Path to the local SQLite database.",
+      "required": false,
+      "default": "${HOME}/.ghostpaw/grimoire.db"
+    }
+  },
+  "tools": [
+    {
+      "name": "search_grimoire",
+      "description": "Search the grimoire for spells by name or description."
+    },
+    {
+      "name": "review_grimoire",
+      "description": "Review a dashboard view of the grimoire — chapters, health, resonance, notes, drafts, validation, provenance, or index."
+    },
+    {
+      "name": "inspect_grimoire_item",
+      "description": "Inspect a single spell in detail, including tier, resonance, validation, provenance, and history."
+    },
+    {
+      "name": "inscribe_spell",
+      "description": "Create a new spell in the grimoire."
+    },
+    {
+      "name": "update_spell",
+      "description": "Write new content to an existing spell, leaving the change uncommitted."
+    },
+    {
+      "name": "hone_spell",
+      "description": "Seal pending spell changes into a git commit, advancing spell ranks."
+    },
+    {
+      "name": "manage_spell",
+      "description": "Manage spells: shelve, unshelve, move, delete, repair, repair all, or rollback to a previous seal."
+    },
+    {
+      "name": "drop_note",
+      "description": "Drop an observation note into the grimoire for later cataloguing."
+    },
+    {
+      "name": "manage_draft",
+      "description": "Submit, approve, or dismiss spell drafts."
+    },
+    {
+      "name": "run_catalogue",
+      "description": "Run the full catalogue maintenance pass — detect stale/dormant/oversized spells, route notes, cluster orphans, compute health."
+    },
+    {
+      "name": "scout_skills",
+      "description": "Scout, search, adopt, and update spells from external sources."
+    }
+  ],
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=24.0.0"
+    }
+  }
+}

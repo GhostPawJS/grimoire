@@ -46,8 +46,7 @@ The `network`, `scouting`, and `registry` namespaces also expose network APIs.
 
 ## Contribute
 
-Use Node 24. Run `npm run lint`, `npm run typecheck`, `npm test`, and
-`npm run build`; all must pass. `npm run check:deps` verifies zero runtime
+Use Node 24. Run `npm run check` as the single contribution gate. `npm run check:deps` verifies zero runtime
 dependencies. Keep runtime dependencies at zero.
 
 Tests use `node:test` and `node:assert/strict` in adjacent `*.test.ts` files.
@@ -62,3 +61,9 @@ Record changes under `Unreleased` in `CHANGELOG.md`.
 Maintainers release with `npm run release:patch` or `npm run release:minor`;
 these update the version, create a tag, and push it. Tag-triggered CI verifies
 and publishes to npm with provenance. Leave review changes uncommitted.
+
+Surface bindings live in `src/surface/`; reusable transports live in `src/surfaces/`.
+Run `npm run surfaces` to regenerate SKILL.md, skills/, and directory manifests.
+Guard budgets and API snapshots live in budgets.json and api-surface.json.
+Ratchet approvals use [budget-increase-approved], [api-change-approved], and
+[guardrails-change-approved] in the change description when justified.

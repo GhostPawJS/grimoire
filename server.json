@@ -1,0 +1,41 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.GhostPawJS/grimoire",
+  "description": "Local procedural knowledge with spells, notes, and revision history.",
+  "title": "GhostPaw Grimoire",
+  "version": "0.2.15",
+  "repository": {
+    "url": "https://github.com/GhostPawJS/grimoire.git",
+    "source": "github"
+  },
+  "websiteUrl": "https://github.com/GhostPawJS/grimoire",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@ghostpaw/grimoire",
+      "version": "0.2.15",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "GHOSTPAW_GRIMOIRE_ROOT",
+          "description": "Spells directory (default: ~/.ghostpaw/grimoire/)",
+          "isRequired": false
+        },
+        {
+          "name": "GHOSTPAW_GRIMOIRE_DB",
+          "description": "SQLite database path (default: ~/.ghostpaw/grimoire.db)",
+          "isRequired": false
+        }
+      ]
+    }
+  ]
+}

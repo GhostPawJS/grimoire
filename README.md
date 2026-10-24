@@ -1,5 +1,6 @@
 # @ghostpaw/grimoire
 
+[![MCP Registry](https://img.shields.io/badge/MCP-Registry-blue)](https://registry.modelcontextprotocol.io/?q=io.github.GhostPawJS%2Fgrimoire)
 [![npm](https://img.shields.io/npm/v/@ghostpaw/grimoire)](https://www.npmjs.com/package/@ghostpaw/grimoire)
 [![node](https://img.shields.io/node/v/@ghostpaw/grimoire)](https://nodejs.org)
 [![license](https://img.shields.io/npm/l/@ghostpaw/grimoire)](LICENSE)
@@ -14,6 +15,42 @@ as one coherent model instead of separate systems. It ships as a single
 prebundled blob with zero runtime dependencies, designed for two audiences at
 once: human developers working directly in code, and LLM agents operating
 through a structured `soul` / `tools` / `skills` runtime.
+
+## MCP server
+
+```sh
+claude mcp add ghostpaw-grimoire -- npx -y @ghostpaw/grimoire mcp
+/plugin marketplace add GhostPawJS/grimoire
+/plugin install ghostpaw-grimoire@ghostpaw-grimoire
+```
+
+Codex CLI (`~/.codex/config.toml`):
+
+```toml
+[mcp_servers.ghostpaw-grimoire]
+command = "npx"
+args = ["-y", "@ghostpaw/grimoire", "mcp"]
+```
+
+Cursor, Claude Desktop, or a project `.mcp.json`:
+
+```json
+{"mcpServers":{"ghostpaw-grimoire":{"command":"npx","args":["-y","@ghostpaw/grimoire","mcp"]}}}
+```
+
+Download `server.mcpb` from [releases](https://github.com/GhostPawJS/grimoire/releases) for clients supporting MCP Bundles. Build the supplied Dockerfile with `docker build -t ghostpaw-grimoire .` and mount `/data` for persistence.
+
+Supports MCP 2026-07-28 and initialize-based protocol versions (2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05). The database defaults to `~/.ghostpaw/grimoire.db`; `--db` overrides `GHOSTPAW_GRIMOIRE_DB`. Spells default to `~/.ghostpaw/grimoire/`; set `GHOSTPAW_GRIMOIRE_ROOT` to choose another directory. No credentials are required for local tools.
+
+## CLI
+
+```sh
+npx -y @ghostpaw/grimoire tools
+npx -y @ghostpaw/grimoire call drop_note '{"source":"practice","content":"Verify the build before release."}'
+npx -y @ghostpaw/grimoire call search_grimoire '{"query":"release"}'
+```
+
+Agent Skill: see [SKILL.md](SKILL.md) or install the `skills/grimoire` directory with its references.
 
 ## Install
 

@@ -1,0 +1,13 @@
+{
+  "name": "ghostpaw-grimoire",
+  "owner": {
+    "name": "Anonyfox"
+  },
+  "plugins": [
+    {
+      "name": "ghostpaw-grimoire",
+      "source": "./",
+      "description": "Local procedural knowledge with spells, notes, and revision history."
+    }
+  ]
+}

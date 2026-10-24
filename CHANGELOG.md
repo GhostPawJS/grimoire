@@ -4,6 +4,12 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+### Added
+
+- MCP stdio server and CLI backed by the existing tool registry.
+- Agent Skill documentation, directory manifests, Dockerfile, and MCP Bundle packaging.
+- Size, public API, consumer, startup, and ratchet guards.
+
 ## [0.2.15] - 2026-10-24
 
 ### Added

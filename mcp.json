@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "ghostpaw-grimoire": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@ghostpaw/grimoire@0.2.15",
+        "mcp"
+      ]
+    }
+  }
+}
