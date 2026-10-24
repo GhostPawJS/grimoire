@@ -21,17 +21,17 @@
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="{{.urls.home}}">GhostPaw</a>
+  <a class="brand" href="{{.urls.home}}">GhostPaw<span class="crumb">/grimoire</span></a>
   <nav aria-label="grimoire elsewhere">
+    <a href="{{.urls.demo}}">Live demo</a>
     <a href="{{.urls.github}}">GitHub</a>
     <a href="{{.urls.npm}}">npm</a>
-    <a href="{{.urls.demo}}">Live demo</a>
   </nav>
 </header>
 <main>
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-copy">
-      <p class="kicker"><code>@ghostpaw/grimoire</code> 0.3.0</p>
+      <p class="kicker"><code>@ghostpaw/grimoire</code> <span class="ver">0.3.0</span></p>
       <h1 id="hero-title">Your agent edits its <code>SKILL.md</code>. Who keeps the history?</h1>
       <p class="lede">grimoire keeps skills as plain <code>SKILL.md</code> folders, seals each proven improvement as a git commit and keeps the evidence notes in SQLite. A skill's rank is the number of sealed commits, so an edit counts only once it is sealed, and any earlier version can be restored.</p>
       <div class="install">
@@ -232,12 +232,12 @@ write.seal({ root }, db, [`engineering/${spell.name}`], 'Fix: document required 
 const detail = read.getSpell(root, 'engineering/deploy-service', db);</code></pre>
     <p>To run it as an MCP server, add <code>npx -y @ghostpaw/grimoire mcp</code> to your client.</p>
     <p class="links"><a class="more" href="{{.urls.readme}}">Read the README</a><a href="{{.urls.demo}}">Open the live demo</a><a href="{{.urls.npm}}">grimoire on npm</a></p>
-    <p class="links"><a href="{{.urls.home}}">All seven GhostPaw libraries</a><a href="{{.urls.agentMemory}}">codex, for memory</a><a href="{{.urls.agentTasks}}">questlog, for tasks</a><a href="{{.urls.agentContacts}}">affinity, for contacts</a><a href="{{.urls.agentIdentity}}">souls, for identity</a><a href="{{.urls.agentEmail}}">email, for mail</a><a href="{{.urls.agentTelegram}}">telegram, for chats</a></p>
   </section>
 </main>
 <footer class="foot">
-  <p>grimoire is maintained in the open by GhostPaw under the MIT licence.</p>
-  <p class="foot-links"><a href="{{.urls.github}}">Source</a><a href="{{.urls.impressum}}">Impressum</a><a href="{{.urls.privacy}}">Datenschutz</a></p>
+  <nav class="foot-libs" aria-label="GhostPaw libraries"><a href="{{.urls.agentMemory}}">codex</a><a href="{{.urls.agentTasks}}">questlog</a><a href="{{.urls.agentContacts}}">affinity</a><a href="{{.urls.agentIdentity}}">souls</a><a href="{{.url}}" aria-current="page">grimoire</a><a href="{{.urls.agentEmail}}">email</a><a href="{{.urls.agentTelegram}}">telegram</a></nav>
+  <p>grimoire is one of seven GhostPaw libraries, maintained in the open under the MIT licence.</p>
+  <p class="foot-links"><a href="{{.urls.home}}">GhostPaw home</a><a href="{{.urls.github}}">Source on GitHub</a><a href="{{.urls.npm}}">grimoire on npm</a><a href="{{.urls.impressum}}">Impressum</a><a href="{{.urls.privacy}}">Datenschutz</a></p>
 </footer>
 {{script "assets/scripts/main.js"}}
 </body>
