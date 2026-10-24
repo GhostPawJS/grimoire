@@ -57,7 +57,7 @@ export function seal(
 		}
 
 		const msg = message ?? 'seal';
-		execGit(ctx, `commit --allow-empty -m "${msg}"`);
+		execGit(ctx, `${commitIdentity(ctx)}commit --allow-empty -m "${msg}"`);
 		const commitHash = execGit(ctx, 'rev-parse HEAD');
 
 		const ranks = allRanks(ctx);
@@ -77,4 +77,14 @@ export function seal(
 	} catch {
 		return { commitHash: '', sealedPaths: [], ranks: {} };
 	}
+}
+
+/** Falls back to the identity `init` uses when git has no user configured. */
+function commitIdentity(ctx: GitContext): string {
+	try {
+		if (execGit(ctx, 'config user.email') !== '') return '';
+	} catch {
+		/* No identity configured. */
+	}
+	return '-c user.name=grimoire -c user.email=grimoire@localhost ';
 }

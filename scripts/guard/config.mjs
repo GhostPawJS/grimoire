@@ -1,4 +1,10 @@
 import assert from 'node:assert/strict';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+// Guards and the CLI processes they spawn never touch the default ~/.ghostpaw/grimoire root.
+process.env.GHOSTPAW_GRIMOIRE_ROOT ??= join(mkdtempSync(join(tmpdir(), 'grimoire-guard-')), 'root');
 export const packageName = '@ghostpaw/grimoire';
 export const publicEntries = ['.', './mcp'];
 export const binName = 'ghostpaw-grimoire';
