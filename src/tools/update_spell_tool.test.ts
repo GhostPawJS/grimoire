@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
+import { tools } from '../index.ts';
 import { createTestRoot } from '../lib/test-root.ts';
 import { updateSpellTool } from './update_spell_tool.ts';
 
@@ -9,6 +10,30 @@ const VALID_CONTENT =
 	'---\nname: writing\ndescription: How to write well\n---\n\n# writing\n\nUpdated body.\n';
 
 describe('updateSpellTool', () => {
+	it('exports the registry tool through the package namespace and updates through its handler', async () => {
+		const registered = tools.getGrimoireToolByName('update_spell');
+		assert.equal(tools.updateSpellTool, updateSpellTool);
+		assert.equal(registered, tools.updateSpellTool);
+		assert.ok(registered);
+		const { root, cleanup } = createTestRoot({
+			chapters: [{ name: 'general', spells: [{ name: 'writing' }] }],
+		});
+		try {
+			const result = await registered.handler(
+				{ root },
+				{
+					path: 'general/writing',
+					content: VALID_CONTENT,
+				},
+			);
+			assert.equal(result.ok, true);
+			assert.equal(result.outcome, 'success');
+			assert.equal(readFileSync(join(root, 'general/writing/SKILL.md'), 'utf-8'), VALID_CONTENT);
+		} finally {
+			cleanup();
+		}
+	});
+
 	it('has correct metadata', () => {
 		assert.equal(updateSpellTool.name, 'update_spell');
 		assert.equal(updateSpellTool.readOnly, false);

@@ -1,7 +1,17 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { GrimoireNotFoundError, GrimoireValidationError } from '../errors.ts';
-import { demoDeleteSpell, demoGetSpell, demoInscribe } from './demo_operations.ts';
+import { logEvent } from '../events/log_event.ts';
+import { readCatalogue } from '../health/read_catalogue.ts';
+import { createTestDb } from '../lib/test-db.ts';
+import { dropNote } from '../notes/drop_note.ts';
+import {
+	demoBuildIndex,
+	demoCatalogue,
+	demoDeleteSpell,
+	demoGetSpell,
+	demoInscribe,
+} from './demo_operations.ts';
 import { VirtualSpellStore } from './virtual_spell_store.ts';
 
 function skill(name: string, desc = 'A test spell.', body = '## When\n\nAlways.') {
@@ -165,5 +175,79 @@ describe('demoDeleteSpell', () => {
 	it('throws for missing spell', () => {
 		const store = new VirtualSpellStore();
 		assert.throws(() => demoDeleteSpell(store, 'no/thing'), GrimoireNotFoundError);
+	});
+});
+
+describe('demo index and catalogue', () => {
+	it('sorts and filters valid index entries while ignoring empty or malformed content', () => {
+		const store = new VirtualSpellStore();
+		store.seed([
+			{ path: 'z/b', content: skill('b') },
+			{ path: 'a/c', content: skill('c') },
+			{ path: 'a/empty', content: '' },
+			{ path: 'a/bad', content: 'invalid' },
+		]);
+		assert.deepEqual(
+			demoBuildIndex(store).map((e) => e.path),
+			['a/c', 'z/b'],
+		);
+		assert.deepEqual(
+			demoBuildIndex(store, { chapters: ['z'] }).map((e) => e.path),
+			['z/b'],
+		);
+		assert.throws(() => demoGetSpell(store, 'a/bad'), GrimoireNotFoundError);
+	});
+
+	it('logs inscription and reads and reports duplicate descriptions', () => {
+		const db = createTestDb();
+		try {
+			const store = new VirtualSpellStore();
+			store.set('general/empty', '');
+			store.set('general/bad', 'invalid');
+			demoInscribe(store, db, { name: 'one', content: skill('one'), now: 100 });
+			const result = demoInscribe(store, db, { name: 'two', content: skill('two'), now: 200 });
+			assert.deepEqual(result.warnings, [{ existingPath: 'general/one', similarity: 1 }]);
+			demoGetSpell(store, 'general/two', db);
+			assert.deepEqual(db.prepare('SELECT event FROM spell_events ORDER BY id').all(), [
+				{ event: 'inscribe' },
+				{ event: 'inscribe' },
+				{ event: 'read' },
+			]);
+		} finally {
+			db.close();
+		}
+	});
+
+	it('persists catalogue health, note loads and activity for populated and empty stores', () => {
+		const db = createTestDb();
+		try {
+			const store = new VirtualSpellStore();
+			const now = 200 * 86400000;
+			store.set('general/old', skill('old', 'A test spell.', 'one\ntwo\nthree'));
+			store.set('general/new', skill('new'));
+			store.set('other/empty', '');
+			store.set('other/bad', 'invalid');
+			logEvent(db, { spell: 'general/old', event: 'seal', now: 0 });
+			logEvent(db, { spell: 'general/old', event: 'seal', now: 1000 });
+			logEvent(db, { spell: 'general/old', event: 'read', now });
+			dropNote(db, { source: 'practice', content: 'A test spell.', domain: 'general/old', now });
+			const snapshot = demoCatalogue(store, db, {
+				now,
+				staleDays: 1,
+				dormantDays: 1,
+				oversizeLines: 1,
+			});
+			assert.equal(snapshot.totalSpells, 4);
+			assert.deepEqual(snapshot.chapterDistribution, { general: 2, other: 2 });
+			assert.ok(snapshot.staleSpells.includes('general/old'));
+			assert.ok(snapshot.dormantSpells.includes('general/new'));
+			assert.ok(snapshot.oversizedSpells.includes('general/old'));
+			assert.equal(snapshot.pendingNotes, 1);
+			assert.deepEqual(readCatalogue(db), snapshot);
+			store.clear();
+			assert.equal(demoCatalogue(store, db).totalSpells, 0);
+		} finally {
+			db.close();
+		}
 	});
 });

@@ -38,7 +38,6 @@ export {
 	oneOfSchema,
 	stringSchema,
 } from './tool_metadata.ts';
-
 // Infrastructure — names
 export {
 	dropNoteToolName,
@@ -52,7 +51,6 @@ export {
 	scoutSkillsToolName,
 	searchGrimoireToolName,
 } from './tool_names.ts';
-
 // Infrastructure — next-step hints
 export {
 	askUserNext,
@@ -65,7 +63,6 @@ export {
 	searchNext,
 	useToolNext,
 } from './tool_next.ts';
-
 // Infrastructure — entity refs
 export {
 	toDraftRef,
@@ -107,3 +104,4 @@ export {
 	toolSuccess,
 	toolWarning,
 } from './tool_types.ts';
+export { updateSpellTool } from './update_spell_tool.ts';

@@ -113,6 +113,7 @@ The current `tools` namespace exports exactly these 10 tools:
 - `inspect_grimoire_item` — full detail on one spell: content, frontmatter,
   tier, rank, notes, git history
 - `inscribe_spell` — create a new spell with duplication guard
+- `update_spell` — write revised content to an existing spell before sealing
 - `hone_spell` — seal pending changes and advance rank
 - `manage_spell` — shelve, unshelve, move, delete, repair, repair all, or
   rollback
