@@ -10,6 +10,10 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 - Agent Skill documentation, directory manifests, Dockerfile, and MCP Bundle packaging.
 - Size, public API, consumer, startup, and ratchet guards.
 
+### Fixed
+
+- Sealing works when git has no user identity configured; spells inscribed on such machines are ranked and found by search again.
+
 ## [0.2.15] - 2026-10-24
 
 ### Added
