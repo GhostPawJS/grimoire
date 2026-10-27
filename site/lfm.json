@@ -3,7 +3,7 @@
   "url": "https://grimoire.ghostpaw.dev/",
   "language": "en",
   "title": "grimoire: agent skills as SKILL.md folders with git history and rollback",
-  "description": "@ghostpaw/grimoire keeps agent skills as plain SKILL.md folders, seals each proven improvement as a git commit, ranks skills by sealed commits and rolls back to any version. Notes and health in SQLite. Node.js 24, zero dependencies, MIT.",
+  "description": "@ghostpaw/grimoire keeps agent skills as plain SKILL.md folders, seals each proven improvement as a git commit, ranks skills by sealed commits and rolls back to any version. Notes and health in SQLite. One executable per platform or npm (Node.js 24+), zero dependencies, MIT.",
   "socialImage": {
     "src": "assets/images/share.png",
     "alt": "An open book drawn in cyan light with a ghost paw on its page and a violet rune, beside the line: Your agent edits its SKILL.md. Who keeps the history?"
@@ -30,7 +30,7 @@
     "docsNotes": "https://grimoire.ghostpaw.dev/docs/#/notes",
     "docsCatalogue": "https://grimoire.ghostpaw.dev/docs/#/catalogue",
     "docsScout": "https://grimoire.ghostpaw.dev/docs/#/scout",
-    "release": "https://github.com/GhostPawJS/grimoire/releases/tag/v0.4.1",
+    "release": "https://github.com/GhostPawJS/grimoire/releases/latest",
     "readmeInstall": "https://github.com/GhostPawJS/grimoire#install",
     "attest": "https://cli.github.com/manual/gh_attestation_verify",
     "cliShot": "https://raw.githubusercontent.com/GhostPawJS/grimoire/main/docs/assets/cli.png"
@@ -45,7 +45,7 @@
         "codeRepository": "{{.urls.github}}",
         "programmingLanguage": "TypeScript",
         "runtimePlatform": "Node.js 24",
-        "version": "0.4.1",
+        "version": "0.5.0",
         "license": "{{.urls.mit}}",
         "author": {
           "@type": "Organization",
