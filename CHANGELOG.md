@@ -4,6 +4,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-10-27
+
 ### Security
 
 - Git is invoked without a shell; spell names, chapters and paths are validated and must stay inside the root.
@@ -160,7 +162,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 - Initial procedural knowledge library, tool facade, documentation, and browser demo. Early setup and demo improvements are grouped here.
 
-[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/GhostPawJS/grimoire/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/GhostPawJS/grimoire/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/GhostPawJS/grimoire/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/GhostPawJS/grimoire/compare/v0.3.0...v0.4.0
