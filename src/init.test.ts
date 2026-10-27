@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { execSync } from 'node:child_process';
+import { execSync, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, describe, it } from 'node:test';
@@ -83,5 +83,24 @@ describe('init', () => {
 				stdio: 'pipe',
 			});
 		}, 'git log should exit 0 — repo must not be in "no commits yet" state');
+	});
+
+	it('keeps git init output off stderr on a machine without init.defaultBranch', (t) => {
+		if (!isGitAvailable()) return t.skip('git not available');
+		const { root, cleanup: c } = createTestRoot();
+		cleanup = c;
+		const script = `import { init } from ${JSON.stringify(new URL('./init.ts', import.meta.url).href)}; init(${JSON.stringify(join(root, 'grimoire'))});`;
+		const { GIT_CONFIG_GLOBAL: _g, NODE_TEST_CONTEXT: _c, ...env } = process.env;
+		const child = spawnSync(
+			process.execPath,
+			['--experimental-strip-types', '--input-type=module', '-e', script],
+			{
+				encoding: 'utf-8',
+				env: { ...env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' },
+			},
+		);
+		assert.equal(child.status, 0, child.stderr);
+		assert.equal(child.stderr, '');
+		assert.equal(child.stdout, '');
 	});
 });

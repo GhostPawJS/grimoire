@@ -18,7 +18,7 @@ export function init(root: string, db?: GrimoireDb, options?: { gitDir?: string 
 	if (isGitAvailable()) {
 		const gitDir = resolveGitDir(root, options?.gitDir);
 		if (!existsSync(gitDir)) {
-			execSync(`git init --bare "${gitDir}"`);
+			execSync(`git init --bare "${gitDir}"`, { stdio: 'pipe' });
 			// Seed an empty commit so the repo is never in "no commits yet" limbo.
 			// Without this, `git log` exits 128 on some git versions for an empty HEAD,
 			// causing allRanks to return {} and seal to silently fail on every inscribe.
@@ -26,7 +26,7 @@ export function init(root: string, db?: GrimoireDb, options?: { gitDir?: string 
 				`git -c user.name=grimoire -c user.email=grimoire@localhost` +
 					` --work-tree="${root}" --git-dir="${gitDir}"` +
 					` commit --allow-empty -m "init"`,
-				{ encoding: 'utf-8', stdio: 'pipe' },
+				{ stdio: 'pipe' },
 			);
 		}
 	}
