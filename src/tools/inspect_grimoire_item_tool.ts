@@ -1,14 +1,18 @@
+import { existsSync } from 'node:fs';
 import { resonance } from '../events/resonance.ts';
 import type { ResonanceResult } from '../events/types.ts';
 import { history } from '../git/history.ts';
+import { isGitAvailable } from '../git/is_git_available.ts';
 import { tierInfo } from '../git/tier_info.ts';
 import type { HistoryEntry, TierInfo } from '../git/types.ts';
+import { resolveGitDir } from '../lib/exec_git.ts';
 import { getProvenance } from '../provenance/get_provenance.ts';
 import type { Provenance } from '../provenance/types.ts';
 import { getSpell } from '../spells/get_spell.ts';
 import type { Spell } from '../spells/types.ts';
 import type { SpellValidationResult } from '../validation/types.ts';
 import { validate } from '../validation/validate.ts';
+import { sharedGitWarning } from './shared_git_warning.ts';
 import { translateToolError } from './tool_errors.ts';
 import { defineGrimoireTool, objectSchema, stringSchema } from './tool_metadata.ts';
 import { inspectGrimoireItemToolName } from './tool_names.ts';
@@ -23,7 +27,7 @@ type InspectData = {
 	spell: Spell;
 	tierInfo: TierInfo;
 	validation: SpellValidationResult;
-	resonance?: ResonanceResult;
+	resonance?: ResonanceResult & { lastSealAtIso?: string | null };
 	provenance?: Provenance;
 	history?: HistoryEntry[];
 };
@@ -57,9 +61,9 @@ export const inspectGrimoireItemTool = defineGrimoireTool<InspectInput, ToolResu
 
 			const res = ctx.db ? resonance(ctx.db, input.path) : undefined;
 			const prov = ctx.db ? getProvenance(ctx.db, input.path) : undefined;
-			const hist = ctx.gitDir
-				? history({ root: ctx.root, gitDir: ctx.gitDir }, input.path)
-				: undefined;
+			const gitDir = resolveGitDir(ctx.root, ctx.gitDir);
+			const gitWorks = existsSync(gitDir) && isGitAvailable();
+			const hist = gitWorks ? history({ root: ctx.root, gitDir }, input.path) : undefined;
 
 			const data: InspectData = {
 				spell,
@@ -67,7 +71,10 @@ export const inspectGrimoireItemTool = defineGrimoireTool<InspectInput, ToolResu
 				validation: validationResult,
 			};
 			if (res !== undefined) {
-				data.resonance = res;
+				data.resonance = {
+					...res,
+					lastSealAtIso: res.lastSealTs === null ? null : new Date(res.lastSealTs).toISOString(),
+				};
 			}
 			if (prov !== undefined) {
 				data.provenance = prov;
@@ -90,7 +97,7 @@ export const inspectGrimoireItemTool = defineGrimoireTool<InspectInput, ToolResu
 			}
 			next.push(reviewViewNext('health'));
 
-			const warnings: ToolWarning[] = [];
+			const warnings: ToolWarning[] = sharedGitWarning(ctx);
 			if (!ctx.db) {
 				warnings.push(
 					toolWarning(
@@ -99,7 +106,7 @@ export const inspectGrimoireItemTool = defineGrimoireTool<InspectInput, ToolResu
 					),
 				);
 			}
-			if (!ctx.gitDir) {
+			if (!gitWorks) {
 				warnings.push(
 					toolWarning('degraded_no_git', 'Git directory not configured; history omitted.'),
 				);

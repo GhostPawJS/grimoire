@@ -166,7 +166,7 @@ try {
 		{ cwd: temp },
 	);
 	const bin = join(modules, '.bin', binName);
-	assert.equal(run(bin, ['--version']).trim(), pkg.version);
+	assert.equal(run(bin, ['--version', '--short']).trim(), pkg.version);
 	const db = join(temp, 'smoke.db');
 	const remembered = JSON.parse(run(bin, ['--db', db, ...cliRemember]));
 	const searched = JSON.parse(run(bin, ['--db', db, ...cliSearch]));
@@ -182,7 +182,7 @@ try {
 	);
 	const npx = join(dirname(process.execPath), 'npx');
 	assert.equal(
-		run(npx, ['--no-install', packageName, '--version'], { cwd: temp }).trim(),
+		run(npx, ['--no-install', packageName, '--version', '--short'], { cwd: temp }).trim(),
 		pkg.version,
 	);
 	const packedServer = pack.files.find((file) => file.path === 'dist/mcp-server.js');

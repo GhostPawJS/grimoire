@@ -24,6 +24,12 @@ export function validateInput(schema: JsonSchema, input: unknown, path = '$'): s
 	) {
 		return [`${path}: expected ${String(schema.type)}`];
 	}
+	if (typeof input === 'string') {
+		if (schema.pattern && !new RegExp(schema.pattern).test(input))
+			errors.push(`${path}: must match ${schema.pattern}`);
+		if (schema.maxLength !== undefined && input.length > schema.maxLength)
+			errors.push(`${path}: exceeds maximum length ${schema.maxLength}`);
+	}
 	if (schema.enum && !schema.enum.some((value) => JSON.stringify(value) === JSON.stringify(input)))
 		errors.push(`${path}: expected one of ${JSON.stringify(schema.enum)}`);
 	if (

@@ -1,13 +1,13 @@
 import { execFileSync } from 'node:child_process';
-import { resolve } from 'node:path';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { resolveGitDir } from './resolve_git_dir.ts';
+
+export { resolveGitDir } from './resolve_git_dir.ts';
 
 export interface GitContext {
 	root: string;
 	gitDir?: string;
-}
-
-export function resolveGitDir(root: string, gitDir?: string): string {
-	return gitDir ?? resolve(root, '..', '.grimoire-git');
 }
 
 export function execGit(
@@ -23,4 +23,15 @@ export function execGit(
 		shell: false,
 	});
 	return options?.trim === false ? output.trimEnd() : output.trim();
+}
+
+export function initBareRepo(gitDir: string): void {
+	execFileSync('git', ['init', '--bare', '--quiet', '--', gitDir], {
+		encoding: 'utf-8',
+		timeout: 10_000,
+		stdio: 'pipe',
+		shell: false,
+	});
+	mkdirSync(join(gitDir, 'info'), { recursive: true });
+	writeFileSync(join(gitDir, 'info', 'exclude'), '/.grimoire-git/\n');
 }

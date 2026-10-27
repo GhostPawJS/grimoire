@@ -9,6 +9,7 @@ export type ToolErrorCode =
 	| 'system_error';
 export type ToolErrorKind = 'domain' | 'protocol' | 'system';
 export type ToolWarningCode =
+	| 'shared_git_dir'
 	| 'empty_result'
 	| 'duplication_detected'
 	| 'degraded_no_db'

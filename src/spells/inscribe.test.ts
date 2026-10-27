@@ -62,13 +62,13 @@ describe('inscribe', () => {
 	it('returns warnings for similar spells', () => {
 		const { root, cleanup } = createTestRoot();
 		try {
-			inscribe(root, undefined, { name: 'first-spell', content: validContent });
+			inscribe(root, undefined, { name: 'my-spell', content: validContent });
 			const result = inscribe(root, undefined, {
 				name: 'similar-spell',
 				content: similarContent,
 			});
 			assert.ok(result.warnings.length > 0);
-			assert.equal(result.warnings[0]?.existingPath, 'general/first-spell');
+			assert.equal(result.warnings[0]?.existingPath, 'general/my-spell');
 			assert.ok((result.warnings[0]?.similarity ?? 0) >= 0.3);
 		} finally {
 			cleanup();

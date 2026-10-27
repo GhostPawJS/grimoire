@@ -1,13 +1,15 @@
 import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import type { GrimoireDb } from '../database.ts';
 import { DEFAULTS } from '../defaults.ts';
 import { GrimoireValidationError } from '../errors.ts';
 import { logEvent } from '../events/log_event.ts';
 import { isGitAvailable } from '../git/is_git_available.ts';
 import { seal } from '../git/seal.ts';
+import { resolveGitDir } from '../lib/resolve_git_dir.ts';
 import { assertChapter, assertSpellName, resolveInsideRoot } from '../lib/safe_path.ts';
 import { trigramJaccard } from '../lib/trigram_jaccard.ts';
+import { withGitLock } from '../lib/with_git_lock.ts';
 import { getProvenance } from '../provenance/get_provenance.ts';
 import { recordProvenance } from '../provenance/record_provenance.ts';
 import { parseSkillMd } from '../spec/parse_skill_md.ts';
@@ -25,85 +27,91 @@ export function adoptSpell(
 	localPath: string,
 	options?: AdoptSpellOptions,
 ): AdoptSpellResult {
-	const skillMdPath = resolveInsideRoot(localPath, 'SKILL.md');
-	if (!existsSync(skillMdPath)) {
-		throw new GrimoireValidationError(`No SKILL.md found at ${localPath}`);
-	}
+	return withGitLock(resolveGitDir(root, options?.gitDir), () => {
+		const skillMdPath = resolveInsideRoot(localPath, 'SKILL.md');
+		if (!existsSync(skillMdPath)) {
+			throw new GrimoireValidationError(`No SKILL.md found at ${localPath}`);
+		}
 
-	const content = readFileSync(skillMdPath, 'utf-8');
-	const validation = validateSkillMd(content);
-	if (!validation.valid) {
-		throw new GrimoireValidationError(
-			`Invalid SKILL.md at ${localPath}: ${validation.errors.join('; ')}`,
-		);
-	}
+		const content = readFileSync(skillMdPath, 'utf-8');
+		const validation = validateSkillMd(content);
+		if (!validation.valid) {
+			throw new GrimoireValidationError(
+				`Invalid SKILL.md at ${localPath}: ${validation.errors.join('; ')}`,
+			);
+		}
 
-	const parsed = parseSkillMd(content);
-	if (!parsed.ok) {
-		throw new GrimoireValidationError(`Failed to parse SKILL.md at ${localPath}: ${parsed.error}`);
-	}
+		const parsed = parseSkillMd(content);
+		if (!parsed.ok) {
+			throw new GrimoireValidationError(
+				`Failed to parse SKILL.md at ${localPath}: ${parsed.error}`,
+			);
+		}
 
-	const name = parsed.frontmatter.name;
-	const chapter = options?.chapter ?? DEFAULTS.defaultChapter;
-	const spellPath = `${chapter}/${name}`;
-	assertChapter(chapter);
-	assertSpellName(name);
-	const targetDir = resolveInsideRoot(root, chapter, name);
+		const name = parsed.frontmatter.name;
+		const chapter = options?.chapter ?? DEFAULTS.defaultChapter;
+		const spellPath = `${chapter}/${name}`;
+		assertChapter(chapter);
+		assertSpellName(name);
+		const targetDir = resolveInsideRoot(root, chapter, name);
 
-	if (existsSync(targetDir)) {
-		throw new GrimoireValidationError(`Spell already exists at ${spellPath}`);
-	}
+		if (existsSync(targetDir)) {
+			throw new GrimoireValidationError(`Spell already exists at ${spellPath}`);
+		}
 
-	const warnings = detectDuplicates(root, spellPath, parsed.frontmatter.description);
+		const warnings = detectDuplicates(root, spellPath, parsed.frontmatter.description);
 
-	mkdirSync(join(root, chapter), { recursive: true });
-	cpSync(localPath, targetDir, {
-		recursive: true,
-		dereference: false,
-		filter: (source) => !lstatSync(source).isSymbolicLink(),
+		mkdirSync(join(root, chapter), { recursive: true });
+		cpSync(localPath, targetDir, {
+			recursive: true,
+			dereference: false,
+			filter: (source) =>
+				!lstatSync(source).isSymbolicLink() &&
+				!['.git', '.grimoire-git'].includes(basename(source)),
+		});
+
+		if (options?.provenance) {
+			injectProvenanceMetadata(targetDir, options.provenance, options.now);
+		}
+
+		if (isGitAvailable()) {
+			seal(
+				{ root, ...(options?.gitDir !== undefined ? { gitDir: options.gitDir } : {}) },
+				db,
+				[spellPath],
+				`adopt ${spellPath}`,
+			);
+		}
+
+		const perform = (): AdoptSpellResult => {
+			if (db && options?.provenance) {
+				recordProvenance(db, { ...options.provenance, spellPath });
+				logEvent(db, {
+					spell: spellPath,
+					event: 'adopt',
+					...(options.now !== undefined ? { now: options.now } : {}),
+				});
+				const prov = getProvenance(db, spellPath);
+				return {
+					spell: getSpell(root, spellPath, undefined, options?.gitDir),
+					warnings,
+					...(prov ? { provenance: prov } : {}),
+				};
+			}
+
+			if (db) {
+				logEvent(db, {
+					spell: spellPath,
+					event: 'adopt',
+					...(options?.now !== undefined ? { now: options.now } : {}),
+				});
+			}
+
+			return { spell: getSpell(root, spellPath, undefined, options?.gitDir), warnings };
+		};
+
+		return db ? withTransaction(db, perform) : perform();
 	});
-
-	if (options?.provenance) {
-		injectProvenanceMetadata(targetDir, options.provenance, options.now);
-	}
-
-	if (isGitAvailable()) {
-		seal(
-			{ root, ...(options?.gitDir !== undefined ? { gitDir: options.gitDir } : {}) },
-			db,
-			[spellPath],
-			`adopt ${spellPath}`,
-		);
-	}
-
-	const perform = (): AdoptSpellResult => {
-		if (db && options?.provenance) {
-			recordProvenance(db, { ...options.provenance, spellPath });
-			logEvent(db, {
-				spell: spellPath,
-				event: 'adopt',
-				...(options.now !== undefined ? { now: options.now } : {}),
-			});
-			const prov = getProvenance(db, spellPath);
-			return {
-				spell: getSpell(root, spellPath, undefined, options?.gitDir),
-				warnings,
-				...(prov ? { provenance: prov } : {}),
-			};
-		}
-
-		if (db) {
-			logEvent(db, {
-				spell: spellPath,
-				event: 'adopt',
-				...(options?.now !== undefined ? { now: options.now } : {}),
-			});
-		}
-
-		return { spell: getSpell(root, spellPath, undefined, options?.gitDir), warnings };
-	};
-
-	return db ? withTransaction(db, perform) : perform();
 }
 
 function detectDuplicates(

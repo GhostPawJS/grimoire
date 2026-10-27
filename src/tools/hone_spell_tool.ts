@@ -1,7 +1,9 @@
 import { seal } from '../git/seal.ts';
 import { tierInfo } from '../git/tier_info.ts';
 import type { TierInfo } from '../git/types.ts';
+import { assertNoteIds } from '../notes/assert_note_ids.ts';
 import { distill } from '../notes/distill.ts';
+import { spellWriteData } from './spell_write_data.ts';
 import { translateToolError } from './tool_errors.ts';
 import {
 	arraySchema,
@@ -16,8 +18,15 @@ import { toSpellPathRef } from './tool_ref.ts';
 import type { ToolEntityRef, ToolNextStepHint, ToolResult, ToolWarning } from './tool_types.ts';
 import { toolNoOp, toolSuccess, toolWarning } from './tool_types.ts';
 
-type HoneInput = { paths?: string[]; message?: string; note_ids?: number[] };
+type HoneInput = {
+	paths?: string[];
+	message?: string;
+	note_ids?: number[];
+	noteIds?: number[];
+	verbose?: boolean;
+};
 type HoneData = {
+	spells?: ReturnType<typeof spellWriteData>[];
 	commitHash: string;
 	sealedPaths: string[];
 	ranks: Record<string, number>;
@@ -46,13 +55,17 @@ export const honeSpellTool = defineGrimoireTool<HoneInput, ToolResult<HoneData>>
 	inputSchema: objectSchema(
 		{
 			paths: arraySchema(stringSchema('Spell path'), 'Spell paths to seal'),
+			verbose: { type: 'boolean', description: 'Include full spells in the result.' },
 			message: stringSchema('Commit message'),
 			note_ids: arraySchema(integerSchema('Note ID'), 'Note IDs to distill after sealing'),
+			noteIds: arraySchema(integerSchema('Note ID'), 'Alias of note_ids'),
 		},
 		[],
 	),
 	handler(ctx, input) {
 		try {
+			const noteIds = [...new Set([...(input.note_ids ?? []), ...(input.noteIds ?? [])])];
+			if (ctx.db) assertNoteIds(ctx.db, noteIds);
 			const gitCtx = { root: ctx.root, ...(ctx.gitDir ? { gitDir: ctx.gitDir } : {}) };
 			const result = seal(gitCtx, ctx.db, input.paths, input.message);
 
@@ -86,7 +99,7 @@ export const honeSpellTool = defineGrimoireTool<HoneInput, ToolResult<HoneData>>
 			const distilledNoteIds: number[] = [];
 			const warnings: ToolWarning[] = [];
 
-			if (input.note_ids && input.note_ids.length > 0) {
+			if (noteIds.length > 0) {
 				if (!ctx.db) {
 					warnings.push(
 						toolWarning(
@@ -96,7 +109,7 @@ export const honeSpellTool = defineGrimoireTool<HoneInput, ToolResult<HoneData>>
 					);
 				} else {
 					const primaryPath = result.sealedPaths[0] ?? '';
-					for (const noteId of input.note_ids) {
+					for (const noteId of noteIds) {
 						try {
 							distill(ctx.db, noteId, primaryPath);
 							distilledNoteIds.push(noteId);
@@ -118,6 +131,7 @@ export const honeSpellTool = defineGrimoireTool<HoneInput, ToolResult<HoneData>>
 			return toolSuccess(
 				`Sealed ${result.sealedPaths.length} spell(s) in commit ${result.commitHash.slice(0, 8)}.${noteSuffix}`,
 				{
+					spells: result.sealedPaths.map((path) => spellWriteData(ctx, path, input.verbose)),
 					commitHash: result.commitHash,
 					sealedPaths: result.sealedPaths,
 					ranks: result.ranks,

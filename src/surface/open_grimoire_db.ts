@@ -2,6 +2,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { GrimoireDb } from '../database.ts';
 import { initGrimoireTables } from '../init_grimoire_tables.ts';
+import { configureGrimoireDb } from './configure_grimoire_db.ts';
 
 export async function openGrimoireDb(path: string): Promise<GrimoireDb> {
 	const original = process.emitWarning;
@@ -28,7 +29,7 @@ export async function openGrimoireDb(path: string): Promise<GrimoireDb> {
 	if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
 	const db = new sqlite.DatabaseSync(path);
 	try {
-		db.exec('PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;');
+		configureGrimoireDb(db as unknown as GrimoireDb, path !== ':memory:');
 		const context = db as unknown as GrimoireDb;
 		initGrimoireTables(context);
 		return context;

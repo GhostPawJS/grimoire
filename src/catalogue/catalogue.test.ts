@@ -91,3 +91,41 @@ describe('catalogue', () => {
 		}
 	});
 });
+
+it('gives newly sealed spells fourteen days before dormancy and expires pending evidence by age and cap', () => {
+	const db = createTestDb();
+	const { root, cleanup } = createTestRoot({
+		chapters: [{ name: 'ops', spells: [{ name: 'fresh' }] }],
+	});
+	const now = Date.UTC(2026, 9, 28);
+	try {
+		logEvent(db, { spell: 'ops/fresh', event: 'seal', now });
+		for (let i = 0; i < 61; i++)
+			db.prepare(
+				"INSERT INTO spell_notes (source, content, status, created_at) VALUES ('practice', ?, 'pending', ?)",
+			).run(`Evidence ${i}`, now - 1000 + i);
+		db.prepare(
+			"INSERT INTO spell_notes (source, content, status, created_at) VALUES ('practice', 'Old evidence', 'pending', ?)",
+		).run(now - 91 * 86_400_000);
+		const snapshot = catalogue(root, db, { now });
+		assert.deepEqual(snapshot.dormantSpells, []);
+		assert.equal(snapshot.spellHealth['ops/fresh'], 0);
+		assert.equal(snapshot.pendingNotes, 50);
+		assert.equal(
+			db
+				.prepare("SELECT COUNT(*) AS count FROM spell_notes WHERE status = 'expired'")
+				.get<{ count: number }>()?.count,
+			12,
+		);
+		assert.equal(
+			db.prepare('SELECT status FROM spell_notes WHERE id = 1').get<{ status: string }>()?.status,
+			'expired',
+		);
+		assert.deepEqual(catalogue(root, db, { now: now + 14 * 86_400_000 }).dormantSpells, [
+			'ops/fresh',
+		]);
+	} finally {
+		db.close();
+		cleanup();
+	}
+});

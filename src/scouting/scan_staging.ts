@@ -1,5 +1,5 @@
 import { existsSync, lstatSync, readdirSync, readFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { basename, join, relative } from 'node:path';
 import { assertSpellName } from '../lib/safe_path.ts';
 import { parseSkillMd } from '../spec/parse_skill_md.ts';
 import { validateSkillMd } from '../spec/validate_skill_md.ts';
@@ -7,7 +7,25 @@ import type { DiscoveredSkill } from './types.ts';
 
 export function scanStaging(dir: string): DiscoveredSkill[] {
 	const results: DiscoveredSkill[] = [];
-	walk(dir, dir, results);
+	const direct = join(dir, 'SKILL.md');
+	if (
+		existsSync(direct) &&
+		!lstatSync(dir).isSymbolicLink() &&
+		!lstatSync(direct).isSymbolicLink()
+	) {
+		const content = readFileSync(direct, 'utf8');
+		const parsed = parseSkillMd(content);
+		const validation = validateSkillMd(content);
+		results.push({
+			name: parsed.ok ? parsed.frontmatter.name : basename(dir),
+			description: parsed.ok ? parsed.frontmatter.description : '',
+			localPath: dir,
+			repoPath: '',
+			valid: validation.valid,
+			errors: validation.errors,
+			warnings: validation.warnings,
+		});
+	} else walk(dir, dir, results);
 	return results;
 }
 

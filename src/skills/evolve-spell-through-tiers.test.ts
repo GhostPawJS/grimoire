@@ -1,5 +1,6 @@
 import { ok } from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { updateSpell } from '../spells/update_spell.ts';
 import { honeSpellTool } from '../tools/hone_spell_tool.ts';
 import { inscribeSpellTool } from '../tools/inscribe_spell_tool.ts';
 import { inspectGrimoireItemTool } from '../tools/inspect_grimoire_item_tool.ts';
@@ -112,10 +113,15 @@ describe('evolve-spell-through-tiers skill', () => {
 					content: spellContent('ci-pipeline', 'Continuous integration pipeline'),
 				}),
 			);
-			const spellPath = inscribeResult.data.spell.path;
+			const spellPath = inscribeResult.data.path;
 
 			seal();
 
+			updateSpell(
+				ctx.root,
+				spellPath,
+				spellContent('ci-pipeline', 'Continuous integration pipeline with failure recovery'),
+			);
 			const honeResult = expectSuccess(await honeSpellTool.handler(ctx, { paths: [spellPath] }));
 			ok(honeResult.data.sealedPaths.length > 0, 'should have sealed at least one path');
 			ok(honeResult.data.ranks[spellPath] !== undefined, 'rank should be present');
@@ -134,7 +140,7 @@ describe('evolve-spell-through-tiers skill', () => {
 					content: spellContent('monitoring-alerts', 'Set up monitoring and alerts'),
 				}),
 			);
-			const spellPath = inscribeResult.data.spell.path;
+			const spellPath = inscribeResult.data.path;
 
 			seal();
 

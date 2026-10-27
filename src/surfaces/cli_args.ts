@@ -10,6 +10,7 @@ export interface CliArgument {
 	required?: boolean;
 	variadic?: boolean;
 	itemType?: CliValueType;
+	parseValue?: ((raw: string) => unknown) | undefined;
 }
 export interface CliSpec {
 	command: string;
@@ -19,8 +20,9 @@ export interface CliSpec {
 }
 export class CliUsageError extends Error {
 	readonly exitCode = 2;
+	errorCode = 'usage_error';
 }
-const keyOf = (name: string) => name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+const keyOf = (name: string) => name.replace(/[-_]([a-z])/g, (_, c: string) => c.toUpperCase());
 export function parseCliArgs(argv: string[], spec: CliSpec): Record<string, unknown> {
 	const values: Record<string, unknown> = {};
 	const positions: string[] = [];
@@ -29,11 +31,12 @@ export function parseCliArgs(argv: string[], spec: CliSpec): Record<string, unkn
 		let value = raw;
 		if (raw.startsWith('@')) {
 			try {
-				value = readFileSync(raw.slice(1), 'utf8');
+				value = readFileSync(raw === '@-' ? 0 : raw.slice(1), 'utf8');
 			} catch {
 				throw new CliUsageError(`Cannot read value file: ${raw.slice(1)}`);
 			}
 		}
+		if (arg.parseValue) return arg.parseValue(value);
 		let result: unknown = value;
 		if (arg.type === 'number' || arg.type === 'integer') {
 			result = Number(value);
@@ -73,13 +76,14 @@ export function parseCliArgs(argv: string[], spec: CliSpec): Record<string, unkn
 		const negative = flag?.startsWith('--no-');
 		const name = flag?.replace(/^--?/, '').replace(/^no-/, '');
 		const arg = flags.find(
-			(entry) => entry.name === name || keyOf(entry.name) === name || entry.short === name,
+			(entry) =>
+				entry.name === name || keyOf(entry.name) === keyOf(name ?? '') || entry.short === name,
 		);
 		if (!arg) {
 			const prefix = (name ?? '').slice(0, 3);
 			const suggestion = prefix ? flags.find((entry) => entry.name.startsWith(prefix)) : undefined;
 			throw new CliUsageError(
-				`Unknown flag: ${flag}${suggestion ? `; did you mean --${suggestion.name}?` : ''}`,
+				`Unknown flag: ${flag}${suggestion ? `; did you mean --${suggestion.name}?` : ''}. Allowed flags: ${flags.map((entry) => `--${entry.name}`).join(', ') || '(none)'}`,
 			);
 		}
 		if (negative && arg.type !== 'boolean')

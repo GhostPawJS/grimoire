@@ -15,7 +15,7 @@ const count = (n: number, noun: string) => `${n} ${noun}${n === 1 ? '' : 's'}`;
 export const runCatalogueTool = defineGrimoireTool<CatalogueInput, ToolResult<CatalogueSnapshot>>({
 	name: runCatalogueToolName,
 	description:
-		'Run the full catalogue maintenance pass — detect stale/dormant/oversized spells, route notes, cluster orphans, compute health.',
+		'Run the full catalogue maintenance pass — detect stale/dormant/oversized spells, route notes, cluster orphans, compute honing pressure.',
 	whenToUse: 'Periodically or after dropping many notes to process and analyze grimoire health.',
 	whenNotToUse: 'When just reading health data — use review_grimoire with view "health" instead.',
 	sideEffects: 'writes_state',
@@ -26,7 +26,7 @@ export const runCatalogueTool = defineGrimoireTool<CatalogueInput, ToolResult<Ca
 		now: 'Optional timestamp override (milliseconds since epoch) for staleness calculations.',
 	},
 	outputDescription:
-		'Full catalogue snapshot: stale/dormant/oversized spells, note routing results, orphan clusters, chapter balance, spell health scores.',
+		'Full catalogue snapshot: stale/dormant/oversized spells, note routing results, orphan clusters, chapter balance, spell honing pressure scores (health fields).',
 	inputSchema: objectSchema({ now: integerSchema('Timestamp override (ms)') }, []),
 	handler(ctx, input) {
 		if (!ctx.db) {
@@ -39,11 +39,10 @@ export const runCatalogueTool = defineGrimoireTool<CatalogueInput, ToolResult<Ca
 			);
 		}
 		try {
-			const snapshot = catalogue(
-				ctx.root,
-				ctx.db,
-				input.now !== undefined ? { now: input.now } : undefined,
-			);
+			const snapshot = catalogue(ctx.root, ctx.db, {
+				...(input.now !== undefined ? { now: input.now } : {}),
+				...(ctx.gitDir ? { gitDir: ctx.gitDir } : {}),
+			});
 			const entities: ToolEntityRef[] = [];
 			const next: ToolNextStepHint[] = [];
 			for (const p of snapshot.dormantSpells.slice(0, 3)) {

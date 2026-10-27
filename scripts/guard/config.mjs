@@ -99,13 +99,13 @@ export function consumerSmoke(configUrl) {
 }
 export function assertRoundTrip(remembered, searched) {
 	assert.equal(remembered.outcome, 'success');
-	assert.ok(searched.data.results.some((item) => item.path === remembered.data.spell.path));
+	assert.ok(searched.data.results.some((item) => item.path === remembered.data.path));
 }
 export function assertMcpReplies(replies, remembered) {
 	assert.ok(replies[1].result.tools.some((tool) => tool.name === 'search_grimoire'));
 	assert.ok(
 		replies[2].result.structuredContent.data.results.some(
-			(item) => item.path === remembered.data.spell.path,
+			(item) => item.path === remembered.data.path,
 		),
 	);
 	assert.equal(replies[3].result.resultType, 'complete');

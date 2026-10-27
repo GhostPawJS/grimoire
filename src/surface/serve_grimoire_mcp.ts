@@ -4,7 +4,7 @@ import { serveMcpStdio } from '../surfaces/mcp_stdio.ts';
 import { grimoireMcpOptions } from './grimoire_mcp_options.ts';
 import { openGrimoireContext } from './open_grimoire_context.ts';
 export async function serveGrimoireMcp(
-	options: { db?: GrimoireDb; dbPath?: string; root?: string } = {},
+	options: { db?: GrimoireDb; dbPath?: string; root?: string; gitDir?: string } = {},
 ): Promise<void> {
 	let owned: GrimoireDb | undefined;
 	const server = createMcpServer(

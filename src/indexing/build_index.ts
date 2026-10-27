@@ -30,8 +30,6 @@ export function buildIndex(root: string, options?: IndexOptions): IndexEntry[] {
 
 		const rank = ranks[spell.path] ?? 0;
 
-		if (gitContext && rank <= 0) continue;
-
 		if (options?.chapters && !options.chapters.includes(spell.chapter)) continue;
 
 		entries.push({

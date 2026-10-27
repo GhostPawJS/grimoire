@@ -11,7 +11,9 @@ function classifyStatus(code: string): PendingChange['status'] | undefined {
 }
 
 function statusPorcelain(ctx: GitContext): string {
-	return execGit(ctx, ['status', '--porcelain', '-uall'], { trim: false });
+	return execGit(ctx, ['status', '--porcelain', '-uall', '--', '.', ':!.grimoire-git'], {
+		trim: false,
+	});
 }
 
 export function pendingChanges(ctx: GitContext, path?: string): PendingChangesResult[] {

@@ -68,12 +68,25 @@ export const scoutSkillsTool = defineGrimoireTool<ScoutInput, ToolResult<Record<
 							'No database connection available.',
 						);
 					}
-					const result = await scout(
-						ctx.root,
-						ctx.db,
-						input.source,
-						input.chapter ? { chapter: input.chapter } : undefined,
-					);
+					const result = await scout(ctx.root, ctx.db, input.source, {
+						...(input.chapter ? { chapter: input.chapter } : {}),
+						...(ctx.gitDir ? { gitDir: ctx.gitDir } : {}),
+					});
+					if (result.errors.some((error) => error.code === 'seal_failed'))
+						return toolFailure(
+							'domain',
+							'invalid_state',
+							'Some adopted spells could not be sealed.',
+							result.errors.map((error) => error.error).join('; '),
+							{
+								recovery:
+									'Inspect pending changes and resolve the Git or lock error before retrying adoption.',
+								details: {
+									imported: result.imported.map((item) => item.spell.path),
+									errors: result.errors,
+								},
+							},
+						);
 					const entities = result.imported.map((r) => toSpellRef(r.spell));
 					const next = result.imported
 						.slice(0, 3)
@@ -122,7 +135,11 @@ export const scoutSkillsTool = defineGrimoireTool<ScoutInput, ToolResult<Record<
 							'No database connection available.',
 						);
 					}
-					const checks = await checkUpdates(ctx.root, ctx.db);
+					const checks = await checkUpdates(
+						ctx.root,
+						ctx.db,
+						ctx.gitDir ? { gitDir: ctx.gitDir } : undefined,
+					);
 					const entities = checks.map((c) => toSpellPathRef(c.spellPath));
 					const next = checks.map((c) =>
 						useToolNext(scoutSkillsToolName, `Apply update for "${c.spellPath}".`, {
@@ -145,7 +162,12 @@ export const scoutSkillsTool = defineGrimoireTool<ScoutInput, ToolResult<Record<
 							'No database connection available.',
 						);
 					}
-					const result = await applyUpdate(ctx.root, ctx.db, input.path);
+					const result = await applyUpdate(
+						ctx.root,
+						ctx.db,
+						input.path,
+						ctx.gitDir ? { gitDir: ctx.gitDir } : undefined,
+					);
 					if ('applied' in result && result.applied) {
 						return toolSuccess(
 							`Applied update to \`${input.path}\`, new rank: ${result.newRank}.`,

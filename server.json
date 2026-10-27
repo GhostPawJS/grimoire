@@ -26,6 +26,11 @@
       ],
       "environmentVariables": [
         {
+          "name": "GHOSTPAW_GRIMOIRE_GIT_DIR",
+          "description": "Git history directory (default: <ROOT>/.grimoire-git)",
+          "isRequired": false
+        },
+        {
           "name": "GHOSTPAW_GRIMOIRE_ROOT",
           "description": "Spells directory (default: ~/.ghostpaw/grimoire/)",
           "isRequired": false

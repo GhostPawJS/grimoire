@@ -30,6 +30,8 @@ export type PendingChangesResult = {
 };
 
 export type HistoryEntry = {
+	shortHash?: string;
+	subject?: string;
 	hash: string;
 	message: string;
 	date: string;

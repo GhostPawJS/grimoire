@@ -124,8 +124,10 @@ describe('buildIndex with explicit gitDir', () => {
 			assert.ok(lumos, 'lumos should be in the index');
 			assert.equal(lumos.rank, 2);
 
-			// nox has rank 0 and git context is active, so it is filtered out
-			assert.equal(nox, undefined);
+			// Unsealed spells remain visible when Git is active.
+			assert.ok(nox);
+			assert.equal(nox.rank, 0);
+			assert.equal(nox.tier, 'Uncheckpointed');
 		} finally {
 			cleanup();
 		}

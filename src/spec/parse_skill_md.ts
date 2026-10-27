@@ -14,8 +14,8 @@ export function parseSkillMd(content: string): SkillMdParseResult {
 		return { ok: false, error: 'Missing closing frontmatter delimiter (---)' };
 	}
 
-	const yamlBlock = content.slice(afterFirst, secondDelim).trim();
-	if (yamlBlock === '') {
+	const yamlBlock = content.slice(afterFirst, secondDelim).replace(/^\r?\n/, '');
+	if (yamlBlock.trim() === '') {
 		return { ok: false, error: 'Empty frontmatter block' };
 	}
 

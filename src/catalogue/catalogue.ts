@@ -35,8 +35,16 @@ export function catalogue(
 	const clusteringThreshold = options?.clusteringThreshold ?? DEFAULTS.clusteringThreshold;
 
 	return withTransaction(db, () => {
+		db.prepare(
+			"UPDATE spell_notes SET status = 'expired' WHERE status = 'pending' AND created_at < ?",
+		).run(now - DEFAULTS.noteExpiryDays * 86_400_000);
+		db.prepare(
+			"UPDATE spell_notes SET status = 'expired' WHERE id IN (SELECT id FROM spell_notes WHERE status = 'pending' ORDER BY created_at DESC, id DESC LIMIT -1 OFFSET ?)",
+		).run(DEFAULTS.noteCap);
 		const spells = discoverSpells(root);
-		const ranks = isGitAvailable() ? allRanks({ root }) : {};
+		const ranks = isGitAvailable()
+			? allRanks({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) })
+			: {};
 		const allRes = allResonance(db, { resonanceHalfLife, now });
 
 		const sealRows = db
@@ -114,7 +122,8 @@ export function catalogue(
 			sealVelocityMap[spell.path] = sealVelocity;
 
 			if (isStale) staleSpells.push(spell.path);
-			if (isDormant) dormantSpells.push(spell.path);
+			if (isDormant && now - (sealsBySpell.get(spell.path)?.[0] ?? now) >= 14 * 86_400_000)
+				dormantSpells.push(spell.path);
 			if (isOversized) oversizedSpells.push(spell.path);
 		}
 

@@ -10,10 +10,17 @@ import { allProvenance } from '../provenance/all_provenance.ts';
 import { listChapters } from '../spells/list_chapters.ts';
 import { listSpells } from '../spells/list_spells.ts';
 import { validateAll } from '../validation/validate_all.ts';
+import { sharedGitWarning } from './shared_git_warning.ts';
 import { translateToolError } from './tool_errors.ts';
 import { defineGrimoireTool, enumSchema, integerSchema, objectSchema } from './tool_metadata.ts';
 import { reviewGrimoireToolName } from './tool_names.ts';
-import { catalogueNext, inspectSpellNext, manageSpellNext, reviewViewNext } from './tool_next.ts';
+import {
+	catalogueNext,
+	honeNext,
+	inspectSpellNext,
+	manageSpellNext,
+	reviewViewNext,
+} from './tool_next.ts';
 import {
 	toDraftRef,
 	toIndexEntryRef,
@@ -35,7 +42,7 @@ type ReviewView =
 	| 'validation'
 	| 'provenance'
 	| 'index';
-type ReviewInput = { view: ReviewView; limit?: number; now?: number };
+type ReviewInput = { view: ReviewView; limit?: number; now?: number; format?: 'prompt' };
 
 function dbRequiredFailure(view: string) {
 	return toolFailure(
@@ -80,12 +87,23 @@ export const reviewGrimoireTool = defineGrimoireTool<
 			]),
 			limit: integerSchema('Maximum results to return'),
 			now: integerSchema('Timestamp override'),
+			format: enumSchema('Index output format', ['prompt']),
 		},
 		['view'],
 	),
 	handler(ctx, input) {
 		try {
 			const limit = input.limit;
+			const sharedWarnings = sharedGitWarning(ctx);
+			const success = (
+				summary: string,
+				data: Record<string, unknown>,
+				options: NonNullable<Parameters<typeof toolSuccess>[2]> = {},
+			) =>
+				toolSuccess(summary, data, {
+					...options,
+					warnings: [...sharedWarnings, ...(options.warnings ?? [])],
+				});
 
 			switch (input.view) {
 				case 'chapters': {
@@ -96,7 +114,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 						counts[ch] = spells.filter((s) => s.chapter === ch).length;
 					}
 					const entities = spells.slice(0, 10).map(toSpellRef);
-					return toolSuccess(
+					return success(
 						`Found ${chapters.length} chapter${chapters.length === 1 ? '' : 's'} with ${spells.length} spell${spells.length === 1 ? '' : 's'}.`,
 						{ chapters: counts, totalSpells: spells.length },
 						{ entities, next: [reviewViewNext('index')] },
@@ -107,7 +125,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 					if (!ctx.db) return dbRequiredFailure('health');
 					const snapshot = readCatalogue(ctx.db);
 					if (!snapshot) {
-						return toolSuccess(
+						return success(
 							'No catalogue data available.',
 							{ snapshot: null },
 							{
@@ -118,7 +136,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 							},
 						);
 					}
-					return toolSuccess(
+					return success(
 						`Catalogue snapshot from ${snapshot.computedAt}: ${snapshot.totalSpells} spell${snapshot.totalSpells === 1 ? '' : 's'}.`,
 						{ snapshot },
 						{ next: [catalogueNext()] },
@@ -136,10 +154,10 @@ export const reviewGrimoireTool = defineGrimoireTool<
 					const entities = limited.slice(0, 10).map(([path]) => toSpellPathRef(path));
 					const first = limited[0];
 					const next = first ? [inspectSpellNext(first[0])] : [];
-					return toolSuccess(
+					return success(
 						`Resonance data for ${sorted.length} spell${sorted.length === 1 ? '' : 's'}.`,
 						{ resonance: Object.fromEntries(limited), totalSpells: sorted.length },
-						{ entities, next },
+						{ entities, next, warnings: [] },
 					);
 				}
 
@@ -150,7 +168,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 					const counts = noteCounts(ctx.db);
 					const limited = limit !== undefined ? notes.slice(0, limit) : notes;
 					const entities = limited.slice(0, 10).map(toNoteRef);
-					return toolSuccess(
+					return success(
 						`${count} pending note${count === 1 ? '' : 's'} across ${counts.length} source${counts.length === 1 ? '' : 's'}.`,
 						{ notes: limited, pendingCount: count, countsBySource: counts },
 						{ entities, next: [reviewViewNext('drafts')] },
@@ -162,7 +180,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 					const drafts = pendingDrafts(ctx.db);
 					const limited = limit !== undefined ? drafts.slice(0, limit) : drafts;
 					const entities = limited.slice(0, 10).map(toDraftRef);
-					return toolSuccess(
+					return success(
 						`${drafts.length} pending draft${drafts.length === 1 ? '' : 's'}.`,
 						{ drafts: limited, totalDrafts: drafts.length },
 						{ entities },
@@ -176,10 +194,10 @@ export const reviewGrimoireTool = defineGrimoireTool<
 					const entities = invalid.slice(0, 10).map((r) => toSpellPathRef(r.path));
 					const firstInvalid = invalid[0];
 					const next = firstInvalid ? [manageSpellNext('repair', firstInvalid.path)] : [];
-					return toolSuccess(
+					return success(
 						`Validated ${results.length} spell${results.length === 1 ? '' : 's'}; ${invalid.length} with issues.`,
 						{ results: limited, invalidCount: invalid.length },
-						{ entities, next },
+						{ entities, next, warnings: [] },
 					);
 				}
 
@@ -190,24 +208,28 @@ export const reviewGrimoireTool = defineGrimoireTool<
 					const entities = limited.slice(0, 10).map(toProvenanceRef);
 					const first = limited[0];
 					const next = first ? [inspectSpellNext(first.spellPath)] : [];
-					return toolSuccess(
+					return success(
 						summarizeCount(records.length, 'provenance record'),
 						{ provenance: limited, totalRecords: records.length },
-						{ entities, next },
+						{ entities, next, warnings: [] },
 					);
 				}
 
 				case 'index': {
-					const entries = buildIndex(ctx.root);
+					const entries = buildIndex(ctx.root, ctx.gitDir ? { gitDir: ctx.gitDir } : undefined);
 					const formatted = formatIndex(entries);
 					const limited = limit !== undefined ? entries.slice(0, limit) : entries;
 					const entities = limited.slice(0, 10).map(toIndexEntryRef);
 					const first = limited[0];
 					const next = first ? [inspectSpellNext(first.path, first.name)] : [];
-					return toolSuccess(
+					const unsealed = entries.filter((entry) => entry.rank === 0).map((entry) => entry.path);
+					if (unsealed.length) next.unshift(honeNext(unsealed));
+					return success(
 						`Grimoire index with ${entries.length} spell${entries.length === 1 ? '' : 's'}.`,
-						{ entries: limited, formatted, totalEntries: entries.length },
-						{ entities, next },
+						input.format === 'prompt'
+							? { formatted }
+							: { entries: limited, formatted, totalEntries: entries.length },
+						{ entities, next, warnings: [] },
 					);
 				}
 

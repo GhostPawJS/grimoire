@@ -1,11 +1,11 @@
-import { execFileSync } from 'node:child_process';
+import { execGit } from '../lib/exec_git.ts';
 
 let cached: boolean | undefined;
 
 export function isGitAvailable(): boolean {
 	if (cached !== undefined) return cached;
 	try {
-		execFileSync('git', ['--version'], { encoding: 'utf-8', timeout: 5_000 });
+		execGit({ root: '.', gitDir: '.' }, ['--version']);
 		cached = true;
 	} catch {
 		cached = false;

@@ -1,4 +1,5 @@
 import { updateSpell } from '../spells/update_spell.ts';
+import { spellWriteData } from './spell_write_data.ts';
 import { translateToolError } from './tool_errors.ts';
 import { defineGrimoireTool, objectSchema, stringSchema } from './tool_metadata.ts';
 import { honeSpellToolName, updateSpellToolName } from './tool_names.ts';
@@ -6,8 +7,8 @@ import { inspectSpellNext, useToolNext } from './tool_next.ts';
 import type { ToolResult } from './tool_types.ts';
 import { toolSuccess } from './tool_types.ts';
 
-type UpdateSpellInput = { path: string; content: string };
-type UpdateSpellData = { path: string };
+type UpdateSpellInput = { path: string; content: string; verbose?: boolean };
+type UpdateSpellData = ReturnType<typeof spellWriteData>;
 
 export const updateSpellTool = defineGrimoireTool<UpdateSpellInput, ToolResult<UpdateSpellData>>({
 	name: updateSpellToolName,
@@ -30,16 +31,22 @@ export const updateSpellTool = defineGrimoireTool<UpdateSpellInput, ToolResult<U
 	inputSchema: objectSchema(
 		{
 			path: stringSchema('Spell path'),
+			verbose: { type: 'boolean', description: 'Include the full spell in the result.' },
 			content: stringSchema('Full spec-compliant SKILL.md content'),
 		},
 		['path', 'content'],
 	),
 	handler(ctx, input) {
 		try {
-			updateSpell(ctx.root, input.path, input.content);
+			updateSpell(
+				ctx.root,
+				input.path,
+				input.content,
+				ctx.gitDir ? { gitDir: ctx.gitDir } : undefined,
+			);
 			return toolSuccess(
 				`Updated spell \`${input.path}\`. Call hone_spell to seal and advance rank.`,
-				{ path: input.path },
+				{ ...spellWriteData(ctx, input.path, input.verbose), commit: '' },
 				{
 					next: [
 						useToolNext(honeSpellToolName, 'Seal the update to advance spell rank.', {

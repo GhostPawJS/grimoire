@@ -4,9 +4,13 @@ import { allProvenance } from '../provenance/all_provenance.ts';
 import type { Provenance } from '../provenance/types.ts';
 import type { UpdateCheck } from './types.ts';
 
-export async function checkUpdates(root: string, db: GrimoireDb): Promise<UpdateCheck[]> {
+export async function checkUpdates(
+	root: string,
+	db: GrimoireDb,
+	options?: { gitDir?: string },
+): Promise<UpdateCheck[]> {
 	const records = allProvenance(db);
-	const ctx = { root };
+	const ctx = { root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) };
 	const results: UpdateCheck[] = [];
 
 	for (const prov of records) {

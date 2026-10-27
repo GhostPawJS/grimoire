@@ -6,8 +6,10 @@ import { GrimoireConflictError, GrimoireValidationError } from '../errors.ts';
 import { logEvent } from '../events/log_event.ts';
 import { isGitAvailable } from '../git/is_git_available.ts';
 import { seal } from '../git/seal.ts';
+import { resolveGitDir } from '../lib/resolve_git_dir.ts';
 import { assertChapter, assertSpellName, resolveInsideRoot } from '../lib/safe_path.ts';
 import { trigramJaccard } from '../lib/trigram_jaccard.ts';
+import { withGitLock } from '../lib/with_git_lock.ts';
 import { parseSkillMd } from '../spec/parse_skill_md.ts';
 import { validateSkillMd } from '../spec/validate_skill_md.ts';
 import { withTransaction } from '../with_transaction.ts';
@@ -20,51 +22,65 @@ export function inscribe(
 	db: GrimoireDb | undefined,
 	input: InscribeInput,
 ): InscribeResult {
-	const validation = validateSkillMd(input.content);
-	if (!validation.valid) {
-		throw new GrimoireValidationError(`Invalid SKILL.md content: ${validation.errors.join('; ')}`);
-	}
-
-	const parsed = parseSkillMd(input.content);
-	if (!parsed.ok) {
-		throw new GrimoireValidationError(`Failed to parse SKILL.md: ${parsed.error}`);
-	}
-
-	const chapter = input.chapter ?? DEFAULTS.defaultChapter;
-	const path = `${chapter}/${input.name}`;
-	assertChapter(chapter);
-	assertSpellName(input.name);
-	const absolutePath = resolveInsideRoot(root, chapter, input.name);
-	resolveInsideRoot(root, chapter, input.name, 'SKILL.md');
-	if (existsSync(absolutePath) && input.force !== true) throw new GrimoireConflictError(path);
-
-	mkdirSync(absolutePath, { recursive: true });
-	writeFileSync(join(absolutePath, 'SKILL.md'), input.content);
-
-	const warnings = detectDuplicates(root, path, parsed.frontmatter.description);
-
-	if (isGitAvailable()) {
-		seal(
-			{ root, ...(input.gitDir !== undefined ? { gitDir: input.gitDir } : {}) },
-			db,
-			[path],
-			`inscribe ${path}`,
-		);
-	}
-
-	const perform = (): InscribeResult => {
-		if (db) {
-			logEvent(db, {
-				spell: path,
-				event: 'inscribe',
-				...(input.now !== undefined ? { now: input.now } : {}),
-			});
+	return withGitLock(resolveGitDir(root, input.gitDir), () => {
+		const validation = validateSkillMd(input.content);
+		if (!validation.valid) {
+			throw new GrimoireValidationError(
+				`Invalid SKILL.md content: ${validation.errors.join('; ')}`,
+			);
 		}
-		const spell = getSpell(root, path, undefined, input.gitDir);
-		return { spell, warnings };
-	};
 
-	return db ? withTransaction(db, perform) : perform();
+		const parsed = parseSkillMd(input.content);
+		if (!parsed.ok) {
+			throw new GrimoireValidationError(`Failed to parse SKILL.md: ${parsed.error}`);
+		}
+
+		if (parsed.frontmatter.name !== input.name)
+			throw new GrimoireValidationError(
+				'Frontmatter name must match the spell name. Change the name or content and retry.',
+			);
+		const chapter = input.chapter ?? DEFAULTS.defaultChapter;
+		const path = `${chapter}/${input.name}`;
+		assertChapter(chapter);
+		assertSpellName(input.name);
+		const absolutePath = resolveInsideRoot(root, chapter, input.name);
+		resolveInsideRoot(root, chapter, input.name, 'SKILL.md');
+		if (existsSync(absolutePath) && input.force !== true) throw new GrimoireConflictError(path);
+
+		if (
+			input.force &&
+			existsSync(join(absolutePath, 'SKILL.md')) &&
+			readFileSync(join(absolutePath, 'SKILL.md'), 'utf8') === input.content
+		)
+			return { spell: getSpell(root, path, undefined, input.gitDir), warnings: [], noOp: true };
+		mkdirSync(absolutePath, { recursive: true });
+		writeFileSync(join(absolutePath, 'SKILL.md'), input.content);
+
+		const warnings = detectDuplicates(root, path, parsed.frontmatter.description);
+
+		if (isGitAvailable()) {
+			seal(
+				{ root, ...(input.gitDir !== undefined ? { gitDir: input.gitDir } : {}) },
+				db,
+				[path],
+				`inscribe ${path}`,
+			);
+		}
+
+		const perform = (): InscribeResult => {
+			if (db) {
+				logEvent(db, {
+					spell: path,
+					event: 'inscribe',
+					...(input.now !== undefined ? { now: input.now } : {}),
+				});
+			}
+			const spell = getSpell(root, path, undefined, input.gitDir);
+			return { spell, warnings };
+		};
+
+		return db ? withTransaction(db, perform) : perform();
+	});
 }
 
 function detectDuplicates(

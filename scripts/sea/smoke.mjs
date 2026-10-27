@@ -35,7 +35,22 @@ const run = (args) => {
 };
 
 const version = run(['--version']).trim();
-if (version !== pkg.version) fail(`--version printed ${version}, expected ${pkg.version}`);
+if (
+	version !==
+	`ghostpaw-grimoire ${pkg.version} (binary, ${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch})`
+)
+	fail(`--version printed ${version}, expected ${pkg.version}`);
+const short = run(['--version', '--short']).trim();
+if (short !== pkg.version) fail(`--version --short printed ${short}, expected ${pkg.version}`);
+const info = JSON.parse(run(['--version', '--json']));
+const target = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch}`;
+if (
+	info.name !== 'ghostpaw-grimoire' ||
+	info.version !== pkg.version ||
+	info.variant !== 'binary' ||
+	info.target !== target
+)
+	fail(`--version --json printed ${JSON.stringify(info)}`);
 run(['--help']);
 const added = JSON.parse(
 	run(['note', 'drop', 'Binary smoke marker', '--source', 'smoke', '--db', db, '--json']),

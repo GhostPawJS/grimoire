@@ -15,7 +15,7 @@ export { serveMcpStdio } from './surfaces/mcp_stdio.ts';
 export type * from './surfaces/surface_types.ts';
 
 export function createGrimoireMcpServer(
-	options: { db?: GrimoireDb; dbPath?: string; root?: string } = {},
+	options: { db?: GrimoireDb; dbPath?: string; root?: string; gitDir?: string } = {},
 ) {
 	return createMcpServer(grimoireMcpOptions(() => openGrimoireContext(options)));
 }

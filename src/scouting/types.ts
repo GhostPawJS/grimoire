@@ -46,10 +46,11 @@ export type AdoptSpellResult = {
 export type AdoptResult = {
 	adopted: AdoptSpellResult[];
 	skipped: string[];
-	errors: Array<{ path: string; error: string }>;
+	errors: Array<{ path: string; error: string; code?: string }>;
 };
 
 export type ScoutOptions = {
+	gitDir?: string;
 	chapter?: string;
 	filter?: (skill: DiscoveredSkill) => boolean;
 };
@@ -57,7 +58,7 @@ export type ScoutOptions = {
 export type ScoutResult = {
 	imported: AdoptSpellResult[];
 	skipped: string[];
-	errors: Array<{ path: string; error: string }>;
+	errors: Array<{ path: string; error: string; code?: string }>;
 };
 
 export type UpdateCheck = {

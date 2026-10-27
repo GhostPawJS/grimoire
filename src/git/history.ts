@@ -22,6 +22,8 @@ export function history(ctx: GitContext, path?: string): HistoryEntry[] {
 				const lastPipe = rest.lastIndexOf('|');
 				current = {
 					hash: rest.slice(0, firstPipe),
+					shortHash: rest.slice(0, 8),
+					subject: rest.slice(firstPipe + 1, lastPipe),
 					message: rest.slice(firstPipe + 1, lastPipe),
 					date: rest.slice(lastPipe + 1),
 					files: [],

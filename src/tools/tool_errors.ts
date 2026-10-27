@@ -55,12 +55,14 @@ export function translateToolError(
 		});
 		if (error.code === 'GRIMOIRE_NOT_FOUND') {
 			result.error.recovery =
-				'The spell may have been moved or shelved. Search by name to locate it.';
+				'Search by name to locate the spell. For rollback, use inspect <path> to find an existing history hash.';
 		}
 		if (error.code === 'GRIMOIRE_CONFLICT') result.error.recovery = error.message;
 		if (error.code === 'GRIMOIRE_VALIDATION') {
 			result.error.recovery = 'Fix the invalid input fields and retry.';
 		}
+		if (!result.error.recovery)
+			result.error.recovery = 'Resolve the reported state or repository configuration and retry.';
 		return result;
 	}
 	const message = error instanceof Error ? error.message : String(error);
@@ -69,6 +71,10 @@ export function translateToolError(
 		'system_error',
 		options.summary ?? 'An unexpected error occurred.',
 		message,
+		{
+			recovery:
+				'Check filesystem permissions, Git configuration, and network availability when scouting; retry after resolving the reported error.',
+		},
 	);
 }
 

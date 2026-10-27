@@ -1,42 +1,42 @@
 {
 	"startup": {
 		"version": {
-			"medianMs": 899
+			"medianMs": 150
 		},
 		"tools": {
-			"medianMs": 904
+			"medianMs": 150
 		},
 		"mcp": {
-			"medianMs": 2574
+			"medianMs": 150
 		},
 		"mcp-server": {
-			"medianMs": 1394
+			"medianMs": 150
 		}
 	},
 	"size": {
 		"full": {
-			"minBytes": 134208,
-			"gzipBytes": 42112
+			"minBytes": 148416,
+			"gzipBytes": 47104
 		},
 		"tools": {
-			"minBytes": 133184,
-			"gzipBytes": 41792
+			"minBytes": 147392,
+			"gzipBytes": 46720
 		},
 		"read-write": {
-			"minBytes": 133184,
-			"gzipBytes": 41792
+			"minBytes": 147392,
+			"gzipBytes": 46656
 		},
 		"mcp": {
-			"minBytes": 73920,
-			"gzipBytes": 24768
+			"minBytes": 87552,
+			"gzipBytes": 29312
 		},
 		"cli": {
-			"minBytes": 140288,
-			"gzipBytes": 45760
+			"minBytes": 165248,
+			"gzipBytes": 54784
 		},
 		"mcp-server": {
-			"minBytes": 81472,
-			"gzipBytes": 27392
+			"minBytes": 96064,
+			"gzipBytes": 32256
 		}
 	}
 }

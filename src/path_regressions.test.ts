@@ -104,6 +104,11 @@ async function invoke(surface: string, ctx: GrimoireToolContext, name: string, i
 		const result = JSON.parse(out) as ToolResult<unknown>;
 		if (!result.ok) {
 			assert.ok('error' in result);
+			// Schema-level rejection (usage_error, exit 2) and handler-level validation (exit 1) both refuse the input.
+			if (code === 2) {
+				assert.equal(result.error?.code, 'usage_error');
+				return { ok: false, code: 1 };
+			}
 			assert.equal(result.error?.code, code === 4 ? 'conflict' : 'validation_failed');
 			assert.equal(result.error?.kind, code === 4 ? 'domain' : 'protocol');
 		}
@@ -125,7 +130,18 @@ async function invoke(surface: string, ctx: GrimoireToolContext, name: string, i
 			},
 		}),
 	);
-	const result = JSON.parse(response ?? 'null').result.structuredContent as ToolResult<unknown>;
+	const envelope = JSON.parse(response ?? 'null').result as {
+		isError?: boolean;
+		structuredContent?: ToolResult<unknown>;
+		content?: { text?: string }[];
+	};
+	if (!envelope.structuredContent) {
+		// Schema-level rejection before the handler runs.
+		assert.equal(envelope.isError, true);
+		assert.match(envelope.content?.[0]?.text ?? '', /must match|required|must be/);
+		return { ok: false, code: 1 };
+	}
+	const result = envelope.structuredContent;
 	if (!result.ok) {
 		assert.ok('error' in result);
 		assert.equal(result.error?.kind, result.error?.code === 'conflict' ? 'domain' : 'protocol');

@@ -1,6 +1,7 @@
 import { approveDraft } from '../drafts/approve_draft.ts';
 import { dismissDraft } from '../drafts/dismiss_draft.ts';
 import { submitDraft } from '../drafts/submit_draft.ts';
+import { assertNoteIds } from '../notes/assert_note_ids.ts';
 import { translateToolError } from './tool_errors.ts';
 import {
 	arraySchema,
@@ -16,7 +17,14 @@ import type { ToolResult } from './tool_types.ts';
 import { toolFailure, toolSuccess } from './tool_types.ts';
 
 type ManageDraftInput =
-	| { action: 'submit'; title: string; rationale: string; noteIds: number[]; chapter: string }
+	| {
+			action: 'submit';
+			title: string;
+			rationale: string;
+			noteIds?: number[];
+			note_ids?: number[];
+			chapter: string;
+	  }
 	| { action: 'approve'; draftId: number }
 	| { action: 'dismiss'; draftId: number };
 
@@ -55,6 +63,7 @@ export const manageDraftTool = defineGrimoireTool<
 				integerSchema('Note ID'),
 				'Note IDs backing this draft — required for submit.',
 			),
+			note_ids: arraySchema(integerSchema('Note ID'), 'Alias of noteIds'),
 			chapter: stringSchema('Chapter for the potential spell — required for submit.'),
 			draftId: integerSchema('Draft ID — required for approve and dismiss.'),
 		},
@@ -74,10 +83,12 @@ export const manageDraftTool = defineGrimoireTool<
 		try {
 			switch (input.action) {
 				case 'submit': {
+					const noteIds = [...new Set([...(input.noteIds ?? []), ...(input.note_ids ?? [])])];
+					assertNoteIds(ctx.db, noteIds);
 					const result = submitDraft(ctx.db, {
 						title: input.title,
 						rationale: input.rationale,
-						noteIds: input.noteIds,
+						noteIds,
 						chapter: input.chapter,
 					});
 					return toolSuccess(

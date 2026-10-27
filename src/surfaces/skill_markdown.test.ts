@@ -36,7 +36,7 @@ test('skill output has deterministic frontmatter, CLI, MCP and references', () =
 	for (const expected of [
 		'MCP:',
 		'example call <tool>',
-		'references/search.md',
+		'example skill search',
 		'Read-only.',
 		'| mode | string | yes | a, b.',
 		'Search first.',
@@ -50,12 +50,10 @@ test('reject invalid skill metadata', () => {
 		assert.throws(() => renderSkillMarkdown({ ...spec, description }));
 });
 
-test('reference base changes only workflow link targets', () => {
+test('workflow commands do not depend on a filesystem reference base', () => {
 	assert.equal(
 		renderSkillMarkdown(spec, { referencesBase: 'skills/example/references' }),
-		renderSkillMarkdown(spec).replace(
-			'(references/search.md)',
-			'(skills/example/references/search.md)',
-		),
+		renderSkillMarkdown(spec),
 	);
+	assert.match(renderSkillMarkdown(spec), /- `example skill search`: Search well/);
 });

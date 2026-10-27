@@ -19,7 +19,10 @@ export async function scout(
 			: handle.skills.filter((s) => s.valid);
 
 		const localPaths = filtered.map((s) => s.localPath);
-		const adoptOpts = options?.chapter !== undefined ? { chapter: options.chapter } : {};
+		const adoptOpts = {
+			...(options?.chapter !== undefined ? { chapter: options.chapter } : {}),
+			...(options?.gitDir ? { gitDir: options.gitDir } : {}),
+		};
 		const result = adoptSpells(root, db, localPaths, adoptOpts);
 
 		return {

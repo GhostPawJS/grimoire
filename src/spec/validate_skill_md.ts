@@ -1,3 +1,4 @@
+import { frontmatterWarnings } from './frontmatter_warnings.ts';
 import { parseSkillMd } from './parse_skill_md.ts';
 import type { SkillMdValidationResult } from './types.ts';
 
@@ -86,6 +87,7 @@ function checkUnknownFields(content: string, warnings: string[]): void {
 	if (secondDelim === -1) return;
 
 	const yamlBlock = content.slice(afterFirst, secondDelim);
+	warnings.push(...frontmatterWarnings(yamlBlock.replace(/^\s*\n/, '')));
 	const lines = yamlBlock.split('\n');
 
 	for (const line of lines) {

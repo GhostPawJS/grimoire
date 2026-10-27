@@ -127,7 +127,7 @@ describe('decompose-oversized-spells skill', () => {
 			const inscribed = expectSuccess(
 				await inscribeSpellTool.handler(ctx, { name: 'big-spell', content: largeContent }),
 			);
-			const originalPath = (inscribed.data as { spell: { path: string } }).spell.path;
+			const originalPath = inscribed.data.path;
 
 			const inspected = expectSuccess(
 				await inspectGrimoireItemTool.handler(ctx, { path: originalPath }),

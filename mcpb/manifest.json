@@ -81,7 +81,7 @@
   "tools": [
     {
       "name": "search_grimoire",
-      "description": "Search the grimoire for spells by name or description."
+      "description": "Search the grimoire for spells by name, description, and body."
     },
     {
       "name": "review_grimoire",
@@ -117,7 +117,7 @@
     },
     {
       "name": "run_catalogue",
-      "description": "Run the full catalogue maintenance pass — detect stale/dormant/oversized spells, route notes, cluster orphans, compute health."
+      "description": "Run the full catalogue maintenance pass — detect stale/dormant/oversized spells, route notes, cluster orphans, compute honing pressure."
     },
     {
       "name": "scout_skills",

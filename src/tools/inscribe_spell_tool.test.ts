@@ -28,12 +28,13 @@ describe('inscribeSpellTool', () => {
 		try {
 			const result = await inscribeSpellTool.handler(
 				{ root, db: undefined },
-				{ name: 'test-spell', content: validContent },
+				{ verbose: true, name: 'test-spell', content: validContent },
 			);
 			assert.equal(result.ok, true);
 			if (!result.ok) return;
 			assert.equal(result.outcome, 'success');
 			assert.ok(result.summary.includes('test-spell'));
+			assert.ok(result.data.spell);
 			assert.equal(result.data.spell.name, 'test-spell');
 			assert.ok(result.entities.length > 0);
 			assert.equal(result.entities[0]?.kind, 'spell');
@@ -47,10 +48,11 @@ describe('inscribeSpellTool', () => {
 		try {
 			const result = await inscribeSpellTool.handler(
 				{ root, db: undefined },
-				{ name: 'test-spell', content: validContent, chapter: 'advanced' },
+				{ verbose: true, name: 'test-spell', content: validContent, chapter: 'advanced' },
 			);
 			assert.equal(result.ok, true);
 			if (!result.ok) return;
+			assert.ok(result.data.spell);
 			assert.equal(result.data.spell.chapter, 'advanced');
 			assert.ok(result.data.spell.path.startsWith('advanced/'));
 		} finally {

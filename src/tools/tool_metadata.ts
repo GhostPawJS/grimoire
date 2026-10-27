@@ -1,5 +1,6 @@
 import type { GrimoireDb } from '../database.ts';
 import type { ToolResult } from './tool_types.ts';
+import { validateToolInput } from './validate_tool_input.ts';
 
 export type GrimoireToolContext = {
 	root: string;
@@ -62,7 +63,15 @@ export type ToolDefinitionRegistry = readonly GrimoireToolDefinition<any, any>[]
 export function defineGrimoireTool<TInput, TResult extends ToolResult<unknown>>(
 	tool: GrimoireToolDefinition<TInput, TResult>,
 ): GrimoireToolDefinition<TInput, TResult> {
-	return tool;
+	const handler = tool.handler;
+	return {
+		...tool,
+		handler(ctx, input) {
+			const failure = validateToolInput(tool.inputSchema, input);
+			if (failure) return failure as TResult;
+			return handler(ctx, input);
+		},
+	};
 }
 
 export function stringSchema(description: string, options: Partial<JsonSchema> = {}): JsonSchema {

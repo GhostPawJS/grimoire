@@ -113,7 +113,7 @@ describe('archive-and-prune-spells skill', () => {
 					content: spellContent('old-spell'),
 				}),
 			);
-			const spellPath = (inscribed.data as { spell: { path: string } }).spell.path;
+			const spellPath = inscribed.data.path;
 
 			expectSuccess(await manageSpellTool.handler(ctx, { action: 'shelve', path: spellPath }));
 
@@ -134,7 +134,7 @@ describe('archive-and-prune-spells skill', () => {
 					content: spellContent('dead-spell'),
 				}),
 			);
-			const spellPath = (inscribed.data as { spell: { path: string } }).spell.path;
+			const spellPath = inscribed.data.path;
 
 			expectSuccess(await manageSpellTool.handler(ctx, { action: 'delete', path: spellPath }));
 

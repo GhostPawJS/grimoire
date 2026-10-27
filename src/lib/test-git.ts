@@ -29,7 +29,7 @@ export function createTestGitRoot(layout?: TestRootLayout): {
 } {
 	const base = mkdtempSync(join(tmpdir(), 'grimoire-test-git-'));
 	const root = join(base, 'skills');
-	const gitDir = join(base, '.grimoire-git');
+	const gitDir = join(root, '.grimoire-git');
 
 	mkdirSync(root, { recursive: true });
 
@@ -57,7 +57,7 @@ export function createTestGitRoot(layout?: TestRootLayout): {
 				git(root, gitDir, ['add', '--', join(root, p)]);
 			}
 		} else {
-			git(root, gitDir, ['add', '-A']);
+			git(root, gitDir, ['add', '-A', '--', '.', ':!.grimoire-git']);
 		}
 		const msg = message ?? 'seal';
 		git(root, gitDir, ['commit', '--allow-empty', '-m', msg]);

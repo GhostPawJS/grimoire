@@ -14,16 +14,25 @@ export async function searchSkills(
 		const url = `https://agentskillhub.dev/api/v1/search?q=${encodeURIComponent(query)}&limit=${String(limit)}`;
 		const res = await fetch(url);
 		if (res.ok) {
-			const data = (await res.json()) as Array<{
-				slug: string;
-				name: string;
-				description: string;
-				adoptionCount?: number;
-				sourceRepo: string;
-				sourcePath?: string;
-				fetchUrl: string;
-			}>;
+			const payload = await res.json();
+			const data = Array.isArray(payload)
+				? payload
+				: Array.isArray(payload?.results)
+					? payload.results
+					: Array.isArray(payload?.skills)
+						? payload.skills
+						: Array.isArray(payload?.data)
+							? payload.data
+							: [];
 			for (const item of data) {
+				if (
+					!item ||
+					typeof item !== 'object' ||
+					!['slug', 'name', 'description', 'sourceRepo', 'fetchUrl'].every(
+						(key) => typeof item[key] === 'string',
+					)
+				)
+					continue;
 				const entry: SearchResult = {
 					source: 'agentskillhub',
 					slug: item.slug,
@@ -32,8 +41,8 @@ export async function searchSkills(
 					sourceRepo: item.sourceRepo,
 					fetchUrl: item.fetchUrl,
 				};
-				if (item.adoptionCount !== undefined) entry.adoptionCount = item.adoptionCount;
-				if (item.sourcePath !== undefined) entry.sourcePath = item.sourcePath;
+				if (typeof item.adoptionCount === 'number') entry.adoptionCount = item.adoptionCount;
+				if (typeof item.sourcePath === 'string') entry.sourcePath = item.sourcePath;
 				results.push(entry);
 			}
 		}
@@ -43,14 +52,15 @@ export async function searchSkills(
 		const url = `https://api.github.com/search/code?q=filename:SKILL.md+${encodeURIComponent(query)}`;
 		const res = await fetch(url);
 		if (res.ok) {
-			const data = (await res.json()) as {
-				items: Array<{
-					repository: { full_name: string };
-					path: string;
-					name: string;
-				}>;
-			};
-			for (const item of data.items) {
+			const data = await res.json();
+			for (const item of Array.isArray(data?.items) ? data.items : []) {
+				if (
+					!item ||
+					typeof item?.repository?.full_name !== 'string' ||
+					typeof item.path !== 'string' ||
+					typeof item.name !== 'string'
+				)
+					continue;
 				const slug = `${item.repository.full_name}/${item.path}`;
 				results.push({
 					source: 'github',

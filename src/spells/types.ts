@@ -59,6 +59,7 @@ export type InscribeInput = {
 };
 
 export type InscribeResult = {
+	noOp?: boolean;
 	spell: Spell;
 	warnings: DuplicationWarning[];
 };

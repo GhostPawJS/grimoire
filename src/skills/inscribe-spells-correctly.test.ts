@@ -117,11 +117,11 @@ describe('inscribe-spells-correctly skill', () => {
 					content: spellContent('logging-setup', 'Configure application logging'),
 				}),
 			);
-			ok(inscribeResult.data.spell.path, 'inscribed spell should have a path');
+			ok(inscribeResult.data.path, 'inscribed spell should have a path');
 
 			const inspectResult = expectSuccess(
 				await inspectGrimoireItemTool.handler(ctx, {
-					path: inscribeResult.data.spell.path,
+					path: inscribeResult.data.path,
 				}),
 			);
 			strictEqual(inspectResult.data.spell.name, 'logging-setup');

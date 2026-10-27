@@ -1,20 +1,21 @@
 import { buildIndex } from '../indexing/build_index.ts';
+import { scoreSearch } from '../indexing/score_search.ts';
 import type { IndexEntry } from '../indexing/types.ts';
 import { translateToolError } from './tool_errors.ts';
 import { arraySchema, defineGrimoireTool, objectSchema, stringSchema } from './tool_metadata.ts';
 import { searchGrimoireToolName } from './tool_names.ts';
-import { inspectSpellNext, reviewViewNext } from './tool_next.ts';
+import { honeNext, inspectSpellNext, reviewViewNext } from './tool_next.ts';
 import { toIndexEntryRef } from './tool_ref.ts';
 import { summarizeCount } from './tool_summary.ts';
 import type { ToolResult, ToolWarning } from './tool_types.ts';
 import { toolSuccess, toolWarning } from './tool_types.ts';
 
 type SearchInput = { query: string; chapters?: string[] };
-type SearchData = { results: IndexEntry[]; count: number };
+type SearchData = { results: (IndexEntry & { score: number })[]; count: number };
 
 export const searchGrimoireTool = defineGrimoireTool<SearchInput, ToolResult<SearchData>>({
 	name: searchGrimoireToolName,
-	description: 'Search the grimoire for spells by name or description.',
+	description: 'Search the grimoire for spells by name, description, and body.',
 	whenToUse: 'When looking for spells matching a keyword, topic, or partial name.',
 	whenNotToUse: 'When you already know the exact spell path — use inspect_grimoire_item instead.',
 	sideEffects: 'none',
@@ -23,7 +24,7 @@ export const searchGrimoireTool = defineGrimoireTool<SearchInput, ToolResult<Sea
 	targetKinds: ['spell'],
 	inputDescriptions: {
 		query:
-			'Search query to match against spell names and descriptions (case-insensitive substring).',
+			'Multi-term search with weighted term frequency, stemming, and fuzzy name/description matching.',
 		chapters: 'Optional list of chapters to restrict the search to.',
 	},
 	outputDescription: 'Matching spells with path, chapter, name, tier, rank, and description.',
@@ -36,19 +37,18 @@ export const searchGrimoireTool = defineGrimoireTool<SearchInput, ToolResult<Sea
 	),
 	handler(ctx, input) {
 		try {
-			const entries = buildIndex(
-				ctx.root,
-				input.chapters ? { chapters: input.chapters } : undefined,
-			);
-			const q = input.query.toLowerCase();
-			const results = entries.filter(
-				(e) => e.name.toLowerCase().includes(q) || e.description.toLowerCase().includes(q),
-			);
+			const entries = buildIndex(ctx.root, {
+				...(ctx.gitDir ? { gitDir: ctx.gitDir } : {}),
+				...(input.chapters ? { chapters: input.chapters } : {}),
+			});
+			const results = scoreSearch(ctx.root, entries, input.query);
 			const entities = results.slice(0, 10).map(toIndexEntryRef);
 			const next =
 				results.length > 0
 					? results.slice(0, 3).map((r) => inspectSpellNext(r.path, r.name))
 					: [reviewViewNext('chapters')];
+			const unsealed = results.filter((entry) => entry.rank === 0).map((entry) => entry.path);
+			if (unsealed.length) next.unshift(honeNext(unsealed));
 			const warnings: ToolWarning[] = [];
 			if (results.length === 0) {
 				warnings.push(toolWarning('empty_result', `No spells matched query "${input.query}".`));

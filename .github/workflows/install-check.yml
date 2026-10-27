@@ -37,7 +37,7 @@ jobs:
           export GHOSTPAW_GRIMOIRE_ROOT="$RUNNER_TEMP/grimoire-spells"
           if [ "$RUNNER_OS" = Linux ]; then export GHOSTPAW_VERIFY=attestation; fi
           curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --version "$version"
-          test "$(ghostpaw-grimoire --version)" = "$version"
+          test "$(ghostpaw-grimoire --version --short)" = "$version"
           echo "Version: $version verified on $RUNNER_OS" >> "$GITHUB_STEP_SUMMARY"
           ghostpaw-grimoire note drop "Install check marker" --source install-check --db "$RUNNER_TEMP/grimoire.db" --json | jq -e '.ok == true'
           ghostpaw-grimoire review notes --db "$RUNNER_TEMP/grimoire.db" --json | jq -e '.data.notes | length == 1'
@@ -67,7 +67,7 @@ jobs:
           $env:GHOSTPAW_GRIMOIRE_ROOT = Join-Path $env:RUNNER_TEMP 'grimoire-spells'
           $env:GHOSTPAW_INSTALL_DIR = Join-Path $env:RUNNER_TEMP 'grimoire-bin'
           irm https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.ps1 | iex
-          if ((ghostpaw-grimoire --version) -ne $version) { throw 'Version mismatch' }
+          if ((ghostpaw-grimoire --version --short) -ne $version) { throw 'Version mismatch' }
           "Version: $version verified on Windows" >> $env:GITHUB_STEP_SUMMARY
           $db = Join-Path $env:RUNNER_TEMP 'grimoire.db'
           $added = ghostpaw-grimoire note drop 'Install check marker' --source install-check --db $db --json | ConvertFrom-Json

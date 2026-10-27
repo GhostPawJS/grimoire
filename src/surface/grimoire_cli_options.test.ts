@@ -71,3 +71,117 @@ test('grimoire command tree covers every tool and action once without changing M
 	);
 	assert.ok(grimoireMcpSurfaceTools.every((tool) => !('cli' in tool)));
 });
+
+test('CLI flags, aliases, time formats, group help, and usage hints stay consistent', async () => {
+	const captured: Record<string, unknown>[] = [];
+	const contexts: object[] = [];
+	const invoke = async (args: string[]) => {
+		let out = '',
+			err = '';
+		const code = await runToolCli(args, {
+			...grimoireCliOptions,
+			tools: grimoireSurfaceTools.map((tool) => ({
+				...tool,
+				handler: (_ctx, input) => {
+					captured.push(input);
+					return { ok: true, outcome: 'success', data: {} };
+				},
+			})),
+			openContext: (options) => {
+				contexts.push(options);
+				return { root: '/unused' };
+			},
+			closeContext: () => {},
+			stdin: Readable.from([]),
+			stdout: new Writable({
+				write(chunk, _encoding, cb) {
+					out += String(chunk);
+					cb();
+				},
+			}),
+			stderr: new Writable({
+				write(chunk, _encoding, cb) {
+					err += String(chunk);
+					cb();
+				},
+			}),
+		});
+		return { code, out, err };
+	};
+	for (const noun of ['spell', 'note', 'draft', 'review', 'scout', 'catalogue']) {
+		const result = await invoke([noun]);
+		assert.equal(result.code, 0, result.err);
+		assert.match(result.out, new RegExp(`${noun} (?:inscribe|drop|submit|chapters|adopt|run)`));
+	}
+	const help = await invoke([
+		'--help',
+		'--db',
+		'/tmp/example.db',
+		'--root',
+		'/tmp/example-root',
+		'--git-dir',
+		'/tmp/example-git',
+	]);
+	for (const path of [
+		'/tmp/example.db',
+		'/tmp/example-root',
+		'/tmp/example-git',
+		'GHOSTPAW_GRIMOIRE_GIT_DIR',
+	])
+		assert.ok(help.out.includes(path));
+	assert.equal(contexts.length, 0);
+	for (const flag of ['--note-ids', '--note_ids']) {
+		assert.equal((await invoke(['spell', 'hone', 'ops/example', 'ops/other', flag, '3'])).code, 0);
+		assert.deepEqual(captured.at(-1), { paths: ['ops/example', 'ops/other'], noteIds: [3] });
+		assert.equal(
+			(
+				await invoke([
+					'draft',
+					'submit',
+					'Title',
+					'--rationale',
+					'Evidence',
+					'--chapter',
+					'ops',
+					flag,
+					'3',
+				])
+			).code,
+			0,
+		);
+		assert.deepEqual(captured.at(-1), {
+			title: 'Title',
+			rationale: 'Evidence',
+			chapter: 'ops',
+			noteIds: [3],
+			action: 'submit',
+		});
+	}
+	for (const time of ['1793145600000', '2026-10-28T00:00:00Z', '2026-10-28']) {
+		assert.equal((await invoke(['catalogue', 'run', '--now', time])).code, 0);
+		assert.equal(typeof captured.at(-1)?.now, 'number');
+	}
+	assert.equal(
+		(
+			await invoke([
+				'search',
+				'release',
+				'--db',
+				'/tmp/flag.db',
+				'--root',
+				'/tmp/flag-root',
+				'--git-dir',
+				'/tmp/flag-git',
+			])
+		).code,
+		0,
+	);
+	assert.deepEqual(contexts.at(-1), {
+		db: '/tmp/flag.db',
+		root: '/tmp/flag-root',
+		gitDir: '/tmp/flag-git',
+	});
+	const usage = await invoke(['spell', 'inscribe', 'example']);
+	assert.equal(usage.code, 2);
+	assert.match(usage.err, /Usage: ghostpaw-grimoire spell inscribe.*--help/);
+});

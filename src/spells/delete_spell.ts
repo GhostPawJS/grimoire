@@ -1,19 +1,40 @@
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import type { GrimoireDb } from '../database.ts';
+import { commitIdentity } from '../git/commit_identity.ts';
+import { hasGitRepository } from '../git/has_git_repository.ts';
+import { assertGitScope } from '../lib/assert_git_scope.ts';
+import { execGit } from '../lib/exec_git.ts';
+import { resolveGitDir } from '../lib/resolve_git_dir.ts';
+import { withGitLock } from '../lib/with_git_lock.ts';
 import { deleteProvenance } from '../provenance/delete_provenance.ts';
 import { assertSpellExists } from './assert_spell_exists.ts';
 
-export function deleteSpell(root: string, path: string, db?: GrimoireDb): void {
-	assertSpellExists(root, path);
-	const absolutePath = join(root, path);
-	rmSync(absolutePath, { recursive: true, force: true });
+export function deleteSpell(
+	root: string,
+	path: string,
+	db?: GrimoireDb,
+	options?: { gitDir?: string },
+): void {
+	withGitLock(resolveGitDir(root, options?.gitDir), () => {
+		if (hasGitRepository({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }))
+			assertGitScope({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }, []);
+		assertSpellExists(root, path);
+		const absolutePath = join(root, path);
+		rmSync(absolutePath, { recursive: true, force: true });
 
-	if (db) {
-		try {
-			deleteProvenance(db, path);
-		} catch {
-			// Provenance may not exist; ignore.
+		if (hasGitRepository({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) })) {
+			const ctx = { root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) };
+			execGit(ctx, ['add', '-A', '--', path]);
+			execGit(ctx, [...commitIdentity(ctx), 'commit', '-m', `delete ${path}`, '--', path]);
 		}
-	}
+		if (db) {
+			db.prepare('DELETE FROM spell_events WHERE spell = ?').run(path);
+			try {
+				deleteProvenance(db, path);
+			} catch {
+				// Provenance may not exist; ignore.
+			}
+		}
+	});
 }

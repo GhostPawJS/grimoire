@@ -1,5 +1,7 @@
+import { readFileSync } from 'node:fs';
 import { type Readable, Writable } from 'node:stream';
 import { runCliCommand } from './cli_commands.ts';
+import { cliVersionOutput } from './cli_version.ts';
 import { isErrorResult, type JsonSchema, type SurfaceTool } from './surface_types.ts';
 import { validateInput } from './validate_input.ts';
 
@@ -7,12 +9,19 @@ export interface ToolCliOptions<TCtx> {
 	bin: string;
 	version: string;
 	description: string;
+	describeDb?: (options: { db?: string; root?: string; gitDir?: string }) => string;
+	formatResult?: (
+		result: unknown,
+		tool: SurfaceTool<TCtx>,
+		input: Record<string, unknown>,
+		quiet: boolean,
+	) => string;
 	tools: readonly SurfaceTool<TCtx>[];
-	openContext(opts: { db?: string }): TCtx | Promise<TCtx>;
+	openContext(opts: { db?: string; root?: string; gitDir?: string }): TCtx | Promise<TCtx>;
 	closeContext?: (ctx: TCtx) => void | Promise<void>;
 	commands?: {
-		mcp?: (opts: { db?: string }) => unknown | Promise<unknown>;
-		skill?: () => string | Promise<string>;
+		mcp?: (opts: { db?: string; root?: string; gitDir?: string }) => unknown | Promise<unknown>;
+		skill?: (args: string[]) => string | Promise<string>;
 	};
 	stdin?: Readable & { isTTY?: boolean };
 	stdout?: Writable;
@@ -28,7 +37,10 @@ export async function runToolCli<TCtx>(
 			.slice(0, end < 0 ? argv.length : end)
 			.some((arg) => ['--version', '-V', '-v'].includes(arg))
 	) {
-		if (!argv.includes('--quiet')) (options.stdout ?? process.stdout).write(`${options.version}\n`);
+		if (!argv.includes('--quiet'))
+			(options.stdout ?? process.stdout).write(
+				cliVersionOutput(options.version, argv, { bin: options.bin }),
+			);
 		return 0;
 	}
 	const modern = await runCliCommand(argv, options);
@@ -51,6 +63,8 @@ export async function runToolCli<TCtx>(
 		(arg) => arg !== '--quiet' && arg !== '--no-color' && !(explicitJson && arg === '--json'),
 	);
 	let db: string | undefined;
+	let root: string | undefined;
+	let gitDir: string | undefined;
 	let compact = false;
 	const fail = (message: string, code = 2) => {
 		stderr.write(`${message}\n`);
@@ -59,8 +73,16 @@ export async function runToolCli<TCtx>(
 		return code;
 	};
 	for (let i = 0; i < args.length; i++) {
-		if (args[i] === '--db') {
-			if (!args[i + 1] || args[i + 1]?.startsWith('--')) return fail('--db requires a path');
+		if (args[i] === '--root' || args[i] === '--git-dir') {
+			const key = args[i];
+			const value = args[i + 1];
+			if (!value || value.startsWith('--')) return fail(`${key} requires a path`);
+			if (key === '--root') root = value;
+			else gitDir = value;
+			args.splice(i, 2);
+			i--;
+		} else if (args[i] === '--db') {
+			if (!args[i + 1] || /^--[a-z]/i.test(args[i + 1] ?? '')) return fail('--db requires a path');
 			db = args[i + 1];
 			args.splice(i, 2);
 			i--;
@@ -70,17 +92,21 @@ export async function runToolCli<TCtx>(
 			i--;
 		}
 	}
-	const ctxOptions = db === undefined ? {} : { db };
+	const ctxOptions = {
+		...(db === undefined ? {} : { db }),
+		...(root === undefined ? {} : { root }),
+		...(gitDir === undefined ? {} : { gitDir }),
+	};
 	const command = args.shift() ?? 'help';
 	const normalize = (name: string) => name.replace(/[-_]/g, '').toLowerCase();
 	if (['help', '--help', '-h'].includes(command)) {
 		stdout.write(
-			`${options.bin} ${options.version}\n${options.description}\n\nUsage: ${options.bin} [--db path] <command>\nCommands: tools [--json], describe <tool>, call <tool> [JSON|-], <tool> --parameter value, mcp, skill\nOptions: --help, --version, --compact\n\n${options.tools.map((tool) => `${tool.name}  ${tool.description}`).join('\n')}\n`,
+			`${options.bin} ${options.version}\n${options.description}\n\nUsage: ${options.bin} [--db path] <command>\nCommands: tools [--json], describe <tool>, call <tool> [JSON|-], <tool> --parameter value, mcp, skill\nOptions: --help, --version [--short|--json], --compact\n\n${options.tools.map((tool) => `${tool.name}  ${tool.description}`).join('\n')}\n`,
 		);
 		return 0;
 	}
 	if (['--version', '-V', '-v', 'version'].includes(command)) {
-		stdout.write(`${options.version}\n`);
+		stdout.write(cliVersionOutput(options.version, argv, { bin: options.bin }));
 		return 0;
 	}
 	if (command === 'tools') {
@@ -97,8 +123,12 @@ export async function runToolCli<TCtx>(
 	}
 	if (command === 'skill') {
 		if (!options.commands?.skill) return fail('skill command unavailable');
-		stdout.write(await options.commands.skill());
-		return 0;
+		try {
+			stdout.write(await options.commands.skill(args));
+			return 0;
+		} catch (error) {
+			return fail(error instanceof Error ? error.message : String(error));
+		}
 	}
 	if (command === 'mcp') {
 		if (!options.commands?.mcp) return fail('mcp command unavailable');
@@ -136,7 +166,9 @@ export async function runToolCli<TCtx>(
 			);
 		} else {
 			const values: Record<string, unknown> = {};
-			const coerce = (value: string, schema: JsonSchema): unknown => {
+			const coerce = (value: string, schema: JsonSchema, property?: string): unknown => {
+				if (property && tool.cli?.valueParsers?.[property])
+					return tool.cli.valueParsers[property](value);
 				if (schema.type === 'number' || schema.type === 'integer') return Number(value);
 				if (schema.type === 'boolean') {
 					if (!['true', 'false'].includes(value)) throw new Error('Expected true or false');
@@ -165,20 +197,22 @@ export async function runToolCli<TCtx>(
 				);
 				if (!property) return fail(`Unknown parameter: ${key}`);
 				const schema = tool.inputSchema.properties?.[property] as JsonSchema;
-				const raw =
+				let raw =
 					equal === -1
 						? schema.type === 'boolean' && (!args[0] || args[0].startsWith('--'))
 							? 'true'
 							: args.shift()
 						: flag.slice(equal + 1);
 				if (raw === undefined) return fail(`Missing value: ${key}`);
+				if (raw.startsWith('@'))
+					raw = raw === '@-' ? await readStdin() : readFileSync(raw.slice(1), 'utf8');
 				if (schema.type === 'array' && !raw.startsWith('[')) {
 					const prior = values[property];
 					values[property] = [
 						...(Array.isArray(prior) ? prior : []),
 						coerce(raw, schema.items ?? {}),
 					];
-				} else values[property] = coerce(raw, schema);
+				} else values[property] = coerce(raw, schema, property);
 			}
 			input = values;
 		}

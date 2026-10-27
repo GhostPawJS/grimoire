@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createTestDb } from '../lib/test-db.ts';
+import { dropNote } from '../notes/drop_note.ts';
 import { manageDraftTool } from './manage_draft_tool.ts';
 import type { GrimoireToolContext } from './tool_metadata.ts';
 
 describe('manageDraftTool', () => {
 	it('submits a draft and returns draftId', async () => {
 		const db = createTestDb();
+		for (let i = 0; i < 3; i++) dropNote(db, { source: 'test', content: `Evidence ${i}` });
 		const ctx: GrimoireToolContext = { root: '/tmp', db };
 		const result = await manageDraftTool.handler(ctx, {
 			action: 'submit',
@@ -27,6 +29,7 @@ describe('manageDraftTool', () => {
 
 	it('approves a pending draft', async () => {
 		const db = createTestDb();
+		for (let i = 0; i < 3; i++) dropNote(db, { source: 'test', content: `Evidence ${i}` });
 		const ctx: GrimoireToolContext = { root: '/tmp', db };
 		await manageDraftTool.handler(ctx, {
 			action: 'submit',
@@ -48,6 +51,7 @@ describe('manageDraftTool', () => {
 
 	it('dismisses a pending draft', async () => {
 		const db = createTestDb();
+		for (let i = 0; i < 3; i++) dropNote(db, { source: 'test', content: `Evidence ${i}` });
 		const ctx: GrimoireToolContext = { root: '/tmp', db };
 		await manageDraftTool.handler(ctx, {
 			action: 'submit',
@@ -67,6 +71,7 @@ describe('manageDraftTool', () => {
 
 	it('returns error when approving nonexistent draft', async () => {
 		const db = createTestDb();
+		for (let i = 0; i < 3; i++) dropNote(db, { source: 'test', content: `Evidence ${i}` });
 		const ctx: GrimoireToolContext = { root: '/tmp', db };
 		const result = await manageDraftTool.handler(ctx, { action: 'approve', draftId: 999 });
 		assert.equal(result.ok, false);

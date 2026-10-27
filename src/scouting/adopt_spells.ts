@@ -1,4 +1,5 @@
 import type { GrimoireDb } from '../database.ts';
+import { GrimoireStateError } from '../errors.ts';
 import { adoptSpell } from './adopt_spell.ts';
 import type { AdoptResult, AdoptSpellOptions } from './types.ts';
 
@@ -16,7 +17,11 @@ export function adoptSpells(
 			result.adopted.push(adopted);
 		} catch (err) {
 			const message = err instanceof Error ? err.message : String(err);
-			result.errors.push({ path: localPath, error: message });
+			result.errors.push({
+				path: localPath,
+				error: message,
+				...(err instanceof GrimoireStateError ? { code: 'seal_failed' } : {}),
+			});
 		}
 	}
 

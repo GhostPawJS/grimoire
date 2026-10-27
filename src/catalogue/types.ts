@@ -1,6 +1,7 @@
 import type { OrphanCluster } from '../health/types.ts';
 
 export type CatalogueOptions = {
+	gitDir?: string;
 	staleDays?: number;
 	dormantDays?: number;
 	oversizeLines?: number;

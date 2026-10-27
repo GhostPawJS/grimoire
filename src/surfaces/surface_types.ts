@@ -11,12 +11,16 @@ export interface JsonSchema {
 }
 export interface SurfaceTool<TCtx> {
 	name: string;
+	example?: Record<string, unknown>;
 	cli?: {
 		noun?: string;
+		valueParsers?: Record<string, (raw: string) => unknown>;
 		verb: string;
 		positionals?: string[];
 		action?: {
 			property: string;
+			flags?: Record<string, string[]>;
+			descriptions?: Record<string, string>;
 			verbs?: Record<string, string>;
 			positionals?: Record<string, string[]>;
 		};

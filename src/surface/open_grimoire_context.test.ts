@@ -23,3 +23,33 @@ test('opens a database and initializes an explicit isolated spells directory', a
 		rmSync(directory, { recursive: true, force: true });
 	}
 });
+
+test('explicit Git directories override the environment for CLI and MCP contexts', async () => {
+	const directory = mkdtempSync(join(tmpdir(), 'grimoire-context-env-'));
+	const previous = process.env.GHOSTPAW_GRIMOIRE_GIT_DIR;
+	try {
+		const envDir = join(directory, 'environment-git');
+		const flagDir = join(directory, 'flag-git');
+		process.env.GHOSTPAW_GRIMOIRE_GIT_DIR = envDir;
+		const inherited = await openGrimoireContext({ root: join(directory, 'a'), dbPath: ':memory:' });
+		try {
+			assert.equal(inherited.gitDir, envDir);
+		} finally {
+			inherited.db.close();
+		}
+		const explicit = await openGrimoireContext({
+			root: join(directory, 'b'),
+			dbPath: ':memory:',
+			gitDir: flagDir,
+		});
+		try {
+			assert.equal(explicit.gitDir, flagDir);
+		} finally {
+			explicit.db.close();
+		}
+	} finally {
+		if (previous === undefined) delete process.env.GHOSTPAW_GRIMOIRE_GIT_DIR;
+		else process.env.GHOSTPAW_GRIMOIRE_GIT_DIR = previous;
+		rmSync(directory, { recursive: true, force: true });
+	}
+});

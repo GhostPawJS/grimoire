@@ -57,3 +57,47 @@ describe('parseFrontmatterYaml', () => {
 		assert.equal(result.name, 'after');
 	});
 });
+
+for (const style of ['>', '>-', '>+', '|', '|-', '|+']) {
+	it(`parses ${style} block scalars on arbitrary keys with chomping`, () => {
+		const parsed = parseFrontmatterYaml(
+			`name: example\ndescription: ${style}\n  first line\n  second line\n\nlicense: MIT`,
+		);
+		const text = style.startsWith('>') ? 'first line second line' : 'first line\nsecond line';
+		assert.equal(
+			parsed.description,
+			text + (style.endsWith('-') ? '' : style.endsWith('+') ? '\n\n' : '\n'),
+		);
+		assert.equal(parsed.license, 'MIT');
+		assert.equal(
+			parseFrontmatterYaml(`custom: ${style}\n  value`).custom,
+			`value${style.endsWith('-') ? '' : '\n'}`,
+		);
+	});
+}
+
+it('folds indented continuations of quoted and plain scalar values', () => {
+	assert.equal(
+		parseFrontmatterYaml('description: "first line\n  second line"').description,
+		'first line second line',
+	);
+	assert.equal(
+		parseFrontmatterYaml("description: 'first line\n  second line'").description,
+		'first line second line',
+	);
+	assert.equal(
+		parseFrontmatterYaml('description: first line\n  second line').description,
+		'first line second line',
+	);
+});
+
+it('supports nested block scalars and folded paragraph breaks', () => {
+	assert.deepEqual(
+		parseFrontmatterYaml('metadata:\n  source: >-\n    first\n    second\nname: example').metadata,
+		{ source: 'first second' },
+	);
+	assert.equal(
+		parseFrontmatterYaml('description: >-\n  first\n\n  second').description,
+		'first\nsecond',
+	);
+});

@@ -24,6 +24,10 @@ export const config = {
 		websiteUrl: pkg.homepage,
 		environment: [
 			{
+				name: 'GHOSTPAW_GRIMOIRE_GIT_DIR',
+				description: 'Git history directory (default: <ROOT>/.grimoire-git)',
+			},
+			{
 				name: 'GHOSTPAW_GRIMOIRE_ROOT',
 				description: 'Spells directory (default: ~/.ghostpaw/grimoire/)',
 			},

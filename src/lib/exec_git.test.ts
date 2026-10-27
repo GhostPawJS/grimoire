@@ -9,8 +9,8 @@ describe('resolveGitDir', () => {
 		assert.equal(resolveGitDir('/foo/skills', '/bar/.git'), '/bar/.git');
 	});
 
-	it('defaults to sibling .grimoire-git when gitDir omitted', () => {
-		assert.equal(resolveGitDir('/foo/skills'), resolve('/foo/skills', '..', '.grimoire-git'));
+	it('defaults to per-root .grimoire-git when gitDir omitted', () => {
+		assert.equal(resolveGitDir('/foo/skills'), resolve('/foo/skills', '.grimoire-git'));
 	});
 });
 
