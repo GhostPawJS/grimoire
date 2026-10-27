@@ -65,6 +65,12 @@ curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh
 irm https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.ps1 | iex
 ```
 
+A session with the 0.4.1 linux-x64 binary against a fresh database and spell directory (output piped through `jq` to keep it short):
+
+![ghostpaw-grimoire 0.4.1: version, writing a SKILL.md, spell inscribe, note drop, search, inspect, draft submit, review validation and the spell file on disk](https://raw.githubusercontent.com/GhostPawJS/grimoire/main/docs/assets/cli.png)
+
+The same session as an [animated GIF](https://raw.githubusercontent.com/GhostPawJS/grimoire/main/docs/assets/cli.gif).
+
 Other release installers:
 
 ```sh
@@ -82,7 +88,7 @@ registries:
     type: local
     path: grimoire-registry.yaml
 packages:
-  - name: GhostPawJS/grimoire@v0.4.0
+  - name: GhostPawJS/grimoire@v0.4.1
     registry: grimoire
 ```
 
@@ -118,7 +124,7 @@ download on macOS, remove quarantine with
 Linux binaries require glibc 2.28+; use npx on Alpine.
 See the [binary build workflow](.github/workflows/release-binaries.yml).
 
-Sizes for 0.4.0 (Node 26.12.1 inside each binary):
+Sizes for 0.4.1 (Node 26.12.1 inside each binary):
 
 | Target | Archive | Binary |
 |---|---|---|
