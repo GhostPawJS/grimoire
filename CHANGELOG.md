@@ -4,6 +4,13 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-10-27
+
+### Fixed
+
+- Flag values that start with dashes, such as a SKILL.md beginning with `---` front matter passed to `--content`, are no longer rejected as a missing value. Only a following `--name` token counts as the next flag.
+- The catalogue summary uses singular nouns for a count of one (`1 spell`, `1 orphan cluster`).
+
 ## [0.4.1] - 2026-10-27
 
 ### Fixed
@@ -139,7 +146,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 - Initial procedural knowledge library, tool facade, documentation, and browser demo. Early setup and demo improvements are grouped here.
 
-[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/GhostPawJS/grimoire/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/GhostPawJS/grimoire/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/GhostPawJS/grimoire/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/GhostPawJS/grimoire/compare/v0.2.15...v0.3.0
