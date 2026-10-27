@@ -4,6 +4,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-27
+
 ### Added
 
 - 22 schema-derived CLI commands: search, review, inspect; spell inscribe, update, hone, shelve, unshelve, move, delete, repair, repair-all, rollback; note drop; draft submit, approve, dismiss; catalogue run; scout adopt, search, check-updates, apply-update.
@@ -131,7 +133,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 - Initial procedural knowledge library, tool facade, documentation, and browser demo. Early setup and demo improvements are grouped here.
 
-[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/GhostPawJS/grimoire/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/GhostPawJS/grimoire/compare/v0.2.15...v0.3.0
 [0.2.15]: https://github.com/GhostPawJS/grimoire/compare/v0.2.14...v0.2.15
 [0.2.1]: https://github.com/GhostPawJS/grimoire/compare/v0.2.0...v0.2.1
