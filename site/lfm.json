@@ -29,7 +29,11 @@
     "docsInscribe": "https://grimoire.ghostpaw.dev/docs/#/inscribe",
     "docsNotes": "https://grimoire.ghostpaw.dev/docs/#/notes",
     "docsCatalogue": "https://grimoire.ghostpaw.dev/docs/#/catalogue",
-    "docsScout": "https://grimoire.ghostpaw.dev/docs/#/scout"
+    "docsScout": "https://grimoire.ghostpaw.dev/docs/#/scout",
+    "release": "https://github.com/GhostPawJS/grimoire/releases/tag/v0.4.1",
+    "readmeInstall": "https://github.com/GhostPawJS/grimoire#install",
+    "attest": "https://cli.github.com/manual/gh_attestation_verify",
+    "cliShot": "https://raw.githubusercontent.com/GhostPawJS/grimoire/main/docs/assets/cli.png"
   },
   "jsonld": {
     "@context": "https://schema.org",
@@ -41,7 +45,7 @@
         "codeRepository": "{{.urls.github}}",
         "programmingLanguage": "TypeScript",
         "runtimePlatform": "Node.js 24",
-        "version": "0.3.0",
+        "version": "0.4.1",
         "license": "{{.urls.mit}}",
         "author": {
           "@type": "Organization",

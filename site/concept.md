@@ -98,8 +98,9 @@ Every SKILL.md edit is kept, and only a sealed one counts. The page centres on t
 3. Explainer: spell, chapter, seal, tier, note, resonance, draft, catalogue. V029 V044
 4. Worry: what grimoire checks and what it does not. V049 V051
 5. Numbers: 0 deps, Node 24+, 872 tests, 95.6% lines, 46.4 KB gzip, about 7.6 ms import, 11 tools.
-6. Start: install, quick start, GitHub, README, live demo, home and siblings.
-7. Footer: Impressum, Datenschutz.
+6. Binaries: since 0.4.0 the CLI ships as one executable per platform with Node.js inside; install lines (install.sh, install.ps1, mise, ubi, eget, npx), targets and archive sizes from the v0.4.1 release assets, SHA256SUMS and attestation check, unsigned note, and a real terminal session (spell inscribe, note drop, search, inspect, draft submit, review validation).
+7. Start: install, quick start, GitHub, README, live demo, home and siblings.
+8. Footer: Impressum, Datenschutz.
 
 ## Palette
 | Role | Color | Source |
@@ -129,6 +130,7 @@ Shared panes with chamfer and lit top bar. The spell pane lists rank, tier, comm
 | --- | --- | --- | --- |
 | hero book | protagonist | an open book drawn in cyan light, a ghost paw resting on the right page, glyph lines and one violet hex rune; no text V046 | generated |
 | commit tree | explanation | a branching tree of nodes in dashed tiers, one violet tip at the top right; sealed history V037 V038 | generated |
+| terminal session | evidence | real output of the 0.4.1 linux-x64 binary against a fresh database, recorded with vhs in the void/spectral palette; never retouched | recorded |
 | share card | share preview | the hero art with the headline at 1200×630 | generated art, rendered from HTML |
 
 ## Motion
@@ -145,6 +147,7 @@ Reduced motion: no sweep or flash.
 - Never present voices as customers. V041
 
 ## Changelog
+- 2026-10-27: grimoire ships standalone binaries since 0.4.0; the section shows 0.4.1. New spine item 6, Binaries: install lines, targets and archive sizes from the v0.4.1 release assets, SHA256SUMS and attestation check, unsigned note, and the terminal session screenshot (new Imagery row). Kicker and JSON-LD version 0.4.1. Other sections unchanged.
 - 2026-10-24: first concept from the 2026-10-24 research batch (60 voices, 12 peers); sealed history chosen; replay of a real grimoire 0.3.0 run. Tier boundaries left off the page because the README table (journeyman 5–14) and the code (journeyman from 3) disagreed; the README now matches the code.
 - 2026-10-24: depth pass (15 more voices, now 75, the last five from Bluesky and GitHub to keep Hacker News at 40%); replay re-run against the current release; import time re-measured; comparison section added; page moved to https://grimoire.ghostpaw.dev/.
 - 2026-10-24: portal chrome pass. Shared top bar (GhostPaw/<lib>, Live demo or Docs, GitHub, npm), version badge, footer row of all seven libraries; sibling links row dropped from the start section; the ruled grid on the page ground was replaced by one radial glow (lfm 0.1.9 rejects ruled ground textures); share card relabelled GhostPaw/<lib> with the install line.
