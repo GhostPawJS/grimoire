@@ -4,6 +4,12 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-27
+
+### Fixed
+
+- Creating a new spell root no longer prints git's `init.defaultBranch` hints to stderr on machines where that setting is unset.
+
 ## [0.4.0] - 2026-10-27
 
 ### Added
@@ -133,7 +139,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 - Initial procedural knowledge library, tool facade, documentation, and browser demo. Early setup and demo improvements are grouped here.
 
-[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/GhostPawJS/grimoire/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/GhostPawJS/grimoire/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/GhostPawJS/grimoire/compare/v0.2.15...v0.3.0
 [0.2.15]: https://github.com/GhostPawJS/grimoire/compare/v0.2.14...v0.2.15
