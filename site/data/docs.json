@@ -1,0 +1,35 @@
+{
+  "heading": "Explore the demo",
+  "pages": [
+    {
+      "key": "demo",
+      "label": "Dashboard",
+      "note": "overview and actions"
+    },
+    {
+      "key": "docsChapters",
+      "label": "Chapters",
+      "note": "spells grouped by chapter"
+    },
+    {
+      "key": "docsInscribe",
+      "label": "Inscribe",
+      "note": "write a new spell"
+    },
+    {
+      "key": "docsNotes",
+      "label": "Notes",
+      "note": "the observations inbox"
+    },
+    {
+      "key": "docsCatalogue",
+      "label": "Catalogue",
+      "note": "health analysis of every spell"
+    },
+    {
+      "key": "docsScout",
+      "label": "Scout",
+      "note": "search and adopt spells"
+    }
+  ]
+}

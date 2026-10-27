@@ -95,6 +95,17 @@ const detail = read.getSpell(root, 'engineering/deploy-service', db);
 const chapters = read.listChapters(root);
 ```
 
+## Docs
+
+The live demo runs the library in your browser against an in-memory SQLite database. Each view below opens a different part of it:
+
+- [Dashboard](https://grimoire.ghostpaw.dev/docs/): overview and actions
+- [Chapters](https://grimoire.ghostpaw.dev/docs/#/chapters): spells grouped by chapter
+- [Inscribe](https://grimoire.ghostpaw.dev/docs/#/inscribe): write a new spell
+- [Notes](https://grimoire.ghostpaw.dev/docs/#/notes): the observations inbox
+- [Catalogue](https://grimoire.ghostpaw.dev/docs/#/catalogue): health analysis of every spell
+- [Scout](https://grimoire.ghostpaw.dev/docs/#/scout): search and adopt spells
+
 ## The Model
 
 Eight concepts, strict separation of concerns:
