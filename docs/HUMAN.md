@@ -302,3 +302,64 @@ Bad usage:
 - Use [`README.md`](README.md) for architecture overview.
 - Use [`LLM.md`](LLM.md) when building a harness around `soul`, `tools`, and
   `skills`.
+
+## CLI
+
+```text
+ghostpaw-grimoire search <query>
+ghostpaw-grimoire review <chapters|health|resonance|notes|drafts|validation|provenance|index>
+ghostpaw-grimoire inspect <path>
+ghostpaw-grimoire spell inscribe <name> --content TEXT
+ghostpaw-grimoire spell update|hone <path> [flags]
+ghostpaw-grimoire spell shelve|unshelve|delete|repair <path>
+ghostpaw-grimoire spell move <path> <target>
+ghostpaw-grimoire spell rollback <path> <ref>
+ghostpaw-grimoire spell repair-all
+ghostpaw-grimoire note drop <content> --source SOURCE
+ghostpaw-grimoire draft submit <title> --rationale TEXT --note-ids ID --chapter NAME
+ghostpaw-grimoire draft approve|dismiss <draftId>
+ghostpaw-grimoire catalogue run
+ghostpaw-grimoire scout adopt <source>
+ghostpaw-grimoire scout search <query>
+ghostpaw-grimoire scout check-updates
+ghostpaw-grimoire scout apply-update <path>
+ghostpaw-grimoire mcp|skill|tools|describe|call|completions|version|help
+```
+
+Global flags can appear anywhere: `--db <path>`, `--json`, `--quiet`,
+`--compact`, `--help`/`-h`, `--version`/`-V`/`-v`, `--no-color`.
+`NO_COLOR` is accepted; output uses no terminal colors.
+Noun-verb commands print the full tool result as JSON with `--json` or when
+stdout is piped. Terminal output shows the summary and payload.
+`--quiet` suppresses stdout. `--compact` removes JSON indentation.
+
+Use `help spell` or `spell update --help` for schema-derived help.
+Array flags repeat, object flags accept JSON or `@path`, and `-` reads JSON stdin.
+Flags use kebab-case and override stdin fields. `--` ends flags.
+Database selection uses `--db`, `GHOSTPAW_GRIMOIRE_DB`, then `~/.ghostpaw/grimoire.db`.
+Spell files use `GHOSTPAW_GRIMOIRE_ROOT` (default `~/.ghostpaw/grimoire`).
+Context initialization may run Git. Scout remote operations need network access;
+local sources can stay offline.
+
+| Exit | Noun-verb result |
+|---|---|
+| 0 | Success, including no_op |
+| 1 | Tool error |
+| 2 | Usage or schema error |
+| 3 | Clarification needed or not found |
+| 4 | Conflict or version mismatch |
+| 70 | Internal error |
+
+Errors go to stderr. With `--json`, usage and internal errors also print
+`{ok:false,error:{code,message}}` to stdout. Tool results retain their full
+shape. Legacy `tools [--json]`, `describe <tool>`, `call <tool> [JSON|-]`
+and `<tool_name> --parameter value` keep their existing exit codes.
+`completions bash`, `completions zsh` and `completions fish` print shell scripts.
+
+```sh
+ghostpaw-grimoire note drop "Verify the build" --source practice --db /tmp/grimoire.db --json
+ghostpaw-grimoire review notes --db /tmp/grimoire.db --json
+ghostpaw-grimoire spell update --help
+```
+
+Set `GHOSTPAW_GRIMOIRE_ROOT` to a temporary directory for an isolated session.

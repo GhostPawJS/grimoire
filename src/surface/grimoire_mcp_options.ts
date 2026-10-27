@@ -2,7 +2,7 @@ import type { McpServerOptions } from '../surfaces/mcp_server.ts';
 import type { GrimoireToolContext } from '../tools/tool_metadata.ts';
 import { grimoireVersion } from '../version.ts';
 import { grimoireMcpInstructions } from './grimoire_mcp_instructions.ts';
-import { grimoireSurfaceTools } from './grimoire_surface_tools.ts';
+import { grimoireMcpSurfaceTools } from './grimoire_surface_tools.ts';
 
 export function grimoireMcpOptions(
 	context: () => GrimoireToolContext | Promise<GrimoireToolContext>,
@@ -12,7 +12,7 @@ export function grimoireMcpOptions(
 		version: grimoireVersion,
 		title: 'Grimoire',
 		instructions: grimoireMcpInstructions,
-		tools: grimoireSurfaceTools,
+		tools: grimoireMcpSurfaceTools,
 		context,
 		annotations: (tool) => ({
 			readOnlyHint: tool.readOnly ?? false,

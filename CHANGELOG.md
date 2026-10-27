@@ -4,6 +4,18 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+### Added
+
+- 22 schema-derived CLI commands: search, review, inspect; spell inscribe, update, hone, shelve, unshelve, move, delete, repair, repair-all, rollback; note drop; draft submit, approve, dismiss; catalogue run; scout adopt, search, check-updates, apply-update.
+- Standalone binary builds for linux-x64, linux-arm64, darwin-arm64, darwin-x64 and windows-x64 with SHA256SUMS and build attestations. Binaries are unsigned; macOS uses ad-hoc signatures.
+- Checksum-verifying install.sh and install.ps1 refuse mismatches. Release install checks run on ubuntu-24.04, macos-15 and windows-2025 using offline note commands and temporary spell roots and databases.
+- Schema-derived help, bash/zsh/fish completions, JSON stdin, file values, global flags and exit codes 0/1/2/3/4/70.
+- Optional additive `SurfaceTool.cli` metadata.
+
+### Changed
+
+- CLI and binary entry points share Grimoire context wiring. Legacy forms retain their behavior and MCP metadata stays unchanged. Spell roots use GHOSTPAW_GRIMOIRE_ROOT; initialization may run Git. Remote scouting needs network access.
+
 ## [0.3.0] - 2026-10-24
 
 ### Added
