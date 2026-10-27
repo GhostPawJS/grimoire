@@ -7,8 +7,10 @@ import { rank } from '../git/rank.ts';
 import { seal } from '../git/seal.ts';
 import type { GitContext } from '../lib/exec_git.ts';
 import { execGit } from '../lib/exec_git.ts';
+import { assertSpellName, resolveInsideRoot, resolveSpellPath } from '../lib/safe_path.ts';
 import { getProvenance } from '../provenance/get_provenance.ts';
 import { updateProvenance } from '../provenance/update_provenance.ts';
+import { parseSkillMd } from '../spec/parse_skill_md.ts';
 import { fetchSkills } from './fetch_skills.ts';
 import type { ApplyUpdateResult } from './types.ts';
 
@@ -17,6 +19,8 @@ export async function applyUpdate(
 	db: GrimoireDb,
 	spellPath: string,
 ): Promise<ApplyUpdateResult> {
+	resolveSpellPath(root, spellPath);
+	resolveInsideRoot(root, spellPath, 'SKILL.md');
 	const prov = getProvenance(db, spellPath);
 	if (!prov) {
 		throw new GrimoireNotFoundError(`No provenance record for ${spellPath}`);
@@ -45,6 +49,8 @@ export async function applyUpdate(
 
 		const upstreamContent = readFileSync(join(upstream.localPath, 'SKILL.md'), 'utf-8');
 
+		const parsed = parseSkillMd(upstreamContent);
+		if (parsed.ok) assertSpellName(parsed.frontmatter.name);
 		if (localRank <= 1) {
 			const targetPath = join(root, spellPath, 'SKILL.md');
 			writeFileSync(targetPath, upstreamContent);
@@ -105,7 +111,7 @@ function resolveOriginalContent(
 	}
 
 	try {
-		return execGit(ctx, `show ${firstSeal.hash}:${spellPath}/SKILL.md`);
+		return execGit(ctx, ['show', `${firstSeal.hash}:${spellPath}/SKILL.md`, '--']);
 	} catch {
 		try {
 			return readFileSync(join(ctx.root, spellPath, 'SKILL.md'), 'utf-8');

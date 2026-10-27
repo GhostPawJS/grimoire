@@ -16,7 +16,9 @@ export function grimoireMcpOptions(
 		context,
 		annotations: (tool) => ({
 			readOnlyHint: tool.readOnly ?? false,
-			destructiveHint: ['manage_spell', 'manage_draft', 'run_catalogue'].includes(tool.name),
+			destructiveHint: ['inscribe_spell', 'manage_spell', 'manage_draft', 'run_catalogue'].includes(
+				tool.name,
+			),
 			idempotentHint: tool.readOnly ?? false,
 			openWorldHint: tool.name === 'scout_skills',
 		}),

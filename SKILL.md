@@ -77,6 +77,7 @@ Writes: writes_state.
 | name | string | yes | Spell name |
 | content | string | yes | Spell body content in markdown |
 | chapter | string | no | Chapter name |
+| force | boolean | no | Replace an existing spell at the same path. Default false. |
 
 ## update_spell
 
@@ -122,6 +123,7 @@ Writes: writes_state.
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
 | action | string | yes | shelve, unshelve, move, delete, repair, repair_all, rollback. The management action to perform: shelve, unshelve, move, delete, repair, repair_all, or rollback. |
+| force | boolean | no | Replace an existing spell at the same path. Default false. |
 | path | string | no | Spell path — required for all actions except repair_all. |
 | target | string | no | Target path — required for move. |
 | ref | string | no | Git commit hash to revert to — required for rollback. Use inspect_grimoire_item to find seal hashes from history. |

@@ -4,6 +4,7 @@ export { DEFAULTS } from './defaults.ts';
 export * as drafts from './drafts/index.ts';
 export type { GrimoireErrorCode } from './errors.ts';
 export {
+	GrimoireConflictError,
 	GrimoireError,
 	GrimoireInvariantError,
 	GrimoireNotFoundError,

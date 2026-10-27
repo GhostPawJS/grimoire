@@ -17,6 +17,8 @@ export type JsonSchemaType =
 	| 'string';
 
 export interface JsonSchema {
+	pattern?: string | undefined;
+	maxLength?: number | undefined;
 	type?: JsonSchemaType | undefined;
 	description?: string | undefined;
 	enum?: ReadonlyArray<boolean | number | string | null> | undefined;

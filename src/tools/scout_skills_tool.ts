@@ -45,7 +45,11 @@ export const scoutSkillsTool = defineGrimoireTool<ScoutInput, ToolResult<Record<
 				['adopt', 'search', 'check_updates', 'apply_update'],
 			),
 			source: stringSchema('Source URL or identifier — required for adopt.'),
-			chapter: stringSchema('Chapter for adopted spells — optional for adopt.'),
+			chapter: {
+				...stringSchema('Chapter for adopted spells — optional for adopt.'),
+				pattern: '^[a-z0-9]+(-[a-z0-9]+)*$',
+				maxLength: 64,
+			},
 			query: stringSchema('Search query — required for search.'),
 			path: stringSchema('Spell path — required for apply_update.'),
 		},

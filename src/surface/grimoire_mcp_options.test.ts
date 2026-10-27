@@ -10,7 +10,7 @@ test('annotations identify network access and destructive tool variants', () => 
 		assert.equal(annotations?.openWorldHint, tool.name === 'scout_skills');
 		assert.equal(
 			annotations?.destructiveHint,
-			['manage_spell', 'manage_draft', 'run_catalogue'].includes(tool.name),
+			['inscribe_spell', 'manage_spell', 'manage_draft', 'run_catalogue'].includes(tool.name),
 		);
 	}
 });

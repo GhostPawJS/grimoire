@@ -1,6 +1,7 @@
 export type ToolEntityKind = 'spell' | 'note' | 'draft' | 'provenance' | 'cluster';
 export type ToolOutcomeKind = 'success' | 'no_op' | 'needs_clarification' | 'error';
 export type ToolErrorCode =
+	| 'conflict'
 	| 'not_found'
 	| 'invalid_input'
 	| 'invalid_state'

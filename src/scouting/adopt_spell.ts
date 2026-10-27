@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { GrimoireDb } from '../database.ts';
 import { DEFAULTS } from '../defaults.ts';
@@ -6,6 +6,7 @@ import { GrimoireValidationError } from '../errors.ts';
 import { logEvent } from '../events/log_event.ts';
 import { isGitAvailable } from '../git/is_git_available.ts';
 import { seal } from '../git/seal.ts';
+import { assertChapter, assertSpellName, resolveInsideRoot } from '../lib/safe_path.ts';
 import { trigramJaccard } from '../lib/trigram_jaccard.ts';
 import { getProvenance } from '../provenance/get_provenance.ts';
 import { recordProvenance } from '../provenance/record_provenance.ts';
@@ -24,7 +25,7 @@ export function adoptSpell(
 	localPath: string,
 	options?: AdoptSpellOptions,
 ): AdoptSpellResult {
-	const skillMdPath = join(localPath, 'SKILL.md');
+	const skillMdPath = resolveInsideRoot(localPath, 'SKILL.md');
 	if (!existsSync(skillMdPath)) {
 		throw new GrimoireValidationError(`No SKILL.md found at ${localPath}`);
 	}
@@ -45,7 +46,9 @@ export function adoptSpell(
 	const name = parsed.frontmatter.name;
 	const chapter = options?.chapter ?? DEFAULTS.defaultChapter;
 	const spellPath = `${chapter}/${name}`;
-	const targetDir = join(root, chapter, name);
+	assertChapter(chapter);
+	assertSpellName(name);
+	const targetDir = resolveInsideRoot(root, chapter, name);
 
 	if (existsSync(targetDir)) {
 		throw new GrimoireValidationError(`Spell already exists at ${spellPath}`);
@@ -54,7 +57,11 @@ export function adoptSpell(
 	const warnings = detectDuplicates(root, spellPath, parsed.frontmatter.description);
 
 	mkdirSync(join(root, chapter), { recursive: true });
-	cpSync(localPath, targetDir, { recursive: true });
+	cpSync(localPath, targetDir, {
+		recursive: true,
+		dereference: false,
+		filter: (source) => !lstatSync(source).isSymbolicLink(),
+	});
 
 	if (options?.provenance) {
 		injectProvenanceMetadata(targetDir, options.provenance, options.now);

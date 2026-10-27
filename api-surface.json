@@ -137,6 +137,9 @@
 	".:exports.git.tierInfo": {
 		"kind": "function"
 	},
+	".:exports.GrimoireConflictError": {
+		"kind": "function"
+	},
 	".:exports.GrimoireError": {
 		"kind": "function"
 	},
@@ -2094,7 +2097,7 @@
 		"kind": "type",
 		"type": "DraftStatus",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -2312,7 +2315,7 @@
 		"kind": "type",
 		"type": "DraftStatus",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -2820,7 +2823,7 @@
 		"kind": "type",
 		"type": "SpellEventType",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -3043,7 +3046,7 @@
 		"kind": "type",
 		"type": "ResonanceColor",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -3261,7 +3264,7 @@
 		"kind": "type",
 		"type": "ResonanceColor",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -3678,7 +3681,7 @@
 		"kind": "type",
 		"type": "SpellEventType",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -4168,7 +4171,7 @@
 		"kind": "type",
 		"type": "Tier",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -4386,7 +4389,7 @@
 		"kind": "type",
 		"type": "Tier",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -4645,6 +4648,36 @@
 			"Tier": ".:public.git.Tier.types.Tier"
 		}
 	},
+	".:public.GrimoireConflictError": {
+		"kind": "class",
+		"type": "typeof GrimoireConflictError",
+		"members": {
+			"cause": {
+				"type": "unknown",
+				"optional": true
+			},
+			"code": {
+				"type": "GrimoireErrorCode",
+				"optional": false
+			},
+			"message": {
+				"type": "string",
+				"optional": false
+			},
+			"name": {
+				"type": "\"GrimoireConflictError\"",
+				"optional": false
+			},
+			"stack": {
+				"type": "string | undefined",
+				"optional": true
+			}
+		},
+		"definition": "declare class GrimoireConflictError extends GrimoireError { readonly name = \"GrimoireConflictError\"; constructor(path: string); }",
+		"references": {
+			"GrimoireError": ".:public.GrimoireError"
+		}
+	},
 	".:public.GrimoireDb": {
 		"kind": "type",
 		"type": "GrimoireDb",
@@ -4701,7 +4734,7 @@
 		"kind": "type",
 		"type": "GrimoireErrorCode",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -4910,7 +4943,7 @@
 				"optional": false
 			}
 		},
-		"definition": "type GrimoireErrorCode = 'GRIMOIRE_NOT_FOUND' | 'GRIMOIRE_VALIDATION' | 'GRIMOIRE_STATE' | 'GRIMOIRE_INVARIANT';"
+		"definition": "type GrimoireErrorCode = 'GRIMOIRE_CONFLICT' | 'GRIMOIRE_NOT_FOUND' | 'GRIMOIRE_VALIDATION' | 'GRIMOIRE_STATE' | 'GRIMOIRE_INVARIANT';"
 	},
 	".:public.GrimoireInvariantError": {
 		"kind": "class",
@@ -5010,11 +5043,11 @@
 		"kind": "type",
 		"type": "GrimoireSkillRegistry",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => ArrayIterator<GrimoireSkill>",
 				"optional": false
 			},
-			"__@unscopables@757": {
+			"__@unscopables@760": {
 				"type": "{ readonly [x: number]: boolean | undefined; readonly length?: boolean | undefined; toString?: boolean | undefined; toLocaleString?: boolean | undefined; concat?: boolean | undefined; join?: boolean | undefined; slice?: boolean | undefined; indexOf?: boolean | undefined; lastIndexOf?: boolean | undefined; every?: boolean | undefined; some?: boolean | undefined; forEach?: boolean | undefined; map?: boolean | undefined; filter?: boolean | undefined; reduce?: boolean | undefined; reduceRight?: boolean | undefined; find?: boolean | undefined; findIndex?: boolean | undefined; entries?: boolean | undefined; keys?: boolean | undefined; values?: boolean | undefined; includes?: boolean | undefined; flatMap?: boolean | undefined; flat?: boolean | undefined; at?: boolean | undefined; findLast?: boolean | undefined; findLastIndex?: boolean | undefined; toReversed?: boolean | undefined; toSorted?: boolean | undefined; toSpliced?: boolean | undefined; with?: boolean | undefined; [Symbol.iterator]?: boolean | undefined; readonly [Symbol.unscopables]?: boolean | undefined; }",
 				"optional": false
 			},
@@ -5370,7 +5403,7 @@
 		"kind": "type",
 		"type": "CatalogueReadinessReason",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -5585,7 +5618,7 @@
 		"kind": "type",
 		"type": "CatalogueReadinessReason",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -6597,7 +6630,7 @@
 		"kind": "type",
 		"type": "NoteStatus",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -6812,7 +6845,7 @@
 		"kind": "type",
 		"type": "NoteStatus",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -7318,7 +7351,7 @@
 		"kind": "type",
 		"type": "ProvenanceSourceType",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -7698,7 +7731,7 @@
 		"kind": "type",
 		"type": "ProvenanceSourceType",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -8215,7 +8248,7 @@
 		"kind": "type",
 		"type": "RegistrySource",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -8527,7 +8560,7 @@
 		"kind": "type",
 		"type": "RegistrySource",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -9819,11 +9852,11 @@
 		"kind": "type",
 		"type": "GrimoireSkillRegistry",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => ArrayIterator<GrimoireSkill>",
 				"optional": false
 			},
-			"__@unscopables@757": {
+			"__@unscopables@760": {
 				"type": "{ readonly [x: number]: boolean | undefined; readonly length?: boolean | undefined; toString?: boolean | undefined; toLocaleString?: boolean | undefined; concat?: boolean | undefined; join?: boolean | undefined; slice?: boolean | undefined; indexOf?: boolean | undefined; lastIndexOf?: boolean | undefined; every?: boolean | undefined; some?: boolean | undefined; forEach?: boolean | undefined; map?: boolean | undefined; filter?: boolean | undefined; reduce?: boolean | undefined; reduceRight?: boolean | undefined; find?: boolean | undefined; findIndex?: boolean | undefined; entries?: boolean | undefined; keys?: boolean | undefined; values?: boolean | undefined; includes?: boolean | undefined; flatMap?: boolean | undefined; flat?: boolean | undefined; at?: boolean | undefined; findLast?: boolean | undefined; findLastIndex?: boolean | undefined; toReversed?: boolean | undefined; toSorted?: boolean | undefined; toSpliced?: boolean | undefined; with?: boolean | undefined; [Symbol.iterator]?: boolean | undefined; readonly [Symbol.unscopables]?: boolean | undefined; }",
 				"optional": false
 			},
@@ -10247,6 +10280,10 @@
 				"type": "string",
 				"optional": false
 			},
+			"force": {
+				"type": "boolean | undefined",
+				"optional": true
+			},
 			"gitDir": {
 				"type": "string | undefined",
 				"optional": true
@@ -10277,6 +10314,10 @@
 				"type": "string",
 				"optional": false
 			},
+			"force": {
+				"type": "boolean | undefined",
+				"optional": true
+			},
 			"gitDir": {
 				"type": "string | undefined",
 				"optional": true
@@ -10290,7 +10331,7 @@
 				"optional": true
 			}
 		},
-		"definition": "type InscribeInput = { name: string; chapter?: string; content: string; now?: number; gitDir?: string; };"
+		"definition": "type InscribeInput = { force?: boolean; name: string; chapter?: string; content: string; now?: number; gitDir?: string; };"
 	},
 	".:public.spells.InscribeResult": {
 		"kind": "type",
@@ -10364,7 +10405,7 @@
 	},
 	".:public.spells.moveSpell": {
 		"kind": "value",
-		"type": "(root: string, from: string, to: string, db?: GrimoireDb) => { from: string; to: string; }"
+		"type": "(root: string, from: string, to: string, db?: GrimoireDb, options?: { force?: boolean; }) => { from: string; to: string; }"
 	},
 	".:public.spells.renderContent": {
 		"kind": "value",
@@ -10626,7 +10667,7 @@
 	},
 	".:public.spells.unshelve": {
 		"kind": "value",
-		"type": "(root: string, shelvedPath: string, db?: GrimoireDb) => { path: string; }"
+		"type": "(root: string, shelvedPath: string, db?: GrimoireDb, options?: { force?: boolean; }) => { path: string; }"
 	},
 	".:public.spells.updateSpell": {
 		"kind": "value",
@@ -10669,7 +10710,7 @@
 	},
 	".:public.tools.getGrimoireToolByName": {
 		"kind": "value",
-		"type": "(name: string) => GrimoireToolDefinition<{ content: string; source: string; domain?: string; }, ToolResult<{ noteId: number; }>> | GrimoireToolDefinition<{ paths?: string[]; message?: string; note_ids?: number[]; }, ToolResult<{ commitHash: string; sealedPaths: string[]; ranks: Record<string, number>; tiers: Record<string, TierInfo>; distilledNoteIds: number[]; }>> | GrimoireToolDefinition<{ name: string; content: string; chapter?: string; }, ToolResult<{ spell: Spell; warnings: DuplicationWarning[]; }>> | GrimoireToolDefinition<{ path: string; }, ToolResult<{ spell: Spell; tierInfo: TierInfo; validation: SpellValidationResult; resonance?: ResonanceResult; provenance?: Provenance; history?: HistoryEntry[]; }>> | GrimoireToolDefinition<{ action: \"submit\"; title: string; rationale: string; noteIds: number[]; chapter: string; } | { action: \"approve\"; draftId: number; } | { action: \"dismiss\"; draftId: number; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ action: \"shelve\"; path: string; } | { action: \"unshelve\"; path: string; } | { action: \"move\"; path: string; target: string; } | { action: \"delete\"; path: string; } | { action: \"repair\"; path: string; } | { action: \"repair_all\"; } | { action: \"rollback\"; path: string; ref: string; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ view: \"chapters\" | \"provenance\" | \"notes\" | \"health\" | \"drafts\" | \"validation\" | \"resonance\" | \"index\"; limit?: number; now?: number; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ now?: number; }, ToolResult<CatalogueSnapshot>> | GrimoireToolDefinition<{ action: \"adopt\"; source: string; chapter?: string; } | { action: \"search\"; query: string; } | { action: \"check_updates\"; } | { action: \"apply_update\"; path: string; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ query: string; chapters?: string[]; }, ToolResult<{ results: IndexEntry[]; count: number; }>> | GrimoireToolDefinition<{ path: string; content: string; }, ToolResult<{ path: string; }>> | undefined"
+		"type": "(name: string) => GrimoireToolDefinition<{ content: string; source: string; domain?: string; }, ToolResult<{ noteId: number; }>> | GrimoireToolDefinition<{ paths?: string[]; message?: string; note_ids?: number[]; }, ToolResult<{ commitHash: string; sealedPaths: string[]; ranks: Record<string, number>; tiers: Record<string, TierInfo>; distilledNoteIds: number[]; }>> | GrimoireToolDefinition<{ name: string; content: string; chapter?: string; force?: boolean; }, ToolResult<{ spell: Spell; warnings: DuplicationWarning[]; }>> | GrimoireToolDefinition<{ path: string; }, ToolResult<{ spell: Spell; tierInfo: TierInfo; validation: SpellValidationResult; resonance?: ResonanceResult; provenance?: Provenance; history?: HistoryEntry[]; }>> | GrimoireToolDefinition<{ action: \"submit\"; title: string; rationale: string; noteIds: number[]; chapter: string; } | { action: \"approve\"; draftId: number; } | { action: \"dismiss\"; draftId: number; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ action: \"shelve\"; path: string; } | { action: \"unshelve\"; path: string; force?: boolean; } | { action: \"move\"; path: string; target: string; force?: boolean; } | { action: \"delete\"; path: string; } | { action: \"repair\"; path: string; } | { action: \"repair_all\"; } | { action: \"rollback\"; path: string; ref: string; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ view: \"chapters\" | \"provenance\" | \"notes\" | \"health\" | \"drafts\" | \"validation\" | \"resonance\" | \"index\"; limit?: number; now?: number; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ now?: number; }, ToolResult<CatalogueSnapshot>> | GrimoireToolDefinition<{ action: \"adopt\"; source: string; chapter?: string; } | { action: \"search\"; query: string; } | { action: \"check_updates\"; } | { action: \"apply_update\"; path: string; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ query: string; chapters?: string[]; }, ToolResult<{ results: IndexEntry[]; count: number; }>> | GrimoireToolDefinition<{ path: string; content: string; }, ToolResult<{ path: string; }>> | undefined"
 	},
 	".:public.tools.GrimoireToolContext": {
 		"kind": "type",
@@ -10866,8 +10907,16 @@
 				"type": "JsonSchema | undefined",
 				"optional": true
 			},
+			"maxLength": {
+				"type": "number | undefined",
+				"optional": true
+			},
 			"oneOf": {
 				"type": "readonly JsonSchema[] | undefined",
+				"optional": true
+			},
+			"pattern": {
+				"type": "string | undefined",
 				"optional": true
 			},
 			"properties": {
@@ -10883,7 +10932,7 @@
 				"optional": true
 			}
 		},
-		"definition": "interface JsonSchema { type?: JsonSchemaType | undefined; description?: string | undefined; enum?: ReadonlyArray<boolean | number | string | null> | undefined; const?: boolean | number | string | null; items?: JsonSchema | undefined; properties?: Readonly<Record<string, JsonSchema>> | undefined; required?: ReadonlyArray<string> | undefined; additionalProperties?: boolean | undefined; oneOf?: ReadonlyArray<JsonSchema> | undefined; }",
+		"definition": "interface JsonSchema { pattern?: string | undefined; maxLength?: number | undefined; type?: JsonSchemaType | undefined; description?: string | undefined; enum?: ReadonlyArray<boolean | number | string | null> | undefined; const?: boolean | number | string | null; items?: JsonSchema | undefined; properties?: Readonly<Record<string, JsonSchema>> | undefined; required?: ReadonlyArray<string> | undefined; additionalProperties?: boolean | undefined; oneOf?: ReadonlyArray<JsonSchema> | undefined; }",
 		"references": {
 			"JsonSchemaType": ".:public.tools.GrimoireToolDefinition.types.GrimoireToolDefinition.types.JsonSchema.types.JsonSchemaType"
 		}
@@ -10892,7 +10941,7 @@
 		"kind": "type",
 		"type": "JsonSchemaType",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -11111,11 +11160,11 @@
 		"kind": "type",
 		"type": "ToolEntityKindSet",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => ArrayIterator<\"spell\" | \"note\" | \"draft\" | \"provenance\" | \"cluster\">",
 				"optional": false
 			},
-			"__@unscopables@757": {
+			"__@unscopables@760": {
 				"type": "{ readonly [x: number]: boolean | undefined; readonly length?: boolean | undefined; toString?: boolean | undefined; toLocaleString?: boolean | undefined; concat?: boolean | undefined; join?: boolean | undefined; slice?: boolean | undefined; indexOf?: boolean | undefined; lastIndexOf?: boolean | undefined; every?: boolean | undefined; some?: boolean | undefined; forEach?: boolean | undefined; map?: boolean | undefined; filter?: boolean | undefined; reduce?: boolean | undefined; reduceRight?: boolean | undefined; find?: boolean | undefined; findIndex?: boolean | undefined; entries?: boolean | undefined; keys?: boolean | undefined; values?: boolean | undefined; includes?: boolean | undefined; flatMap?: boolean | undefined; flat?: boolean | undefined; at?: boolean | undefined; findLast?: boolean | undefined; findLastIndex?: boolean | undefined; toReversed?: boolean | undefined; toSorted?: boolean | undefined; toSpliced?: boolean | undefined; with?: boolean | undefined; [Symbol.iterator]?: boolean | undefined; readonly [Symbol.unscopables]?: boolean | undefined; }",
 				"optional": false
 			},
@@ -11252,7 +11301,7 @@
 		"kind": "type",
 		"type": "string",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -11611,7 +11660,7 @@
 		"kind": "type",
 		"type": "ToolEntityKind",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -11852,7 +11901,7 @@
 		"kind": "type",
 		"type": "ToolNextStepHintKind",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -12067,7 +12116,7 @@
 		"kind": "type",
 		"type": "ToolOutcomeKind",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -12300,7 +12349,7 @@
 		"kind": "type",
 		"type": "ToolWarningCode",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -12515,7 +12564,7 @@
 		"kind": "type",
 		"type": "ToolErrorCode",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -12724,13 +12773,13 @@
 				"optional": false
 			}
 		},
-		"definition": "type ToolErrorCode = 'not_found' | 'invalid_input' | 'invalid_state' | 'validation_failed' | 'system_error';"
+		"definition": "type ToolErrorCode = 'conflict' | 'not_found' | 'invalid_input' | 'invalid_state' | 'validation_failed' | 'system_error';"
 	},
 	".:public.tools.GrimoireToolDefinition.types.GrimoireToolDefinition.types.ToolResult.types.ToolFailure.types.ToolErrorKind": {
 		"kind": "type",
 		"type": "ToolErrorKind",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -12984,7 +13033,7 @@
 		"kind": "type",
 		"type": "ToolClarificationCode",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -13242,7 +13291,7 @@
 		"kind": "type",
 		"type": "ToolSideEffects",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -13473,7 +13522,7 @@
 	},
 	".:public.tools.grimoireTools": {
 		"kind": "value",
-		"type": "readonly [GrimoireToolDefinition<{ query: string; chapters?: string[]; }, ToolResult<{ results: IndexEntry[]; count: number; }>>, GrimoireToolDefinition<{ view: \"chapters\" | \"provenance\" | \"notes\" | \"health\" | \"drafts\" | \"validation\" | \"resonance\" | \"index\"; limit?: number; now?: number; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ path: string; }, ToolResult<{ spell: Spell; tierInfo: TierInfo; validation: SpellValidationResult; resonance?: ResonanceResult; provenance?: Provenance; history?: HistoryEntry[]; }>>, GrimoireToolDefinition<{ name: string; content: string; chapter?: string; }, ToolResult<{ spell: Spell; warnings: DuplicationWarning[]; }>>, GrimoireToolDefinition<{ path: string; content: string; }, ToolResult<{ path: string; }>>, GrimoireToolDefinition<{ paths?: string[]; message?: string; note_ids?: number[]; }, ToolResult<{ commitHash: string; sealedPaths: string[]; ranks: Record<string, number>; tiers: Record<string, TierInfo>; distilledNoteIds: number[]; }>>, GrimoireToolDefinition<{ action: \"shelve\"; path: string; } | { action: \"unshelve\"; path: string; } | { action: \"move\"; path: string; target: string; } | { action: \"delete\"; path: string; } | { action: \"repair\"; path: string; } | { action: \"repair_all\"; } | { action: \"rollback\"; path: string; ref: string; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ content: string; source: string; domain?: string; }, ToolResult<{ noteId: number; }>>, GrimoireToolDefinition<{ action: \"submit\"; title: string; rationale: string; noteIds: number[]; chapter: string; } | { action: \"approve\"; draftId: number; } | { action: \"dismiss\"; draftId: number; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ now?: number; }, ToolResult<CatalogueSnapshot>>, GrimoireToolDefinition<{ action: \"adopt\"; source: string; chapter?: string; } | { action: \"search\"; query: string; } | { action: \"check_updates\"; } | { action: \"apply_update\"; path: string; }, ToolResult<Record<string, unknown>>>]"
+		"type": "readonly [GrimoireToolDefinition<{ query: string; chapters?: string[]; }, ToolResult<{ results: IndexEntry[]; count: number; }>>, GrimoireToolDefinition<{ view: \"chapters\" | \"provenance\" | \"notes\" | \"health\" | \"drafts\" | \"validation\" | \"resonance\" | \"index\"; limit?: number; now?: number; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ path: string; }, ToolResult<{ spell: Spell; tierInfo: TierInfo; validation: SpellValidationResult; resonance?: ResonanceResult; provenance?: Provenance; history?: HistoryEntry[]; }>>, GrimoireToolDefinition<{ name: string; content: string; chapter?: string; force?: boolean; }, ToolResult<{ spell: Spell; warnings: DuplicationWarning[]; }>>, GrimoireToolDefinition<{ path: string; content: string; }, ToolResult<{ path: string; }>>, GrimoireToolDefinition<{ paths?: string[]; message?: string; note_ids?: number[]; }, ToolResult<{ commitHash: string; sealedPaths: string[]; ranks: Record<string, number>; tiers: Record<string, TierInfo>; distilledNoteIds: number[]; }>>, GrimoireToolDefinition<{ action: \"shelve\"; path: string; } | { action: \"unshelve\"; path: string; force?: boolean; } | { action: \"move\"; path: string; target: string; force?: boolean; } | { action: \"delete\"; path: string; } | { action: \"repair\"; path: string; } | { action: \"repair_all\"; } | { action: \"rollback\"; path: string; ref: string; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ content: string; source: string; domain?: string; }, ToolResult<{ noteId: number; }>>, GrimoireToolDefinition<{ action: \"submit\"; title: string; rationale: string; noteIds: number[]; chapter: string; } | { action: \"approve\"; draftId: number; } | { action: \"dismiss\"; draftId: number; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ now?: number; }, ToolResult<CatalogueSnapshot>>, GrimoireToolDefinition<{ action: \"adopt\"; source: string; chapter?: string; } | { action: \"search\"; query: string; } | { action: \"check_updates\"; } | { action: \"apply_update\"; path: string; }, ToolResult<Record<string, unknown>>>]"
 	},
 	".:public.tools.honeNext": {
 		"kind": "value",
@@ -13535,8 +13584,16 @@
 				"type": "JsonSchema | undefined",
 				"optional": true
 			},
+			"maxLength": {
+				"type": "number | undefined",
+				"optional": true
+			},
 			"oneOf": {
 				"type": "readonly JsonSchema[] | undefined",
+				"optional": true
+			},
+			"pattern": {
+				"type": "string | undefined",
 				"optional": true
 			},
 			"properties": {
@@ -13561,7 +13618,7 @@
 		"kind": "type",
 		"type": "JsonSchemaType",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -13921,7 +13978,7 @@
 		"kind": "type",
 		"type": "ToolClarificationCode",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -14139,11 +14196,11 @@
 		"kind": "type",
 		"type": "ToolDefinitionRegistry",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => ArrayIterator<GrimoireToolDefinition<any, any>>",
 				"optional": false
 			},
-			"__@unscopables@757": {
+			"__@unscopables@760": {
 				"type": "{ readonly [x: number]: boolean | undefined; readonly length?: boolean | undefined; toString?: boolean | undefined; toLocaleString?: boolean | undefined; concat?: boolean | undefined; join?: boolean | undefined; slice?: boolean | undefined; indexOf?: boolean | undefined; lastIndexOf?: boolean | undefined; every?: boolean | undefined; some?: boolean | undefined; forEach?: boolean | undefined; map?: boolean | undefined; filter?: boolean | undefined; reduce?: boolean | undefined; reduceRight?: boolean | undefined; find?: boolean | undefined; findIndex?: boolean | undefined; entries?: boolean | undefined; keys?: boolean | undefined; values?: boolean | undefined; includes?: boolean | undefined; flatMap?: boolean | undefined; flat?: boolean | undefined; at?: boolean | undefined; findLast?: boolean | undefined; findLastIndex?: boolean | undefined; toReversed?: boolean | undefined; toSorted?: boolean | undefined; toSpliced?: boolean | undefined; with?: boolean | undefined; [Symbol.iterator]?: boolean | undefined; readonly [Symbol.unscopables]?: boolean | undefined; }",
 				"optional": false
 			},
@@ -14277,11 +14334,11 @@
 		"kind": "type",
 		"type": "ToolDefinitionRegistry",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => ArrayIterator<GrimoireToolDefinition<any, any>>",
 				"optional": false
 			},
-			"__@unscopables@757": {
+			"__@unscopables@760": {
 				"type": "{ readonly [x: number]: boolean | undefined; readonly length?: boolean | undefined; toString?: boolean | undefined; toLocaleString?: boolean | undefined; concat?: boolean | undefined; join?: boolean | undefined; slice?: boolean | undefined; indexOf?: boolean | undefined; lastIndexOf?: boolean | undefined; every?: boolean | undefined; some?: boolean | undefined; forEach?: boolean | undefined; map?: boolean | undefined; filter?: boolean | undefined; reduce?: boolean | undefined; reduceRight?: boolean | undefined; find?: boolean | undefined; findIndex?: boolean | undefined; entries?: boolean | undefined; keys?: boolean | undefined; values?: boolean | undefined; includes?: boolean | undefined; flatMap?: boolean | undefined; flat?: boolean | undefined; at?: boolean | undefined; findLast?: boolean | undefined; findLastIndex?: boolean | undefined; toReversed?: boolean | undefined; toSorted?: boolean | undefined; toSpliced?: boolean | undefined; with?: boolean | undefined; [Symbol.iterator]?: boolean | undefined; readonly [Symbol.unscopables]?: boolean | undefined; }",
 				"optional": false
 			},
@@ -14415,7 +14472,7 @@
 		"kind": "type",
 		"type": "ToolEntityKind",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -14633,11 +14690,11 @@
 		"kind": "type",
 		"type": "ToolEntityKindSet",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => ArrayIterator<\"spell\" | \"note\" | \"draft\" | \"provenance\" | \"cluster\">",
 				"optional": false
 			},
-			"__@unscopables@757": {
+			"__@unscopables@760": {
 				"type": "{ readonly [x: number]: boolean | undefined; readonly length?: boolean | undefined; toString?: boolean | undefined; toLocaleString?: boolean | undefined; concat?: boolean | undefined; join?: boolean | undefined; slice?: boolean | undefined; indexOf?: boolean | undefined; lastIndexOf?: boolean | undefined; every?: boolean | undefined; some?: boolean | undefined; forEach?: boolean | undefined; map?: boolean | undefined; filter?: boolean | undefined; reduce?: boolean | undefined; reduceRight?: boolean | undefined; find?: boolean | undefined; findIndex?: boolean | undefined; entries?: boolean | undefined; keys?: boolean | undefined; values?: boolean | undefined; includes?: boolean | undefined; flatMap?: boolean | undefined; flat?: boolean | undefined; at?: boolean | undefined; findLast?: boolean | undefined; findLastIndex?: boolean | undefined; toReversed?: boolean | undefined; toSorted?: boolean | undefined; toSpliced?: boolean | undefined; with?: boolean | undefined; [Symbol.iterator]?: boolean | undefined; readonly [Symbol.unscopables]?: boolean | undefined; }",
 				"optional": false
 			},
@@ -14797,7 +14854,7 @@
 		"kind": "type",
 		"type": "ToolErrorCode",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -15015,7 +15072,7 @@
 		"kind": "type",
 		"type": "ToolErrorKind",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -15405,7 +15462,7 @@
 		"kind": "type",
 		"type": "ToolNextStepHintKind",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -15627,7 +15684,7 @@
 		"kind": "type",
 		"type": "ToolOutcomeKind",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -15845,7 +15902,7 @@
 		"kind": "type",
 		"type": "string",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -16102,7 +16159,7 @@
 		"kind": "type",
 		"type": "ToolSideEffects",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -16389,7 +16446,7 @@
 		"kind": "type",
 		"type": "ToolWarningCode",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -16708,7 +16765,7 @@
 		"kind": "type",
 		"type": "ValidationSeverity",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -16953,7 +17010,7 @@
 		"kind": "type",
 		"type": "ValidationSeverity",
 		"members": {
-			"__@iterator@737": {
+			"__@iterator@740": {
 				"type": "() => StringIterator<string>",
 				"optional": false
 			},
@@ -17236,7 +17293,7 @@
 	},
 	".:public.write.moveSpell": {
 		"kind": "value",
-		"type": "(root: string, from: string, to: string, db?: GrimoireDb) => { from: string; to: string; }"
+		"type": "(root: string, from: string, to: string, db?: GrimoireDb, options?: { force?: boolean; }) => { from: string; to: string; }"
 	},
 	".:public.write.repair": {
 		"kind": "value",
@@ -17264,7 +17321,7 @@
 	},
 	".:public.write.unshelve": {
 		"kind": "value",
-		"type": "(root: string, shelvedPath: string, db?: GrimoireDb) => { path: string; }"
+		"type": "(root: string, shelvedPath: string, db?: GrimoireDb, options?: { force?: boolean; }) => { path: string; }"
 	},
 	".:public.write.updateSpell": {
 		"kind": "value",
@@ -17482,8 +17539,16 @@
 				"type": "JsonSchema | undefined",
 				"optional": true
 			},
+			"maxLength": {
+				"type": "number | undefined",
+				"optional": true
+			},
 			"oneOf": {
 				"type": "readonly JsonSchema[] | undefined",
+				"optional": true
+			},
+			"pattern": {
+				"type": "string | undefined",
 				"optional": true
 			},
 			"properties": {
@@ -17499,7 +17564,7 @@
 				"optional": true
 			}
 		},
-		"definition": "interface JsonSchema { type?: string | readonly string[] | undefined; description?: string | undefined; properties?: Record<string, JsonSchema> | undefined; required?: readonly string[] | undefined; enum?: readonly unknown[] | undefined; items?: JsonSchema | undefined; oneOf?: readonly JsonSchema[] | undefined; }"
+		"definition": "interface JsonSchema { pattern?: string | undefined; maxLength?: number | undefined; type?: string | readonly string[] | undefined; description?: string | undefined; properties?: Record<string, JsonSchema> | undefined; required?: readonly string[] | undefined; enum?: readonly unknown[] | undefined; items?: JsonSchema | undefined; oneOf?: readonly JsonSchema[] | undefined; }"
 	},
 	"./mcp:public.MCP_LATEST_PROTOCOL_VERSION": {
 		"kind": "value",

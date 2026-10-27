@@ -5,7 +5,7 @@ import type { GitContext } from './types.ts';
 export function allRanks(ctx: GitContext): Record<string, number> {
 	if (!isGitAvailable()) return {};
 	try {
-		const output = execGit(ctx, 'log --name-only --format=""');
+		const output = execGit(ctx, ['log', '--name-only', '--format=']);
 		if (output === '') return {};
 
 		const counts: Record<string, number> = {};

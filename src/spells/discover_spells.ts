@@ -1,5 +1,6 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { resolveInsideRoot, resolveSpellPath } from '../lib/safe_path.ts';
 
 export type DiscoveredSpell = {
 	name: string;
@@ -22,7 +23,14 @@ export function discoverSpells(root: string): DiscoveredSpell[] {
 		for (const spellEntry of spells) {
 			if (!spellEntry.isDirectory() || spellEntry.name.startsWith('.')) continue;
 
-			const skillMdPath = join(chapterDir, spellEntry.name, 'SKILL.md');
+			let skillMdPath: string;
+			try {
+				const path = `${chapterEntry.name}/${spellEntry.name}`;
+				resolveSpellPath(root, path);
+				skillMdPath = resolveInsideRoot(root, path, 'SKILL.md');
+			} catch {
+				continue;
+			}
 			if (existsSync(skillMdPath)) {
 				results.push({
 					name: spellEntry.name,

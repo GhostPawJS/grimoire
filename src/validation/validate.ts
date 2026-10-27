@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { DEFAULTS } from '../defaults.ts';
 import { isGitAvailable } from '../git/is_git_available.ts';
 import { rank } from '../git/rank.ts';
 import { tier } from '../git/tier.ts';
+import { resolveInsideRoot, resolveSpellPath } from '../lib/safe_path.ts';
 import { countBodyLines } from '../spec/count_body_lines.ts';
 import { parseSkillMd } from '../spec/parse_skill_md.ts';
 import { validateSkillMd } from '../spec/validate_skill_md.ts';
@@ -14,7 +14,8 @@ const NAME_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 export function validate(root: string, path: string): SpellValidationResult {
 	const issues: ValidationIssue[] = [];
-	const skillMdPath = join(root, path, 'SKILL.md');
+	resolveSpellPath(root, path);
+	const skillMdPath = resolveInsideRoot(root, path, 'SKILL.md');
 
 	if (!existsSync(skillMdPath)) {
 		return {

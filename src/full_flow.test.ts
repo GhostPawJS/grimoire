@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -51,8 +51,10 @@ describe('full grimoire flow', () => {
 
 		try {
 			init(root, db, { gitDir });
-			execSync(`git config -f "${gitDir}/config" user.name "Test"`, { encoding: 'utf-8' });
-			execSync(`git config -f "${gitDir}/config" user.email "test@test.com"`, {
+			execFileSync('git', ['config', '-f', `${gitDir}/config`, 'user.name', 'Test'], {
+				encoding: 'utf-8',
+			});
+			execFileSync('git', ['config', '-f', `${gitDir}/config`, 'user.email', 'test@test.com'], {
 				encoding: 'utf-8',
 			});
 

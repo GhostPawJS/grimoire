@@ -21,7 +21,7 @@ describe('execGit', () => {
 		});
 		try {
 			seal();
-			const log = execGit({ root, gitDir }, 'log --oneline');
+			const log = execGit({ root, gitDir }, ['log', '--oneline']);
 			assert.ok(log.length > 0);
 		} finally {
 			cleanup();
@@ -31,7 +31,7 @@ describe('execGit', () => {
 	it('throws on a failed command', () => {
 		const { root, gitDir, cleanup } = createTestGitRoot();
 		try {
-			assert.throws(() => execGit({ root, gitDir }, 'log --oneline --no-walk HEAD'), {
+			assert.throws(() => execGit({ root, gitDir }, ['log', '--oneline', '--no-walk', 'HEAD']), {
 				name: 'Error',
 			});
 		} finally {

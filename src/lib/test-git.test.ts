@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { createTestGitRoot } from './test-git.ts';
 
-function git(root: string, gitDir: string, args: string): string {
-	return execSync(`git --work-tree="${root}" --git-dir="${gitDir}" ${args}`, {
+function git(root: string, gitDir: string, args: readonly string[]): string {
+	return execFileSync('git', ['--work-tree', root, '--git-dir', gitDir, ...args], {
 		encoding: 'utf-8',
 	}).trim();
 }
@@ -26,7 +26,7 @@ describe('createTestGitRoot', () => {
 	it('initializes a bare git repo at gitDir', () => {
 		const { root, gitDir, cleanup } = createTestGitRoot();
 		try {
-			const isBare = git(root, gitDir, 'config --get core.bare');
+			const isBare = git(root, gitDir, ['config', '--get', 'core.bare']);
 			assert.equal(isBare, 'true');
 		} finally {
 			cleanup();
@@ -62,7 +62,7 @@ describe('createTestGitRoot', () => {
 			const hash = seal();
 			assert.ok(/^[a-f0-9]{40}$/.test(hash));
 
-			const log = git(root, gitDir, 'log --oneline');
+			const log = git(root, gitDir, ['log', '--oneline']);
 			assert.ok(log.includes('seal'));
 		} finally {
 			cleanup();
@@ -82,7 +82,7 @@ describe('createTestGitRoot', () => {
 			const hash = seal(['general/spell-a'], 'seal spell-a only');
 			assert.ok(/^[a-f0-9]{40}$/.test(hash));
 
-			const files = git(root, gitDir, 'show --name-only --format="" HEAD');
+			const files = git(root, gitDir, ['show', '--name-only', '--format=', 'HEAD']);
 			assert.ok(files.includes('general/spell-a'));
 			assert.ok(!files.includes('general/spell-b'));
 		} finally {

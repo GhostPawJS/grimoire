@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
@@ -101,15 +101,17 @@ describe('seal', () => {
 		] as const;
 		const saved = keys.map((key) => [key, process.env[key]] as const);
 		const author = () =>
-			execSync(`git --git-dir="${gitDir}" log -1 --format=%an`, { encoding: 'utf-8' }).trim();
+			execFileSync('git', [`--git-dir=${gitDir}`, 'log', '-1', '--format=%an'], {
+				encoding: 'utf-8',
+			}).trim();
 		try {
 			assert.ok(seal({ root, gitDir }, undefined, ['ch/alpha'], 'configured').commitHash);
 			assert.equal(author(), 'Test');
 			for (const key of keys) delete process.env[key];
 			process.env.GIT_CONFIG_GLOBAL = '/dev/null';
 			process.env.GIT_CONFIG_NOSYSTEM = '1';
-			execSync(`git config -f "${gitDir}/config" --unset user.name`);
-			execSync(`git config -f "${gitDir}/config" --unset user.email`);
+			execFileSync('git', ['config', '-f', `${gitDir}/config`, '--unset', 'user.name']);
+			execFileSync('git', ['config', '-f', `${gitDir}/config`, '--unset', 'user.email']);
 			writeFileSync(
 				join(root, 'ch', 'alpha', 'SKILL.md'),
 				'---\nname: alpha\ndescription: changed\n---\n\n# alpha\n',

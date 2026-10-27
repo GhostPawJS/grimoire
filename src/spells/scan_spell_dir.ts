@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, lstatSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { SpellFiles } from './types.ts';
 
@@ -9,7 +9,7 @@ export function scanSpellDir(absolutePath: string): SpellFiles {
 
 	for (const subdir of SUBDIRS) {
 		const dirPath = join(absolutePath, subdir);
-		if (!existsSync(dirPath)) continue;
+		if (!existsSync(dirPath) || lstatSync(dirPath).isSymbolicLink()) continue;
 
 		const entries = readdirSync(dirPath, { withFileTypes: true });
 		for (const entry of entries) {

@@ -16,8 +16,8 @@ import { toolSuccess } from './tool_types.ts';
 
 type ManageInput =
 	| { action: 'shelve'; path: string }
-	| { action: 'unshelve'; path: string }
-	| { action: 'move'; path: string; target: string }
+	| { action: 'unshelve'; path: string; force?: boolean }
+	| { action: 'move'; path: string; target: string; force?: boolean }
 	| { action: 'delete'; path: string }
 	| { action: 'repair'; path: string }
 	| { action: 'repair_all' }
@@ -50,6 +50,10 @@ export const manageSpellTool = defineGrimoireTool<ManageInput, ToolResult<Record
 					'The management action to perform: shelve, unshelve, move, delete, repair, repair_all, or rollback.',
 					['shelve', 'unshelve', 'move', 'delete', 'repair', 'repair_all', 'rollback'],
 				),
+				force: {
+					type: 'boolean',
+					description: 'Replace an existing spell at the same path. Default false.',
+				},
 				path: stringSchema('Spell path — required for all actions except repair_all.'),
 				target: stringSchema('Target path — required for move.'),
 				ref: stringSchema(
@@ -74,7 +78,9 @@ export const manageSpellTool = defineGrimoireTool<ManageInput, ToolResult<Record
 						);
 					}
 					case 'unshelve': {
-						const result = unshelve(ctx.root, input.path, ctx.db);
+						const result = unshelve(ctx.root, input.path, ctx.db, {
+							...(input.force !== undefined ? { force: input.force } : {}),
+						});
 						return toolSuccess(
 							summarizeSpellAction('Unshelved', input.path),
 							{ action: 'unshelve', restoredPath: result.path },
@@ -85,7 +91,9 @@ export const manageSpellTool = defineGrimoireTool<ManageInput, ToolResult<Record
 						);
 					}
 					case 'move': {
-						const result = moveSpell(ctx.root, input.path, input.target, ctx.db);
+						const result = moveSpell(ctx.root, input.path, input.target, ctx.db, {
+							...(input.force !== undefined ? { force: input.force } : {}),
+						});
 						return toolSuccess(
 							summarizeSpellAction('Moved', input.path),
 							{ action: 'move', from: result.from, to: result.to },

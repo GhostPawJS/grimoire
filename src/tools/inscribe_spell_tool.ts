@@ -8,7 +8,7 @@ import { toSpellRef } from './tool_ref.ts';
 import type { ToolResult } from './tool_types.ts';
 import { toolSuccess, toolWarning } from './tool_types.ts';
 
-type InscribeToolInput = { name: string; content: string; chapter?: string };
+type InscribeToolInput = { name: string; content: string; chapter?: string; force?: boolean };
 type InscribeToolData = { spell: Spell; warnings: DuplicationWarning[] };
 
 export const inscribeSpellTool = defineGrimoireTool<
@@ -33,18 +33,27 @@ export const inscribeSpellTool = defineGrimoireTool<
 		'The newly created spell object and any duplication warnings for similar existing spells.',
 	inputSchema: objectSchema(
 		{
-			name: stringSchema('Spell name'),
+			name: { ...stringSchema('Spell name'), pattern: '^[a-z0-9]+(-[a-z0-9]+)*$', maxLength: 64 },
 			content: stringSchema('Spell body content in markdown'),
-			chapter: stringSchema('Chapter name'),
+			chapter: {
+				...stringSchema('Chapter name'),
+				pattern: '^[a-z0-9]+(-[a-z0-9]+)*$',
+				maxLength: 64,
+			},
+			force: {
+				type: 'boolean',
+				description: 'Replace an existing spell at the same path. Default false.',
+			},
 		},
 		['name', 'content'],
 	),
 	handler(ctx, input) {
 		try {
 			const result = inscribe(ctx.root, ctx.db, {
+				...(input.force !== undefined ? { force: input.force } : {}),
 				name: input.name,
 				content: input.content,
-				...(input.chapter ? { chapter: input.chapter } : {}),
+				...(input.chapter !== undefined ? { chapter: input.chapter } : {}),
 			});
 			const entities = [toSpellRef(result.spell)];
 			const next = [inspectSpellNext(result.spell.path, result.spell.name)];

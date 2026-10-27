@@ -1,5 +1,6 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, lstatSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { assertSpellName } from '../lib/safe_path.ts';
 import { parseSkillMd } from '../spec/parse_skill_md.ts';
 import { validateSkillMd } from '../spec/validate_skill_md.ts';
 import type { DiscoveredSkill } from './types.ts';
@@ -20,8 +21,22 @@ function walk(current: string, root: string, results: DiscoveredSkill[]): void {
 
 		if (!entry.isDirectory()) continue;
 
+		try {
+			assertSpellName(entry.name);
+		} catch (error) {
+			results.push({
+				name: entry.name,
+				description: '',
+				localPath: full,
+				repoPath: relative(root, full),
+				valid: false,
+				errors: [(error as Error).message],
+				warnings: [],
+			});
+			continue;
+		}
 		const skillMdPath = join(full, 'SKILL.md');
-		if (existsSync(skillMdPath)) {
+		if (existsSync(skillMdPath) && !lstatSync(skillMdPath).isSymbolicLink()) {
 			const content = readFileSync(skillMdPath, 'utf-8');
 			const validation = validateSkillMd(content);
 			const parsed = parseSkillMd(content);

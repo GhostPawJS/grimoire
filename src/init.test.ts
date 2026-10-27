@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { execSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, describe, it } from 'node:test';
@@ -78,7 +78,7 @@ describe('init', () => {
 		init(subRoot);
 
 		assert.doesNotThrow(() => {
-			execSync(`git --work-tree="${subRoot}" --git-dir="${gitDir}" log --oneline`, {
+			execFileSync('git', [`--work-tree=${subRoot}`, `--git-dir=${gitDir}`, 'log', '--oneline'], {
 				encoding: 'utf-8',
 				stdio: 'pipe',
 			});

@@ -1,5 +1,5 @@
-import { execSync } from 'node:child_process';
-import { resolveGitDir } from '../lib/exec_git.ts';
+import { execGit } from '../lib/exec_git.ts';
+import { resolveSpellPath } from '../lib/safe_path.ts';
 import { isGitAvailable } from './is_git_available.ts';
 import type { GitContext, PendingChange, PendingChangesResult } from './types.ts';
 
@@ -11,15 +11,11 @@ function classifyStatus(code: string): PendingChange['status'] | undefined {
 }
 
 function statusPorcelain(ctx: GitContext): string {
-	const dir = resolveGitDir(ctx.root, ctx.gitDir);
-	return execSync(`git --work-tree="${ctx.root}" --git-dir="${dir}" status --porcelain -uall`, {
-		encoding: 'utf-8',
-		timeout: 10_000,
-		stdio: 'pipe',
-	}).trimEnd();
+	return execGit(ctx, ['status', '--porcelain', '-uall'], { trim: false });
 }
 
 export function pendingChanges(ctx: GitContext, path?: string): PendingChangesResult[] {
+	if (path !== undefined) resolveSpellPath(ctx.root, path);
 	if (!isGitAvailable()) return [];
 	try {
 		const output = statusPorcelain(ctx);

@@ -17,6 +17,8 @@ interface TranslateToolErrorOptions {
 
 function mapGrimoireErrorCode(code: string): { kind: ToolErrorKind; toolCode: ToolErrorCode } {
 	switch (code) {
+		case 'GRIMOIRE_CONFLICT':
+			return { kind: 'domain', toolCode: 'conflict' };
 		case 'GRIMOIRE_NOT_FOUND':
 			return { kind: 'domain', toolCode: 'not_found' };
 		case 'GRIMOIRE_VALIDATION':
@@ -55,6 +57,7 @@ export function translateToolError(
 			result.error.recovery =
 				'The spell may have been moved or shelved. Search by name to locate it.';
 		}
+		if (error.code === 'GRIMOIRE_CONFLICT') result.error.recovery = error.message;
 		if (error.code === 'GRIMOIRE_VALIDATION') {
 			result.error.recovery = 'Fix the invalid input fields and retry.';
 		}

@@ -1,4 +1,5 @@
 export type GrimoireErrorCode =
+	| 'GRIMOIRE_CONFLICT'
 	| 'GRIMOIRE_NOT_FOUND'
 	| 'GRIMOIRE_VALIDATION'
 	| 'GRIMOIRE_STATE'
@@ -48,4 +49,14 @@ export class GrimoireInvariantError extends GrimoireError {
 
 export function isGrimoireError(value: unknown): value is GrimoireError {
 	return value instanceof GrimoireError;
+}
+
+export class GrimoireConflictError extends GrimoireError {
+	override readonly name = 'GrimoireConflictError';
+	constructor(path: string) {
+		super(
+			'GRIMOIRE_CONFLICT',
+			`A spell already exists at ${path}. Use update_spell / \`spell update\` to change it, pick another name, or pass force: true to replace it.`,
+		);
+	}
 }

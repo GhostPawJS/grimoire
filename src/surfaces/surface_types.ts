@@ -1,4 +1,6 @@
 export interface JsonSchema {
+	pattern?: string | undefined;
+	maxLength?: number | undefined;
 	type?: string | readonly string[] | undefined;
 	description?: string | undefined;
 	properties?: Record<string, JsonSchema> | undefined;

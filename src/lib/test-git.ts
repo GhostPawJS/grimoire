@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -8,8 +8,8 @@ function skillMd(name: string): string {
 	return `---\nname: ${name}\ndescription: A test spell named ${name}\n---\n\n# ${name}\n\nBody content for ${name}.\n`;
 }
 
-function git(root: string, gitDir: string, args: string): string {
-	return execSync(`git --work-tree="${root}" --git-dir="${gitDir}" ${args}`, {
+function git(root: string, gitDir: string, args: readonly string[]): string {
+	return execFileSync('git', ['--work-tree', root, '--git-dir', gitDir, ...args], {
 		encoding: 'utf-8',
 		env: {
 			...process.env,
@@ -33,9 +33,13 @@ export function createTestGitRoot(layout?: TestRootLayout): {
 
 	mkdirSync(root, { recursive: true });
 
-	execSync(`git init --bare "${gitDir}"`, { encoding: 'utf-8' });
-	execSync(`git config -f "${gitDir}/config" user.name "Test"`, { encoding: 'utf-8' });
-	execSync(`git config -f "${gitDir}/config" user.email "test@test.com"`, { encoding: 'utf-8' });
+	execFileSync('git', ['init', '--bare', '--', gitDir], { encoding: 'utf-8' });
+	execFileSync('git', ['config', '-f', `${gitDir}/config`, 'user.name', 'Test'], {
+		encoding: 'utf-8',
+	});
+	execFileSync('git', ['config', '-f', `${gitDir}/config`, 'user.email', 'test@test.com'], {
+		encoding: 'utf-8',
+	});
 
 	if (layout?.chapters) {
 		for (const chapter of layout.chapters) {
@@ -50,14 +54,14 @@ export function createTestGitRoot(layout?: TestRootLayout): {
 	function seal(paths?: string[], message?: string): string {
 		if (paths && paths.length > 0) {
 			for (const p of paths) {
-				git(root, gitDir, `add "${join(root, p)}"`);
+				git(root, gitDir, ['add', '--', join(root, p)]);
 			}
 		} else {
-			git(root, gitDir, 'add -A');
+			git(root, gitDir, ['add', '-A']);
 		}
 		const msg = message ?? 'seal';
-		git(root, gitDir, `commit --allow-empty -m "${msg}"`);
-		return git(root, gitDir, 'rev-parse HEAD');
+		git(root, gitDir, ['commit', '--allow-empty', '-m', msg]);
+		return git(root, gitDir, ['rev-parse', 'HEAD']);
 	}
 
 	return {

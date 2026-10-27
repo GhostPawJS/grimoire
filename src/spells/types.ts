@@ -50,6 +50,7 @@ export type RepairResult = {
 };
 
 export type InscribeInput = {
+	force?: boolean;
 	name: string;
 	chapter?: string;
 	content: string;

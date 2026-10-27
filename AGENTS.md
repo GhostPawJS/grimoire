@@ -46,7 +46,8 @@ The `network`, `scouting`, and `registry` namespaces also expose network APIs.
 
 ## Contribute
 
-Use Node 24. Run `npm run check` as the single contribution gate. `npm run check:deps` verifies zero runtime
+Use Node 24. Run `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build`.
+Run `npm run check` as the full contribution gate. `npm run check:deps` verifies zero runtime
 dependencies. Keep runtime dependencies at zero.
 
 Tests use `node:test` and `node:assert/strict` in adjacent `*.test.ts` files.

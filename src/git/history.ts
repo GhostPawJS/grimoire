@@ -1,12 +1,14 @@
 import { execGit } from '../lib/exec_git.ts';
+import { resolveSpellPath } from '../lib/safe_path.ts';
 import { isGitAvailable } from './is_git_available.ts';
 import type { GitContext, HistoryEntry } from './types.ts';
 
 export function history(ctx: GitContext, path?: string): HistoryEntry[] {
+	if (path !== undefined) resolveSpellPath(ctx.root, path);
 	if (!isGitAvailable()) return [];
 	try {
-		const scope = path ? `-- "${path}/"` : '';
-		const output = execGit(ctx, `log --name-only --format="COMMIT:%H|%s|%aI" ${scope}`);
+		const scope = path ? ['--', `${path}/`] : [];
+		const output = execGit(ctx, ['log', '--name-only', '--format=COMMIT:%H|%s|%aI', ...scope]);
 		if (output === '') return [];
 
 		const entries: HistoryEntry[] = [];

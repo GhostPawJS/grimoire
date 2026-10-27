@@ -4,6 +4,20 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+### Security
+
+- Git is invoked without a shell; spell names, chapters and paths are validated and must stay inside the root.
+- Repository cloning validates URLs and refs, disables interactive prompts, and restricts external protocols. Staged symbolic links are skipped during adoption.
+
+### Fixed
+
+- Creating, moving, or restoring a spell into an occupied path returns a conflict and preserves existing content.
+
+### Added
+
+- Optional `force` for inscribe, move, and unshelve, including schema-derived `--force` flags, to replace an existing destination.
+- Exported `GrimoireConflictError` with tool error code `conflict` and CLI exit status 4.
+
 ## [0.4.2] - 2026-10-27
 
 ### Fixed

@@ -1,4 +1,5 @@
 import type { GrimoireDb } from '../database.ts';
+import { assertChapter } from '../lib/safe_path.ts';
 import { adoptSpells } from './adopt_spells.ts';
 import { fetchSkills } from './fetch_skills.ts';
 import type { ScoutOptions, ScoutResult } from './types.ts';
@@ -9,6 +10,7 @@ export async function scout(
 	source: string,
 	options?: ScoutOptions,
 ): Promise<ScoutResult> {
+	if (options?.chapter !== undefined) assertChapter(options.chapter);
 	const handle = await fetchSkills(source);
 
 	try {
