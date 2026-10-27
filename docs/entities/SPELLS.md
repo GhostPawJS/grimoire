@@ -128,3 +128,14 @@ Chapters are discovered, not declared. Default chapter: `general`.
 - `read.parseSkillMd(content)`
 - `read.serializeSkillMd(frontmatter, body)`
 - `read.countBodyLines(content)`
+
+## Git storage and search
+
+Git history defaults to `<ROOT>/.grimoire-git`. The CLI accepts `--git-dir` and
+`GHOSTPAW_GRIMOIRE_GIT_DIR`; explicit flags take precedence. Safe legacy migration
+copies the parent repository without removing its history. Shared legacy stores
+warn and require a dedicated repository before migration.
+Rank counts commits per spell directory, including multi-file spells only once
+per commit. No-change hone leaves rank, resonance, notes, and seal events unchanged.
+Search scores multiple terms in names, descriptions, and bodies, with common suffix
+stemming and trigram Jaccard matching on metadata. Rank-zero spells remain visible.

@@ -27,11 +27,13 @@ Call `tool.handler({ root, db }, input)`; some handlers return promises.
 Results contain `ok`, `outcome`, `summary`, and `entities`, with optional
 `warnings` and `next`. Success includes `data`; failures include `error` or
 `clarification`. `tools.updateSpellTool` writes existing spell content;
-`hone_spell` seals it.
+`hone_spell` seals it. Write results are compact; `verbose: true` includes full spells.
 
 `scout_skills` is the tool that can touch the network: search, remote adoption,
 update checks, and applying remote updates. Local sources can remain offline.
 Other tools operate on the local filesystem, Git, or the supplied database.
+Git defaults to `<ROOT>/.grimoire-git`; CLI/MCP accept `GHOSTPAW_GRIMOIRE_GIT_DIR`.
+The CLI also accepts `--git-dir`, which takes precedence over the environment.
 The `network`, `scouting`, and `registry` namespaces also expose network APIs.
 
 ## Layout

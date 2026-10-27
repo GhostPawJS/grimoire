@@ -207,7 +207,7 @@ write.rollback({ root }, 'engineering/deploy-service', log.at(-1).hash);</code><
 
   <section id="binaries" class="sec binaries" aria-labelledby="binaries-title">
     <h2 id="binaries-title">Install</h2>
-    <p class="intro">The default way to run <code>ghostpaw-grimoire</code>: one executable per platform with Node.js inside, with the same commands and the same MCP server as the npm package. Each line downloads the latest release, checks it against the release&#39;s SHA256SUMS and puts the binary on the PATH (<code>~/.local/bin</code>; the Windows script adds its folder to the user PATH).</p>
+    <p class="intro">The default way to run <code>ghostpaw-grimoire</code>: one executable per platform with Node.js inside, with the same commands and the same MCP server as the npm package. Each line downloads the latest release, checks it against the release&#39;s SHA256SUMS, installs it to <code>~/.local/bin</code> and adds that folder to the PATH of the current shell only. The Unix lines do not edit <code>~/.profile</code> or any other file; the Windows script adds its folder to the user PATH.</p>
     <div class="bin-cmds">
         <div><p class="cmd-label" id="bin-linux-x64-label">linux-x64</p>
         <div class="cmd"><textarea id="bin-linux-x64" readonly rows="2" aria-labelledby="bin-linux-x64-label" spellcheck="false">curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target linux-x64 &amp;&amp; export PATH=&quot;$HOME/.local/bin:$PATH&quot;</textarea><button type="button" class="copy" data-copy="bin-linux-x64">Copy</button></div></div>
@@ -220,6 +220,13 @@ write.rollback({ root }, 'engineering/deploy-service', log.at(-1).hash);</code><
         <div><p class="cmd-label" id="bin-windows-x64-label">windows-x64 (PowerShell)</p>
         <div class="cmd"><textarea id="bin-windows-x64" readonly rows="2" aria-labelledby="bin-windows-x64-label" spellcheck="false">irm https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.ps1 | iex</textarea><button type="button" class="copy" data-copy="bin-windows-x64">Copy</button></div></div>
     </div>
+    <div class="bin-cmds">
+        <div><p class="cmd-label" id="bin-profile-label">Keep it on PATH in new shells (appends one line to <code>~/.profile</code>)</p>
+        <div class="cmd"><textarea id="bin-profile" readonly rows="3" aria-labelledby="bin-profile-label" spellcheck="false">curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target linux-x64 &amp;&amp; echo &#39;export PATH=&quot;$HOME/.local/bin:$PATH&quot;&#39; &gt;&gt; ~/.profile &amp;&amp; export PATH=&quot;$HOME/.local/bin:$PATH&quot;</textarea><button type="button" class="copy" data-copy="bin-profile">Copy</button></div></div>
+        <div><p class="cmd-label" id="bin-pinned-label">Pinned version (no file edits)</p>
+        <div class="cmd"><textarea id="bin-pinned" readonly rows="3" aria-labelledby="bin-pinned-label" spellcheck="false">curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target linux-x64 --version 0.5.0 &amp;&amp; export PATH=&quot;$HOME/.local/bin:$PATH&quot;</textarea><button type="button" class="copy" data-copy="bin-pinned">Copy</button></div></div>
+    </div>
+    <p class="intro">Swap <code>linux-x64</code> for your target. <code>ghostpaw-grimoire --version</code> prints the version and variant; <code>--version --short</code> prints the bare semver and <code>--version --json</code> a <code>{name, version, variant, target}</code> record.</p>
     <dl class="ledger wide">
       <div><dt>linux-x64</dt><dd>41.7 MB tar.gz</dd></div>
       <div><dt>linux-arm64</dt><dd>41.2 MB tar.gz</dd></div>

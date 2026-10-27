@@ -6,10 +6,6 @@
 
 **Agent skills as SKILL.md folders, every improvement sealed as a git commit you can roll back.**
 
-```bash
-npm install @ghostpaw/grimoire
-```
-
 A procedural knowledge engine for Node.js, built on Git, SQLite, and the filesystem.
 
 Grimoire treats spells (learned procedures), evidence, versioning, and health
@@ -18,10 +14,71 @@ prebundled blob with zero runtime dependencies, designed for two audiences at
 once: human developers working directly in code, and LLM agents operating
 through a structured `soul` / `tools` / `skills` runtime.
 
-## MCP server
+## Install
+
+### Release binary (default)
+
+The installers verify the archive against SHA256SUMS before installing. The Unix
+lines below install the latest release to `~/.local/bin` and add that directory
+to PATH for the current shell only; they do not edit `~/.profile` or any other
+file. The Windows installer updates the user PATH. Choose the line for your
+target.
+
+Linux x64:
 
 ```sh
-claude mcp add ghostpaw-grimoire -- npx -y @ghostpaw/grimoire mcp
+curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target linux-x64 && export PATH="$HOME/.local/bin:$PATH"
+```
+
+Linux arm64:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target linux-arm64 && export PATH="$HOME/.local/bin:$PATH"
+```
+
+macOS arm64:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target darwin-arm64 && export PATH="$HOME/.local/bin:$PATH"
+```
+
+macOS x64:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target darwin-x64 && export PATH="$HOME/.local/bin:$PATH"
+```
+
+Windows x64:
+
+```powershell
+irm https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.ps1 | iex
+```
+
+To keep `~/.local/bin` on PATH in new shells, this variant also appends one
+line to `~/.profile` (skip it if that directory is already on your PATH):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target linux-x64 && echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.profile && export PATH="$HOME/.local/bin:$PATH"
+```
+
+To pin a version instead of taking the latest release, pass `--version`
+(replace the target as needed):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target linux-x64 --version 0.5.0 && export PATH="$HOME/.local/bin:$PATH"
+```
+
+`ghostpaw-grimoire --version` prints the version and variant,
+`--version --short` the bare semver, and `--version --json` a
+`{name, version, variant, target}` record.
+
+The binary includes its runtime. `ghostpaw-grimoire skill --list` lists the
+bundled workflow guides; `ghostpaw-grimoire skill <guide>` prints one.
+
+#### MCP configuration
+
+```sh
+claude mcp add ghostpaw-grimoire -- "$HOME/.local/bin/ghostpaw-grimoire" mcp
 /plugin marketplace add GhostPawJS/grimoire
 /plugin install ghostpaw-grimoire@ghostpaw-grimoire
 ```
@@ -30,44 +87,55 @@ Codex CLI (`~/.codex/config.toml`):
 
 ```toml
 [mcp_servers.ghostpaw-grimoire]
-command = "npx"
-args = ["-y", "@ghostpaw/grimoire", "mcp"]
+command = "/absolute/home/.local/bin/ghostpaw-grimoire"
+args = ["mcp"]
 ```
 
 Cursor, Claude Desktop, or a project `.mcp.json`:
 
 ```json
-{"mcpServers":{"ghostpaw-grimoire":{"command":"npx","args":["-y","@ghostpaw/grimoire","mcp"]}}}
+{"mcpServers":{"ghostpaw-grimoire":{"command":"/absolute/home/.local/bin/ghostpaw-grimoire","args":["mcp"]}}}
 ```
 
 Download `server.mcpb` from [releases](https://github.com/GhostPawJS/grimoire/releases) for clients supporting MCP Bundles. Build the supplied Dockerfile with `docker build -t ghostpaw-grimoire .` and mount `/data` for persistence.
 
 Supports MCP 2026-07-28 and initialize-based protocol versions (2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05). The database defaults to `~/.ghostpaw/grimoire.db`; `--db` overrides `GHOSTPAW_GRIMOIRE_DB`. Spells default to `~/.ghostpaw/grimoire/`; set `GHOSTPAW_GRIMOIRE_ROOT` to choose another directory. No credentials are required for local tools.
 
-## Install
+### npx / npm (for npm-based environments)
 
-The [npm package](https://www.npmjs.com/package/@ghostpaw/grimoire) requires Node 24+:
+Requires Node 24 or newer:
 
 ```sh
-npm install @ghostpaw/grimoire      # library, uses the built-in node:sqlite module
 npm install -g @ghostpaw/grimoire
 npx -y @ghostpaw/grimoire --help
 ```
 
-Standalone binaries are available from [GitHub Releases](https://github.com/GhostPawJS/grimoire/releases)
-for linux-x64, linux-arm64, darwin-arm64, darwin-x64 and windows-x64.
+For an npm-based MCP configuration:
+
+```json
+{"mcpServers":{"ghostpaw-grimoire":{"command":"npx","args":["-y","@ghostpaw/grimoire","mcp"]}}}
+```
+
+### Library (for harnesses embedding it in code)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh
+npm install @ghostpaw/grimoire
 ```
 
-```powershell
-irm https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.ps1 | iex
+```ts
+import { DatabaseSync } from 'node:sqlite';
+import { initGrimoireTables, write, read } from '@ghostpaw/grimoire';
+
+const db = new DatabaseSync(':memory:');
+initGrimoireTables(db);
+write.dropNote(db, { source: 'practice', content: 'Verify the build before release.' });
+const notes = read.pendingNotes(db);
+db.close();
 ```
 
-A session with the 0.4.1 linux-x64 binary against a fresh database and spell directory (output piped through `jq` to keep it short):
+A session with a linux-x64 release binary against a fresh database and spell directory (output piped through `jq` to keep it short):
 
-![ghostpaw-grimoire 0.4.1: version, writing a SKILL.md, spell inscribe, note drop, search, inspect, draft submit, review validation and the spell file on disk](https://raw.githubusercontent.com/GhostPawJS/grimoire/main/docs/assets/cli.png)
+![ghostpaw-grimoire: version, writing a SKILL.md, spell inscribe, note drop, search, inspect, draft submit, review validation and the spell file on disk](https://raw.githubusercontent.com/GhostPawJS/grimoire/main/docs/assets/cli.png)
 
 The same session as an [animated GIF](https://raw.githubusercontent.com/GhostPawJS/grimoire/main/docs/assets/cli.gif).
 
@@ -88,7 +156,7 @@ registries:
     type: local
     path: grimoire-registry.yaml
 packages:
-  - name: GhostPawJS/grimoire@v0.4.1
+  - name: GhostPawJS/grimoire@v0.4.3
     registry: grimoire
 ```
 
@@ -124,19 +192,24 @@ download on macOS, remove quarantine with
 Linux binaries require glibc 2.28+; use npx on Alpine.
 See the [binary build workflow](.github/workflows/release-binaries.yml).
 
-Sizes for 0.4.1 (Node 26.12.1 inside each binary):
-
-| Target | Archive | Binary |
-|---|---|---|
-| linux-x64 | 41.7 MB tar.gz | 117.5 MB |
-| linux-arm64 | 41.2 MB tar.gz | 115.2 MB |
-| darwin-arm64 | 44.8 MB tar.gz | 146.7 MB |
-| darwin-x64 | 46.4 MB tar.gz | 149.6 MB |
-| windows-x64 | 38.4 MB zip | 105.6 MB |
-
-The npm package is 1294 KB unpacked and needs Node 24+.
+Archive and binary sizes vary by release; see the assets on the release page.
 
 The install check runs on ubuntu-24.04, macos-15 and windows-2025.
+
+## State
+
+The database defaults to `~/.ghostpaw/grimoire.db`; select it with `--db` or
+`GHOSTPAW_GRIMOIRE_DB`. Spells default to `~/.ghostpaw/grimoire`; select the root
+with `--root` or `GHOSTPAW_GRIMOIRE_ROOT`. CLI flags take precedence over the environment.
+Each root stores Git history in `<ROOT>/.grimoire-git`, excluded from discovery.
+`--git-dir` overrides `GHOSTPAW_GRIMOIRE_GIT_DIR`, which overrides this default.
+A legacy `<parent>/.grimoire-git` is copied into the root only when its configured
+work tree or HEAD tree identifies this root. The original stays in place, with a
+`MIGRATED_TO` marker. Shared or uncertain legacy repositories stay at their old
+location and produce `shared_git_dir` warnings; select a dedicated repository
+explicitly before migrating history. Git writes use a per-repository advisory
+lock and path-scoped commits. File databases use WAL and a five-second busy timeout.
+Library callers supply their database and should configure those pragmas before use.
 
 ## CLI
 
@@ -161,18 +234,34 @@ ghostpaw-grimoire scout apply-update <path>
 ghostpaw-grimoire mcp|skill|tools|describe|call|completions|version|help
 ```
 
-Global flags can appear anywhere: `--db <path>`, `--json`, `--quiet`,
+Global flags can appear anywhere: `--db <path>`, `--root <path>`, `--git-dir <path>`, `--json`, `--quiet`,
 `--compact`, `--help`/`-h`, `--version`/`-V`/`-v`, `--no-color`.
 `NO_COLOR` is accepted; output uses no terminal colors.
 Noun-verb commands print the full tool result as JSON with `--json` or when
-stdout is piped. Terminal output shows the summary and payload.
+stdout is piped. Write results contain compact metadata by default; `--verbose` includes full spell content.
 `--quiet` suppresses stdout. `--compact` removes JSON indentation.
 
-Use `help spell` or `spell update --help` for schema-derived help.
-Array flags repeat, object flags accept JSON or `@path`, and `-` reads JSON stdin.
+Use `help spell`, bare `spell`, or `spell update --help` for schema-derived help.
+`skill --list` lists bundled guides; `skill <guide>` prints the guide.
+Search tokenizes multiple terms, removes common English stopwords, stems common
+suffixes, and scores name/description/body matches with weights 3/2/1 and inverse
+document frequency. Trigram Jaccard similarity of at least 0.3 adds fuzzy metadata
+matches. Results expose `score` and sort by score, rank, then path. Legacy name
+and description substring matches remain supported. Uncheckpointed spells remain visible.
+Inscribe conflicts unless `--force` is supplied; identical forced content returns
+`no_op`. Hone accepts positional paths and returns `no_op` without a diff, preserving
+notes and resonance. `--note-ids` and `--note_ids` both work for hone and draft submit.
+Inspect includes commit hashes, short hashes, subjects, and ISO dates for rollback.
+`--now` accepts epoch milliseconds, ISO 8601 date-time, or YYYY-MM-DD.
+`review index --format prompt` returns only the formatted prompt block in `data`.
+Catalogue health fields measure honing pressure, rather than a quality rating:
+a fresh seal can have zero pressure. Dormancy has a 14-day grace period after
+the first seal. Catalogue expires pending notes older than 90 days and keeps at
+most 50 pending notes, expiring the oldest first. Deleting a spell purges its events.
+Array flags repeat, text flags accept `@path` or `@-` for stdin, and a final `-` reads JSON stdin (`spell inscribe <name> -` is supported).
 Flags use kebab-case and override stdin fields. `--` ends flags.
 Database selection uses `--db`, `GHOSTPAW_GRIMOIRE_DB`, then `~/.ghostpaw/grimoire.db`.
-Spell files use `GHOSTPAW_GRIMOIRE_ROOT` (default `~/.ghostpaw/grimoire`).
+Spell files use `--root`, then `GHOSTPAW_GRIMOIRE_ROOT` (default `~/.ghostpaw/grimoire`).
 Context initialization may run Git. Scout remote operations need network access;
 local sources can stay offline.
 

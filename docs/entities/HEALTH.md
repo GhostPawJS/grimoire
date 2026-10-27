@@ -5,7 +5,7 @@
 A health snapshot is a computed maintenance report stored in SQLite. It
 captures the grimoire's overall state at a point in time: spell counts, rank
 distribution, stale/dormant/oversized lists, note routing results, orphan
-clusters, seal velocity, health scores, and chapter balance.
+clusters, seal velocity, honing pressure scores (health fields), and chapter balance.
 
 ## Why It Exists
 
@@ -45,17 +45,18 @@ grimoire; the readiness check is a pure read that never inserts rows.
 ## What Catalogue Computes
 
 - **Total spells** per chapter and overall
-- **Rank distribution** (JSON: `{"Apprentice": 3, "Journeyman": 2, …}`)
+- **Rank distribution** (spell path to distinct commit count)
 - **Stale spells** — sealed 90+ days ago but still being read
-- **Dormant spells** — not read in 60+ days
+- **Dormant spells** — not read in 60+ days or never read, after a 14-day grace period from the first seal
 - **Oversized spells** — approaching the line limit
 - **Note routing** — auto-routes unrouted notes by trigram Jaccard
 - **Orphan clustering** — clusters unrouted notes by similarity; surfaces
   draft candidates
 - **Seal velocity** — per-spell trend: `recentSeals - previousSeals` (30-day
   windows)
-- **Spell health score** — composite 0–1:
+- **Honing pressure (`spellHealth`)** — composite 0–1:
   `(1 - staleness) × (1 - oversizeRatio) × resonanceWeight`
+  Zero is normal just after a seal: reads since the last seal have reset.
 - **Chapter balance** — pending notes per spell ratio; flags overloaded
   chapters
 
@@ -86,3 +87,5 @@ grimoire; the readiness check is a pure read that never inserts rows.
 
 - `read.catalogueReadiness(db)` — readiness gate: new notes, new events, or no prior run
 - `read.readCatalogue(db)` — latest snapshot
+
+Catalogue expires pending notes older than 90 days and caps the pending inbox at 50, expiring the oldest first. Deleting a spell purges its usage and seal events.

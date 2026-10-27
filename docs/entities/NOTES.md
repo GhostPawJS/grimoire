@@ -96,3 +96,5 @@ with 3+ members from 2+ sources are surfaced as draft candidates.
 - `read.pendingNotes(db, options?)`
 - `read.pendingNoteCount(db)`
 - `read.noteCounts(db)`
+
+Empty or whitespace-only note content is invalid. Catalogue expires pending notes older than 90 days and retains at most 50 pending notes. Hone and draft submit accept both `noteIds` and `note_ids`; nonexistent IDs return `not_found` before writing.

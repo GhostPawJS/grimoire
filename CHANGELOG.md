@@ -4,6 +4,37 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+### Added
+
+- Weighted multi-term spell search across names, descriptions, and bodies, common suffix stemming, fuzzy metadata matches, and result scores.
+- CLI `--root` and `--git-dir`, `GHOSTPAW_GRIMOIRE_GIT_DIR` for CLI/MCP, inspect history short hashes and subjects, and shared legacy Git warnings.
+- Synchronous per-repository Git locks, per-root history with conservative copy migration, and scoped commits that preserve unrelated staged work.
+- `noteIds`/`note_ids` aliases, positional hone paths, `@-` text stdin, final `-` JSON stdin after a name, and epoch/ISO/date parsing for `--now`.
+- Bundled `skill --list`, `skill <guide>`, and `skill --help`, schema-validated tool examples, and a CLI cheat sheet.
+- Installer `--target` selection and binary-first installation and MCP documentation, with session-only, `~/.profile`, and pinned-version install lines.
+
+### Changed
+
+- New roots use `<ROOT>/.grimoire-git` rather than the parent directory. Safe legacy history is copied; shared or uncertain repositories stay in place with a warning.
+- Write tool results are compact by default; `verbose: true` includes full spell content. `review index --format prompt` returns only the formatted block in data.
+- No-change hone and identical forced inscribe return `no_op`, without empty commits or seal events; hone leaves notes and resonance unchanged.
+- Version output identifies the binary name, version, and binary/npm/library execution mode; `--version --short` prints the bare semver and `--version --json` prints `{name, version, variant, target}`. Bare command groups show their subcommands.
+- An explicit `--git-dir` that points at a legacy repository already copied into `<ROOT>/.grimoire-git` follows the copy, so explicit and default callers share one history.
+- Catalogue dormancy has a 14-day grace period after the first seal; pending notes expire after 90 days and are capped at 50, oldest first. Health fields are documented as honing pressure.
+- Empty notes, missing draft evidence, nonexistent note IDs, mismatched frontmatter names, missing hone paths, and unknown rollback refs return recoverable validation or not-found errors.
+- Delete, repair, and rollback checkpoint their changes when Git is configured; lifecycle commit failures are surfaced instead of deferred.
+
+### Fixed
+
+- Rank counts distinct commits per spell instead of files touched; rank-zero spells remain visible in search and the index with honing hints.
+- Frontmatter parses folded/literal block scalars with chomping and indented scalar continuations, including nested keys; unsupported lines produce validation warnings.
+- CLI/MCP contexts carry the resolved Git directory. Every commit uses the configured identity or the Grimoire fallback; sealing errors reach callers.
+- SQLite busy timeout is configured before WAL or schema statements, with retry for WAL setup contention.
+- Registry search guards enveloped and malformed response shapes; direct skill directories can be adopted.
+- Deleting spells purges their events. Tool input validation rejects malformed inputs before side effects, with recovery guidance.
+- Tool-count, search, state, installation, and output documentation reflects current behavior.
+
+
 ## [0.4.3] - 2026-10-27
 
 ### Security

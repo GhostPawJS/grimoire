@@ -104,10 +104,9 @@ tools with:
 - structured machine-readable outcomes
 - clarification paths for ambiguous input
 
-The current `tools` namespace exports exactly these 10 tools:
+The current `tools` namespace exports these 11 tools:
 
-- `search_grimoire` — find spells by natural-language query with trigram
-  matching
+- `search_grimoire` — find spells with weighted multi-term name/description/body search, common suffix stemming, and trigram metadata similarity
 - `review_grimoire` — load a maintenance surface: chapters, health,
   resonance, notes, drafts, validation, provenance, or index
 - `inspect_grimoire_item` — full detail on one spell: content, frontmatter,
@@ -344,3 +343,15 @@ truthful core:
 Both operate on the same underlying model. The same deterministic engine runs
 underneath whether the caller is a TypeScript function call or an LLM tool
 invocation.
+
+## CLI and state
+
+The release binary needs no runtime installation. Run `ghostpaw-grimoire skill --list`
+and `ghostpaw-grimoire skill <guide>` to read bundled workflows. State defaults to
+`~/.ghostpaw/grimoire.db` and `~/.ghostpaw/grimoire`; Git lives in `<ROOT>/.grimoire-git`.
+Use `--db`, `--root`, and `--git-dir` or their `GHOSTPAW_GRIMOIRE_DB`,
+`GHOSTPAW_GRIMOIRE_ROOT`, and `GHOSTPAW_GRIMOIRE_GIT_DIR` environment equivalents.
+Inspect history supplies rollback hashes. Write results are compact unless `verbose: true`;
+`review_grimoire` accepts `format: 'prompt'` for the index block alone.
+Both `noteIds` and `note_ids` are accepted by hone and draft submit.
+Rank counts distinct commits per spell, and uncheckpointed spells remain searchable.
