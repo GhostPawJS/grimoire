@@ -3,7 +3,7 @@
   "name": "io.github.GhostPawJS/grimoire",
   "description": "Local procedural knowledge with spells, notes, and revision history.",
   "title": "GhostPaw Grimoire",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "repository": {
     "url": "https://github.com/GhostPawJS/grimoire.git",
     "source": "github"
@@ -14,7 +14,7 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@ghostpaw/grimoire",
-      "version": "0.4.1",
+      "version": "0.4.2",
       "transport": {
         "type": "stdio"
       },
