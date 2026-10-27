@@ -62,3 +62,18 @@ test('generic parser reports typed usage errors and renders schema help', () => 
 		{ ids: [1, 2] },
 	);
 });
+test('flag values may start with dashes unless they look like a flag', () => {
+	const spec = {
+		command: 'test',
+		flags: [
+			{ name: 'content', type: 'string' as const },
+			{ name: 'json', type: 'boolean' as const },
+		],
+	};
+	assert.deepEqual(parseCliArgs(['--content', '---\nname: x\n---'], spec), {
+		content: '---\nname: x\n---',
+	});
+	assert.deepEqual(parseCliArgs(['--content', '-5'], spec), { content: '-5' });
+	assert.deepEqual(parseCliArgs(['--content', '--'], spec), { content: '--' });
+	assert.throws(() => parseCliArgs(['--content', '--json'], spec), /Missing value: --content/);
+});

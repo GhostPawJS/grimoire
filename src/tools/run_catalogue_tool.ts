@@ -10,6 +10,8 @@ import { toolFailure, toolSuccess } from './tool_types.ts';
 
 type CatalogueInput = { now?: number };
 
+const count = (n: number, noun: string) => `${n} ${noun}${n === 1 ? '' : 's'}`;
+
 export const runCatalogueTool = defineGrimoireTool<CatalogueInput, ToolResult<CatalogueSnapshot>>({
 	name: runCatalogueToolName,
 	description:
@@ -60,7 +62,7 @@ export const runCatalogueTool = defineGrimoireTool<CatalogueInput, ToolResult<Ca
 			}
 			next.push(reviewViewNext('health'));
 			return toolSuccess(
-				`Catalogue complete: ${snapshot.totalSpells} spells, ${snapshot.notesRouted} notes routed, ${snapshot.orphanClusters.length} orphan cluster(s).`,
+				`Catalogue complete: ${count(snapshot.totalSpells, 'spell')}, ${count(snapshot.notesRouted, 'note')} routed, ${count(snapshot.orphanClusters.length, 'orphan cluster')}.`,
 				snapshot,
 				{ entities, next },
 			);

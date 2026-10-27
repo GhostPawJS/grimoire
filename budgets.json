@@ -16,10 +16,10 @@
 	"size": {
 		"full": {
 			"minBytes": 131008,
-			"gzipBytes": 40896
+			"gzipBytes": 40960
 		},
 		"tools": {
-			"minBytes": 129984,
+			"minBytes": 130048,
 			"gzipBytes": 40576
 		},
 		"read-write": {
@@ -27,16 +27,16 @@
 			"gzipBytes": 40576
 		},
 		"mcp": {
-			"minBytes": 70656,
+			"minBytes": 70720,
 			"gzipBytes": 23552
 		},
 		"cli": {
-			"minBytes": 136832,
-			"gzipBytes": 44352
+			"minBytes": 136896,
+			"gzipBytes": 44416
 		},
 		"mcp-server": {
 			"minBytes": 78016,
-			"gzipBytes": 25984
+			"gzipBytes": 26048
 		}
 	}
 }

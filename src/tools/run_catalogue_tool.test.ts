@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createTestDb } from '../lib/test-db.ts';
+import { createTestRoot } from '../lib/test-root.ts';
+import { inscribeSpellTool } from './inscribe_spell_tool.ts';
 import { runCatalogueTool } from './run_catalogue_tool.ts';
 import type { GrimoireToolContext } from './tool_metadata.ts';
 
@@ -37,5 +40,23 @@ describe('runCatalogueTool', () => {
 		assert.ok(runCatalogueTool.whenToUse.length > 0);
 		assert.ok(runCatalogueTool.whenNotToUse);
 		assert.ok(runCatalogueTool.outputDescription.length > 0);
+	});
+
+	it('uses singular nouns for a count of one', async () => {
+		const { root, cleanup } = createTestRoot();
+		const db = createTestDb();
+		try {
+			const content = '---\nname: only-spell\ndescription: The only spell\n---\n\n# Only\n';
+			await inscribeSpellTool.handler({ root, db }, { name: 'only-spell', content });
+			const result = await runCatalogueTool.handler({ root, db }, {});
+			assert.equal(result.ok, true);
+			assert.match(
+				result.summary,
+				/^Catalogue complete: 1 spell, 0 notes routed, 0 orphan clusters\.$/,
+			);
+		} finally {
+			db.close();
+			cleanup();
+		}
 	});
 });
