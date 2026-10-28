@@ -4,6 +4,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-28
+
 ### Changed
 
 - CLI values are literal unless the argument is documented as accepting files. Only spell `--content` (`spell inscribe`, `spell update`, `inscribe_spell`, `update_spell`) reads `@path` files and `@-` stdin, and `@@text` there passes a literal `@text`. Note text, sources, titles, rationales, hone messages, queries and every other flag or positional are no longer read from a file when they start with `@`; pass long input through a final `-` JSON stdin instead. Help marks file-capable flags.
@@ -199,7 +201,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 - Initial procedural knowledge library, tool facade, documentation, and browser demo. Early setup and demo improvements are grouped here.
 
-[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/GhostPawJS/grimoire/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/GhostPawJS/grimoire/compare/v0.4.3...v0.5.0
 [0.4.3]: https://github.com/GhostPawJS/grimoire/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/GhostPawJS/grimoire/compare/v0.4.1...v0.4.2
