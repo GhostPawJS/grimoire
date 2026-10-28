@@ -130,7 +130,7 @@ Shared panes with chamfer and lit top bar. The spell pane lists rank, tier, comm
 | --- | --- | --- | --- |
 | hero book | protagonist | an open book drawn in cyan light, a ghost paw resting on the right page, glyph lines and one violet hex rune; no text V046 | generated |
 | commit tree | explanation | a branching tree of nodes in dashed tiers, one violet tip at the top right; sealed history V037 V038 | generated |
-| terminal session | evidence | real output of the 0.4.1 linux-x64 binary against a fresh database, recorded with vhs in the void/spectral palette; never retouched | recorded |
+| terminal session | evidence | real output of the 0.6.0 linux-x64 binary against a fresh database, recorded with vhs in the void/spectral palette; never retouched | recorded |
 | share card | share preview | the hero art with the headline at 1200×630 | generated art, rendered from HTML |
 
 ## Motion

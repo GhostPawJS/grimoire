@@ -65,7 +65,7 @@ To pin a version instead of taking the latest release, pass `--version`
 (replace the target as needed):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target linux-x64 --version 0.5.0 && export PATH="$HOME/.local/bin:$PATH"
+curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target linux-x64 --version 0.6.0 && export PATH="$HOME/.local/bin:$PATH"
 ```
 
 `ghostpaw-grimoire --version` prints the version and variant,
@@ -135,7 +135,7 @@ db.close();
 
 A session with a linux-x64 release binary against a fresh database and spell directory (output piped through `jq` to keep it short):
 
-![ghostpaw-grimoire: version, writing a SKILL.md, spell inscribe, note drop, search, inspect, draft submit, review validation and the spell file on disk](https://raw.githubusercontent.com/GhostPawJS/grimoire/main/docs/assets/cli.png)
+![ghostpaw-grimoire 0.6.0: version, writing a SKILL.md, spell inscribe --content @SKILL.md, a note starting with a literal @, review notes, search, inspect history and the spell file on disk](https://raw.githubusercontent.com/GhostPawJS/grimoire/main/docs/assets/cli.png)
 
 The same session as an [animated GIF](https://raw.githubusercontent.com/GhostPawJS/grimoire/main/docs/assets/cli.gif).
 

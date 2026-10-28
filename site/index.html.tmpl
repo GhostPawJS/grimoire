@@ -31,7 +31,7 @@
 <main>
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-copy">
-      <p class="kicker"><code>@ghostpaw/grimoire</code> <span class="ver">0.5.0</span></p>
+      <p class="kicker"><code>@ghostpaw/grimoire</code> <span class="ver">0.6.0</span></p>
       <h1 id="hero-title">Your agent edits its <code>SKILL.md</code>. Who keeps the history?</h1>
       <p class="lede">grimoire keeps skills as plain <code>SKILL.md</code> folders, seals each proven improvement as a git commit and keeps the evidence notes in SQLite. A skill's rank is the number of sealed commits, so an edit counts only once it is sealed, and any earlier version can be restored.</p>
       <div class="install">
@@ -224,7 +224,7 @@ write.rollback({ root }, 'engineering/deploy-service', log.at(-1).hash);</code><
         <div><p class="cmd-label" id="bin-profile-label">Keep it on PATH in new shells (appends one line to <code>~/.profile</code>)</p>
         <div class="cmd"><textarea id="bin-profile" readonly rows="3" aria-labelledby="bin-profile-label" spellcheck="false">curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target linux-x64 &amp;&amp; echo &#39;export PATH=&quot;$HOME/.local/bin:$PATH&quot;&#39; &gt;&gt; ~/.profile &amp;&amp; export PATH=&quot;$HOME/.local/bin:$PATH&quot;</textarea><button type="button" class="copy" data-copy="bin-profile">Copy</button></div></div>
         <div><p class="cmd-label" id="bin-pinned-label">Pinned version (no file edits)</p>
-        <div class="cmd"><textarea id="bin-pinned" readonly rows="3" aria-labelledby="bin-pinned-label" spellcheck="false">curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target linux-x64 --version 0.5.0 &amp;&amp; export PATH=&quot;$HOME/.local/bin:$PATH&quot;</textarea><button type="button" class="copy" data-copy="bin-pinned">Copy</button></div></div>
+        <div class="cmd"><textarea id="bin-pinned" readonly rows="3" aria-labelledby="bin-pinned-label" spellcheck="false">curl -fsSL https://raw.githubusercontent.com/GhostPawJS/grimoire/main/install.sh | sh -s -- --target linux-x64 --version 0.6.0 &amp;&amp; export PATH=&quot;$HOME/.local/bin:$PATH&quot;</textarea><button type="button" class="copy" data-copy="bin-pinned">Copy</button></div></div>
     </div>
     <p class="intro">Swap <code>linux-x64</code> for your target. <code>ghostpaw-grimoire --version</code> prints the version and variant; <code>--version --short</code> prints the bare semver and <code>--version --json</code> a <code>{name, version, variant, target}</code> record.</p>
     <dl class="ledger wide">
@@ -234,7 +234,7 @@ write.rollback({ root }, 'engineering/deploy-service', log.at(-1).hash);</code><
       <div><dt>darwin-x64</dt><dd>46.4 MB tar.gz</dd></div>
       <div><dt>windows-x64</dt><dd>38.4 MB zip</dd></div>
     </dl>
-    <p class="note">Archive sizes of the v0.5.0 release assets. Linux builds need glibc 2.28 or newer; on Alpine, use npx.</p>
+    <p class="note">Archive sizes of the v0.6.0 release assets. Linux builds need glibc 2.28 or newer; on Alpine, use npx.</p>
     <h3>Other release installers</h3>
     <div class="bin-cmds">
         <div><p class="cmd-label" id="bin-mise-label">mise</p>
@@ -262,8 +262,8 @@ write.rollback({ root }, 'engineering/deploy-service', log.at(-1).hash);</code><
       <li>The binaries are not code signed. macOS builds carry an ad-hoc signature, so a browser download needs <code>xattr -d com.apple.quarantine ghostpaw-grimoire</code>. Windows may show a SmartScreen warning for a browser download.</li>
     </ul>
     <figure class="shot">
-      <a href="{{.urls.cliShot}}"><img src="assets/images/cli-1600.webp" srcset="assets/images/cli-800.webp 800w, assets/images/cli-1600.webp 1600w" sizes="(min-width: 76rem) 72rem, 100vw" width="1600" height="770" decoding="async" alt="Terminal session with ghostpaw-grimoire 0.4.1: --version prints 0.4.1, a heredoc writes a SKILL.md for release-checklist, spell inscribe stores it in the shipping chapter, note drop records that tagging before CI went green broke a publish, search tagging finds the spell, inspect reports Apprentice rank 1 with 2 seals to the next tier, draft submit files draft 1 from note 1, review validation reports 1 spell with 0 issues, and find lists spells/shipping/release-checklist/SKILL.md." loading="lazy"></a>
-      <figcaption>A session with the 0.4.1 linux-x64 binary against a fresh database and spell directory, output piped through jq. Open the image for full size.</figcaption>
+      <a href="{{.urls.cliShot}}"><img src="assets/images/cli-1600.webp" srcset="assets/images/cli-800.webp 800w, assets/images/cli-1600.webp 1600w" sizes="(min-width: 76rem) 72rem, 100vw" width="1600" height="600" decoding="async" alt="Terminal session with ghostpaw-grimoire 0.6.0: --version prints 0.6.0, printf writes a SKILL.md for release-checklist, spell inscribe --content @SKILL.md stores it in the shipping chapter, note drop records a note that starts with @ci: and review notes shows that text stored literally, search tagging release finds the spell at Apprentice rank 1, inspect lists its inscribe commit, and find lists spells/shipping/release-checklist/SKILL.md." loading="lazy"></a>
+      <figcaption>A session with the 0.6.0 linux-x64 binary against a fresh database and spell directory, output piped through jq. Open the image for full size.</figcaption>
     </figure>
     <p class="links"><a class="more" href="{{.urls.release}}">Latest release</a><a href="{{.urls.readmeInstall}}">Install notes in the README</a><a href="{{.urls.attest}}">gh attestation verify</a></p>
   </section>
