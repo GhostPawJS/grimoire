@@ -4,6 +4,14 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+### Fixed
+
+- Clean up temporary guard roots on exit, tarball directories on setup errors, and test roots on setup failures.
+- Update only the frontmatter name line when moving spells, preserving all other bytes; forced replacements retain the source history and rank.
+- Roll back revisions across moves using the historical spell path while retaining the current name.
+- Return success for hone commits containing manually deleted spells.
+- Reject malformed opening frontmatter delimiters, including literal leading `@` passed with the documented `@@` escape.
+
 ## [0.6.0] - 2026-10-28
 
 ### Added

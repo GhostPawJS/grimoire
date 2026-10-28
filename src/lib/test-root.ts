@@ -25,21 +25,26 @@ export function createTestRoot(layout?: TestRootLayout): {
 	cleanup: () => void;
 } {
 	const base = mkdtempSync(join(tmpdir(), 'grimoire-test-root-'));
-	const root = join(base, 'root');
-	mkdirSync(root);
+	try {
+		const root = join(base, 'root');
+		mkdirSync(root);
 
-	if (layout?.chapters) {
-		for (const chapter of layout.chapters) {
-			for (const spell of chapter.spells) {
-				const spellDir = join(root, chapter.name, spell.name);
-				mkdirSync(spellDir, { recursive: true });
-				writeFileSync(join(spellDir, 'SKILL.md'), spell.content ?? skillMd(spell.name));
+		if (layout?.chapters) {
+			for (const chapter of layout.chapters) {
+				for (const spell of chapter.spells) {
+					const spellDir = join(root, chapter.name, spell.name);
+					mkdirSync(spellDir, { recursive: true });
+					writeFileSync(join(spellDir, 'SKILL.md'), spell.content ?? skillMd(spell.name));
+				}
 			}
 		}
-	}
 
-	return {
-		root,
-		cleanup: () => rmSync(base, { recursive: true, force: true }),
-	};
+		return {
+			root,
+			cleanup: () => rmSync(base, { recursive: true, force: true }),
+		};
+	} catch (error) {
+		rmSync(base, { recursive: true, force: true });
+		throw error;
+	}
 }

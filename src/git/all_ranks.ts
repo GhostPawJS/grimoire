@@ -12,6 +12,13 @@ export function allRanks(ctx: GitContext): Record<string, number> {
 		for (const commit of output.split('COMMIT:').slice(1)) {
 			const separator = commit.indexOf('FILES:');
 			const message = commit.slice(0, separator);
+			const move = /^move (\S+) -> (\S+)/.exec(message);
+			if (move) {
+				const target = destination(move[2] as string);
+				aliases.set(move[1] as string, target);
+				aliases.set(move[2] as string, '');
+				continue;
+			}
 			const seen = new Set<string>();
 			for (const line of commit
 				.slice(separator + 6)

@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { seal } from '../git/seal.ts';
 import { tierInfo } from '../git/tier_info.ts';
 import type { TierInfo } from '../git/types.ts';
@@ -130,13 +132,19 @@ export const honeSpellTool = defineGrimoireTool<HoneInput, ToolResult<HoneData>>
 
 			next.push(reviewViewNext('health'));
 
+			const deletedPaths = result.sealedPaths.filter(
+				(path) => !existsSync(join(ctx.root, path, 'SKILL.md')),
+			);
+			const deletionSuffix = deletedPaths.length ? ` Deleted: ${deletedPaths.join(', ')}.` : '';
 			const noteSuffix =
 				distilledNoteIds.length > 0 ? ` Distilled ${distilledNoteIds.length} note(s).` : '';
 
 			return toolSuccess(
-				`Sealed ${result.sealedPaths.length} spell(s) in commit ${result.commitHash.slice(0, 8)}.${noteSuffix}`,
+				`Sealed ${result.sealedPaths.length} spell(s) in commit ${result.commitHash.slice(0, 8)}.${deletionSuffix}${noteSuffix}`,
 				{
-					spells: result.sealedPaths.map((path) => spellWriteData(ctx, path, input.verbose)),
+					spells: result.sealedPaths
+						.filter((path) => existsSync(join(ctx.root, path, 'SKILL.md')))
+						.map((path) => spellWriteData(ctx, path, input.verbose)),
 					commitHash: result.commitHash,
 					sealedPaths: result.sealedPaths,
 					ranks: result.ranks,

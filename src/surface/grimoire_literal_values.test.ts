@@ -81,19 +81,23 @@ test('CLI values are literal except spell content, where @path reads a file and 
 		const legacy = join(directory, 'legacy.md');
 		writeFileSync(legacy, body('legacy-file', 'Legacy form reads a file'));
 		assert.equal(run('inscribe_spell', '--name', 'legacy-file', '--content', `@${legacy}`).code, 0);
+		assert.equal(
+			run('spell', 'inscribe', 'escaped', '--content', body('escaped', 'Initial')).code,
+			0,
+		);
 		const escaped = run(
 			'spell',
-			'inscribe',
-			'escaped',
+			'update',
+			'general/escaped',
 			'--content',
 			`@@${body('escaped', 'Starts with an at sign')}`,
 		);
-		assert.equal(escaped.code, 0);
-		assert.ok(
-			readFileSync(join(directory, 'root', 'general', 'escaped', 'SKILL.md'), 'utf8').startsWith(
-				'@---',
-			),
+		assert.equal(escaped.code, 2);
+		assert.equal(
+			readFileSync(join(directory, 'root', 'general', 'escaped', 'SKILL.md'), 'utf8'),
+			body('escaped', 'Initial'),
 		);
+		assert.equal(run('inspect', 'general/escaped').json.data.validation.valid, true);
 		const missing = run('spell', 'update', 'general/from-file', '--content', '@does-not-exist.md');
 		assert.equal(missing.code, 2);
 		assert.match(JSON.stringify(missing.json), /use @@ for a literal leading @/);

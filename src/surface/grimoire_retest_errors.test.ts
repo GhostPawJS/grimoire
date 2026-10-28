@@ -88,7 +88,10 @@ test('move --target conflicts once on stderr and --force replaces the target', a
 				assert.match(error, /Inspect the existing spell/);
 			} else {
 				assert.equal(existsSync(join(root, 'general/source')), false);
-				assert.equal(readFileSync(join(root, 'general/target/SKILL.md'), 'utf8'), original);
+				assert.equal(
+					readFileSync(join(root, 'general/target/SKILL.md'), 'utf8'),
+					original.replace('name: source', 'name: target'),
+				);
 			}
 		}
 	} finally {

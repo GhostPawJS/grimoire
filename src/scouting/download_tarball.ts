@@ -6,9 +6,8 @@ import { join } from 'node:path';
 export async function downloadTarball(url: string, dest: string): Promise<void> {
 	const tempDir = mkdtempSync(join(tmpdir(), 'grimoire-tarball-'));
 	const tmpFile = join(tempDir, 'archive.tar.gz');
-	mkdirSync(dest, { recursive: true });
-
 	try {
+		mkdirSync(dest, { recursive: true });
 		const response = await fetch(url);
 		if (!response.ok) {
 			throw new Error(

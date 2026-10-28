@@ -1,5 +1,5 @@
-import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import type { GrimoireDb } from '../database.ts';
 import { GrimoireConflictError } from '../errors.ts';
 import { logEvent } from '../events/log_event.ts';
@@ -12,6 +12,7 @@ import { resolveSpellPath } from '../lib/safe_path.ts';
 import { validateStagingPaths } from '../lib/validate_staging_paths.ts';
 import { withGitLock } from '../lib/with_git_lock.ts';
 import { updateProvenance } from '../provenance/update_provenance.ts';
+import { parseSkillMd } from '../spec/parse_skill_md.ts';
 import { assertSpellExists } from './assert_spell_exists.ts';
 
 export function moveSpell(
@@ -36,6 +37,19 @@ export function moveSpell(
 		}
 		mkdirSync(dirname(dest), { recursive: true });
 		cpSync(source, dest, { recursive: true });
+		const skillFile = join(dest, 'SKILL.md');
+		const content = readFileSync(skillFile, 'utf8');
+		const parsed = parseSkillMd(content);
+		if (parsed.ok && from.split('/')[1] !== to.split('/')[1]) {
+			const end = content.indexOf('\n---', 3);
+			const frontmatter = content
+				.slice(0, end)
+				.replace(
+					/^((?:name|"name"|'name')[ \t]*:)[^\r\n]*/gm,
+					(_line, key: string) => `${key} ${to.split('/')[1] ?? ''}`,
+				);
+			writeFileSync(skillFile, frontmatter + content.slice(end));
+		}
 		rmSync(source, { recursive: true, force: true });
 
 		if (hasGitRepository({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) })) {

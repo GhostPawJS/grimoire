@@ -28,46 +28,51 @@ export function createTestGitRoot(layout?: TestRootLayout): {
 	cleanup: () => void;
 } {
 	const base = mkdtempSync(join(tmpdir(), 'grimoire-test-git-'));
-	const root = join(base, 'skills');
-	const gitDir = join(root, '.grimoire-git');
+	try {
+		const root = join(base, 'skills');
+		const gitDir = join(root, '.grimoire-git');
 
-	mkdirSync(root, { recursive: true });
+		mkdirSync(root, { recursive: true });
 
-	execFileSync('git', ['init', '--bare', '--', gitDir], { encoding: 'utf-8' });
-	execFileSync('git', ['config', '-f', `${gitDir}/config`, 'user.name', 'Test'], {
-		encoding: 'utf-8',
-	});
-	execFileSync('git', ['config', '-f', `${gitDir}/config`, 'user.email', 'test@test.com'], {
-		encoding: 'utf-8',
-	});
+		execFileSync('git', ['init', '--bare', '--', gitDir], { encoding: 'utf-8' });
+		execFileSync('git', ['config', '-f', `${gitDir}/config`, 'user.name', 'Test'], {
+			encoding: 'utf-8',
+		});
+		execFileSync('git', ['config', '-f', `${gitDir}/config`, 'user.email', 'test@test.com'], {
+			encoding: 'utf-8',
+		});
 
-	if (layout?.chapters) {
-		for (const chapter of layout.chapters) {
-			for (const spell of chapter.spells) {
-				const spellDir = join(root, chapter.name, spell.name);
-				mkdirSync(spellDir, { recursive: true });
-				writeFileSync(join(spellDir, 'SKILL.md'), spell.content ?? skillMd(spell.name));
+		if (layout?.chapters) {
+			for (const chapter of layout.chapters) {
+				for (const spell of chapter.spells) {
+					const spellDir = join(root, chapter.name, spell.name);
+					mkdirSync(spellDir, { recursive: true });
+					writeFileSync(join(spellDir, 'SKILL.md'), spell.content ?? skillMd(spell.name));
+				}
 			}
 		}
-	}
 
-	function seal(paths?: string[], message?: string): string {
-		if (paths && paths.length > 0) {
-			for (const p of paths) {
-				git(root, gitDir, ['add', '--', join(root, p)]);
+		function seal(paths?: string[], message?: string): string {
+			if (paths && paths.length > 0) {
+				for (const p of paths) {
+					git(root, gitDir, ['add', '--', join(root, p)]);
+				}
+			} else {
+				git(root, gitDir, ['add', '-A', '--', '.', ':!.grimoire-git']);
 			}
-		} else {
-			git(root, gitDir, ['add', '-A', '--', '.', ':!.grimoire-git']);
+			const msg = message ?? 'seal';
+			git(root, gitDir, ['commit', '--allow-empty', '-m', msg]);
+			return git(root, gitDir, ['rev-parse', 'HEAD']);
 		}
-		const msg = message ?? 'seal';
-		git(root, gitDir, ['commit', '--allow-empty', '-m', msg]);
-		return git(root, gitDir, ['rev-parse', 'HEAD']);
-	}
 
-	return {
-		root,
-		gitDir,
-		seal,
-		cleanup: () => rmSync(base, { recursive: true, force: true }),
-	};
+		return {
+			root,
+			gitDir,
+			seal,
+			cleanup: () => rmSync(base, { recursive: true, force: true }),
+		};
+	} catch (error) {
+		rmSync(base, { recursive: true, force: true });
+		throw error;
+	}
 }

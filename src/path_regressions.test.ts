@@ -260,7 +260,7 @@ for (const surface of ['library', 'cli', 'mcp']) {
 					assert.equal(existsSync(join(root, 'general/source')), false);
 					assert.equal(
 						readFileSync(join(root, 'general/target/SKILL.md'), 'utf8'),
-						content('source'),
+						content('source').replace('name: source', 'name: target'),
 					);
 				} else {
 					assert.deepEqual(

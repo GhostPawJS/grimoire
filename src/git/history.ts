@@ -7,22 +7,7 @@ export function history(ctx: GitContext, path?: string): HistoryEntry[] {
 	if (path !== undefined) resolveSpellPath(ctx.root, path);
 	if (!isGitAvailable()) return [];
 	try {
-		const scope: string[] = [];
-		if (path) {
-			const followed = execGit(ctx, [
-				'log',
-				'--follow',
-				'--name-only',
-				'--format=',
-				'--',
-				`${path}/SKILL.md`,
-			]);
-			const paths = new Set([`${path}/`]);
-			for (const file of followed.split('\n').filter(Boolean))
-				paths.add(`${file.split('/').slice(0, 2).join('/')}/`);
-			scope.push('--', ...paths);
-		}
-		const output = execGit(ctx, ['log', '--name-only', '--format=COMMIT:%H|%s|%aI', ...scope]);
+		const output = execGit(ctx, ['log', '--name-only', '--format=COMMIT:%H|%s|%aI']);
 		if (output === '') return [];
 
 		const entries: HistoryEntry[] = [];
@@ -48,7 +33,16 @@ export function history(ctx: GitContext, path?: string): HistoryEntry[] {
 		}
 		if (current) entries.push(current);
 
-		return entries;
+		if (!path) return entries;
+		let currentPath = path;
+		return entries.filter((entry) => {
+			const move = /^move (\S+) -> (\S+)$/.exec(entry.message);
+			if (move?.[2] === currentPath) {
+				currentPath = move[1] as string;
+				return true;
+			}
+			return entry.files.some((file) => file.startsWith(`${currentPath}/`));
+		});
 	} catch {
 		return [];
 	}

@@ -3,8 +3,8 @@ import { parseFrontmatterYaml } from './parse_frontmatter_yaml.ts';
 import type { SkillMdParseResult } from './types.ts';
 
 export function parseSkillMd(content: string): SkillMdParseResult {
-	const firstDelim = content.indexOf('---');
-	if (firstDelim === -1) {
+	const firstDelim = 0;
+	if (!/^---(?:\r?\n|$)/.test(content)) {
 		return { ok: false, error: 'Missing opening frontmatter delimiter (---)' };
 	}
 
