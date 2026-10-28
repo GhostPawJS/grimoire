@@ -4,6 +4,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-28
+
 ### Added
 
 - Contextual Bash and Zsh completion for command groups, verbs, and flags, registered for both the package binary and `grimoire`; `completion` aliases `completions`.
@@ -224,7 +226,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 - Initial procedural knowledge library, tool facade, documentation, and browser demo. Early setup and demo improvements are grouped here.
 
-[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/GhostPawJS/grimoire/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/GhostPawJS/grimoire/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/GhostPawJS/grimoire/compare/v0.4.3...v0.5.0
 [0.4.3]: https://github.com/GhostPawJS/grimoire/compare/v0.4.2...v0.4.3
