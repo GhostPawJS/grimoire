@@ -135,6 +135,11 @@ export async function runCliCommand<T>(
 					command.tool.cli?.valueParsers?.[
 						name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
 					],
+				...(command.tool.cli?.fileArgs?.includes(
+					name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase()),
+				)
+					? { file: true }
+					: {}),
 				...(schema.items?.type ? { itemType: schema.items.type as CliArgument['type'] } : {}),
 			});
 			const properties = command.tool.inputSchema.properties ?? {};

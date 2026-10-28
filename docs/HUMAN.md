@@ -334,7 +334,7 @@ stdout is piped. Terminal output shows the summary and payload.
 `--quiet` suppresses stdout. `--compact` removes JSON indentation.
 
 Use `help spell` or `spell update --help` for schema-derived help.
-Array flags repeat, object flags accept JSON or `@path`, and `-` reads JSON stdin.
+Array flags repeat, object flags accept JSON, and `-` reads JSON stdin. Only spell `--content` reads files: `@path` reads the file, `@-` reads stdin, and `@@text` passes a literal `@text`. Every other value, including note text and positionals, is taken literally even if it starts with `@`.
 Flags use kebab-case and override stdin fields. `--` ends flags.
 Database selection uses `--db`, `GHOSTPAW_GRIMOIRE_DB`, then `~/.ghostpaw/grimoire.db`.
 Spell files use `GHOSTPAW_GRIMOIRE_ROOT` (default `~/.ghostpaw/grimoire`).

@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs';
 import { type Readable, Writable } from 'node:stream';
+import { readFileValue } from './cli_args.ts';
 import { runCliCommand } from './cli_commands.ts';
 import { cliVersionOutput } from './cli_version.ts';
 import { isErrorResult, type JsonSchema, type SurfaceTool } from './surface_types.ts';
@@ -204,8 +204,8 @@ export async function runToolCli<TCtx>(
 							: args.shift()
 						: flag.slice(equal + 1);
 				if (raw === undefined) return fail(`Missing value: ${key}`);
-				if (raw.startsWith('@'))
-					raw = raw === '@-' ? await readStdin() : readFileSync(raw.slice(1), 'utf8');
+				if (tool.cli?.fileArgs?.includes(property))
+					raw = raw === '@-' ? await readStdin() : readFileValue(raw, key);
 				if (schema.type === 'array' && !raw.startsWith('[')) {
 					const prior = values[property];
 					values[property] = [

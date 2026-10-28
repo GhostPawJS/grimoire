@@ -21,8 +21,8 @@ const mapping: Record<string, NonNullable<SurfaceTool<GrimoireToolContext>['cli'
 	search_grimoire: { verb: 'search', positionals: ['query'] },
 	review_grimoire: { verb: 'review', positionals: ['view'] },
 	inspect_grimoire_item: { verb: 'inspect', positionals: ['path'] },
-	inscribe_spell: { noun: 'spell', verb: 'inscribe', positionals: ['name'] },
-	update_spell: { noun: 'spell', verb: 'update', positionals: ['path'] },
+	inscribe_spell: { noun: 'spell', verb: 'inscribe', positionals: ['name'], fileArgs: ['content'] },
+	update_spell: { noun: 'spell', verb: 'update', positionals: ['path'], fileArgs: ['content'] },
 	hone_spell: { noun: 'spell', verb: 'hone', positionals: ['paths'] },
 	manage_spell: {
 		noun: 'spell',

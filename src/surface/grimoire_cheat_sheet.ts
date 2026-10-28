@@ -49,7 +49,7 @@ Search uses multiple terms across names, descriptions, and bodies with stemming 
 Inscribe conflicts when the destination exists; --force replaces it. Identical content and no-change hone return no_op.
 Hone accepts positional paths and --paths. Both --note-ids and --note_ids work for hone and draft submit.
 Inspect shows rollback hashes in history. Updates require hone to checkpoint changes.
-Use @file for text, @- for stdin text, or a final - for JSON stdin (including spell inscribe <name> -).
+Spell --content accepts @file, @- for stdin and @@ for a literal leading @; every other value is literal. A final - reads JSON stdin (including spell inscribe <name> -).
 --now accepts epoch milliseconds, ISO 8601 date-time, and YYYY-MM-DD. Inspect history and catalogue dates are ISO.
 Write results are compact; --verbose includes full spell content. review index --format prompt returns only the formatted block in data.
 Output: --json, --compact, --quiet. Exit codes: 0 success/no_op, 1 tool error, 2 usage, 3 not found/clarification, 4 conflict, 70 internal error.

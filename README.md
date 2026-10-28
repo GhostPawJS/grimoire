@@ -258,7 +258,7 @@ Catalogue health fields measure honing pressure, rather than a quality rating:
 a fresh seal can have zero pressure. Dormancy has a 14-day grace period after
 the first seal. Catalogue expires pending notes older than 90 days and keeps at
 most 50 pending notes, expiring the oldest first. Deleting a spell purges its events.
-Array flags repeat, text flags accept `@path` or `@-` for stdin, and a final `-` reads JSON stdin (`spell inscribe <name> -` is supported).
+Array flags repeat and a final `-` reads JSON stdin (`spell inscribe <name> -` is supported). Only spell `--content` reads files: `@path` reads the file, `@-` reads stdin, and `@@text` passes a literal `@text`. Every other value, including note text and positionals, is taken literally even if it starts with `@`.
 Flags use kebab-case and override stdin fields. `--` ends flags.
 Database selection uses `--db`, `GHOSTPAW_GRIMOIRE_DB`, then `~/.ghostpaw/grimoire.db`.
 Spell files use `--root`, then `GHOSTPAW_GRIMOIRE_ROOT` (default `~/.ghostpaw/grimoire`).

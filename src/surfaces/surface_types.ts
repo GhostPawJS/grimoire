@@ -15,6 +15,8 @@ export interface SurfaceTool<TCtx> {
 	cli?: {
 		noun?: string;
 		valueParsers?: Record<string, (raw: string) => unknown>;
+		/** Input properties whose CLI value may be `@path`, `@-` or `@@text`; every other value is literal. */
+		fileArgs?: readonly string[];
 		verb: string;
 		positionals?: string[];
 		action?: {
