@@ -82,3 +82,23 @@ describe('honeSpellTool', () => {
 		assert.equal(noteIds.items?.type, 'integer');
 	});
 });
+
+it('distills note ids even when hone has no content changes', async () => {
+	const db = createTestDb();
+	const { root, cleanup } = createTestRoot();
+	try {
+		const id = insertNote(db);
+		const result = await honeSpellTool.handler({ root, db }, { note_ids: [id] });
+		assert.ok(result.ok);
+		if (!result.ok) return;
+		assert.equal(result.outcome, 'no_op');
+		assert.deepEqual(result.data.distilledNoteIds, [id]);
+		assert.equal(
+			db.prepare('SELECT status FROM spell_notes WHERE id = ?').get<{ status: string }>(id)?.status,
+			'distilled',
+		);
+	} finally {
+		db.close();
+		cleanup();
+	}
+});

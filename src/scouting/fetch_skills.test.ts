@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
@@ -92,4 +93,32 @@ describe('fetchSkills', () => {
 			rmSync(dir, { recursive: true, force: true });
 		}
 	});
+});
+
+it('scans only the folder named by a GitHub tree URL', async (t) => {
+	const dir = mkdtempSync(join(tmpdir(), 'grimoire-subpath-'));
+	try {
+		for (const name of ['pdf', 'other']) {
+			mkdirSync(join(dir, 'repo-HEAD', 'skills', name), { recursive: true });
+			writeFileSync(
+				join(dir, 'repo-HEAD', 'skills', name, 'SKILL.md'),
+				`---\nname: ${name}\ndescription: Skill ${name}.\n---\n# ${name}\n`,
+			);
+		}
+		execFileSync('tar', ['czf', join(dir, 'a.tgz'), '-C', dir, 'repo-HEAD']);
+		const archive = readFileSync(join(dir, 'a.tgz'));
+		t.mock.method(globalThis, 'fetch', async () => new Response(archive));
+		const handle = await fetchSkills('https://github.com/o/r/tree/HEAD/skills/pdf');
+		try {
+			assert.deepEqual(
+				handle.skills.map((skill) => skill.name),
+				['pdf'],
+			);
+		} finally {
+			handle.cleanup();
+		}
+		await assert.rejects(fetchSkills('https://github.com/o/r/tree/HEAD/..%2F..%2Fetc'));
+	} finally {
+		rmSync(dir, { recursive: true, force: true });
+	}
 });

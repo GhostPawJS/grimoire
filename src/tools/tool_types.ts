@@ -9,6 +9,10 @@ export type ToolErrorCode =
 	| 'system_error';
 export type ToolErrorKind = 'domain' | 'protocol' | 'system';
 export type ToolWarningCode =
+	| 'auth_required'
+	| 'path_unresolved'
+	| 'notes_expired'
+	| 'projected'
 	| 'shared_git_dir'
 	| 'empty_result'
 	| 'duplication_detected'

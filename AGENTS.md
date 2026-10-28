@@ -34,6 +34,14 @@ update checks, and applying remote updates. Local sources can remain offline.
 Other tools operate on the local filesystem, Git, or the supplied database.
 Git defaults to `<ROOT>/.grimoire-git`; CLI/MCP accept `GHOSTPAW_GRIMOIRE_GIT_DIR`.
 The CLI also accepts `--git-dir`, which takes precedence over the environment.
+Unsafe parent legacy history is ignored in favor of root-local history, with a warning.
+Staging refuses symbolic links and non-regular files before adding any selected paths.
+Tracked missing spell folders are pending deletions; repair untracks and checkpoints them.
+Moves retain rank and history, and rollback checkpoints do not raise rank.
+No-change hone still consumes supplied note IDs. Catalogue warns about note-cap expiry;
+future projections do not persist health snapshots or note changes.
+CLI exit codes are 0 success, 1 tool error, 2 input validation, 3 not found,
+4 conflict, and 70 internal error. `completion` and `completions` generate shell completion.
 The `network`, `scouting`, and `registry` namespaces also expose network APIs.
 
 ## Layout

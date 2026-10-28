@@ -24,6 +24,7 @@ export interface OrphanCluster {
 }
 
 export interface CatalogueSnapshot {
+	warnings?: { code: 'notes_expired' | 'projected'; message: string }[];
 	id: number;
 	computedAt: string;
 	totalSpells: number;

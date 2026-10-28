@@ -7,7 +7,21 @@ export function history(ctx: GitContext, path?: string): HistoryEntry[] {
 	if (path !== undefined) resolveSpellPath(ctx.root, path);
 	if (!isGitAvailable()) return [];
 	try {
-		const scope = path ? ['--', `${path}/`] : [];
+		const scope: string[] = [];
+		if (path) {
+			const followed = execGit(ctx, [
+				'log',
+				'--follow',
+				'--name-only',
+				'--format=',
+				'--',
+				`${path}/SKILL.md`,
+			]);
+			const paths = new Set([`${path}/`]);
+			for (const file of followed.split('\n').filter(Boolean))
+				paths.add(`${file.split('/').slice(0, 2).join('/')}/`);
+			scope.push('--', ...paths);
+		}
 		const output = execGit(ctx, ['log', '--name-only', '--format=COMMIT:%H|%s|%aI', ...scope]);
 		if (output === '') return [];
 

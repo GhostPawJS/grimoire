@@ -59,8 +59,12 @@ export function resolveInsideRoot(root: string, ...segments: string[]): string {
 	for (const part of relative(base, target).split(sep).filter(Boolean)) {
 		current = resolve(current, part);
 		try {
-			if (lstatSync(current).isSymbolicLink()) {
+			const stat = lstatSync(current);
+			if (stat.isSymbolicLink()) {
 				throw new GrimoireValidationError(`path ${current} resolves through a symbolic link`);
+			}
+			if (!stat.isDirectory() && (!stat.isFile() || current !== target)) {
+				throw new GrimoireValidationError(`path ${current} must be a regular file or directory`);
 			}
 			inside(base, realpathSync(current));
 		} catch (error) {

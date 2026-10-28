@@ -1,10 +1,10 @@
 import { existsSync } from 'node:fs';
 import type { GrimoireDb } from '../database.ts';
-import { GrimoireNotFoundError, GrimoireStateError } from '../errors.ts';
+import { GrimoireNotFoundError, GrimoireStateError, GrimoireValidationError } from '../errors.ts';
 import { logEvent } from '../events/log_event.ts';
 import { assertGitScope } from '../lib/assert_git_scope.ts';
 import { execGit, resolveGitDir } from '../lib/exec_git.ts';
-import { resolveInsideRoot, resolveSpellPath } from '../lib/safe_path.ts';
+import { parseSpellPath, resolveInsideRoot, resolveSpellPath } from '../lib/safe_path.ts';
 import { withGitLock } from '../lib/with_git_lock.ts';
 import { resolveNow } from '../resolve_now.ts';
 import { allRanks } from './all_ranks.ts';
@@ -40,7 +40,10 @@ export function seal(
 	message?: string,
 ): SealResult {
 	for (const path of paths ?? []) {
-		if (!existsSync(resolveInsideRoot(resolveSpellPath(ctx.root, path), 'SKILL.md')))
+		if (
+			!existsSync(resolveInsideRoot(resolveSpellPath(ctx.root, path), 'SKILL.md')) &&
+			(!hasGitRepository(ctx) || !execGit(ctx, ['ls-files', '--', `${path}/`]))
+		)
 			throw new GrimoireNotFoundError(`Spell not found: ${path}`);
 	}
 	if (!hasGitRepository(ctx)) {
@@ -50,7 +53,10 @@ export function seal(
 	try {
 		return withGitLock(resolveGitDir(ctx.root, ctx.gitDir), () => {
 			for (const path of paths ?? []) {
-				if (!existsSync(resolveInsideRoot(resolveSpellPath(ctx.root, path), 'SKILL.md')))
+				if (
+					!existsSync(resolveInsideRoot(resolveSpellPath(ctx.root, path), 'SKILL.md')) &&
+					(!hasGitRepository(ctx) || !execGit(ctx, ['ls-files', '--', `${path}/`]))
+				)
 					throw new GrimoireNotFoundError(`Spell not found: ${path}`);
 			}
 			const status = statusPorcelain(ctx);
@@ -58,7 +64,7 @@ export function seal(
 				? paths
 				: extractSpellPaths(status).filter((p) => {
 						try {
-							resolveSpellPath(ctx.root, p);
+							parseSpellPath(p);
 							return !p.startsWith('.');
 						} catch {
 							return false;
@@ -97,7 +103,12 @@ export function seal(
 			return { commitHash, sealedPaths: spellPaths, ranks: sealedRanks };
 		});
 	} catch (error) {
-		if (error instanceof GrimoireNotFoundError || error instanceof GrimoireStateError) throw error;
+		if (
+			error instanceof GrimoireNotFoundError ||
+			error instanceof GrimoireStateError ||
+			error instanceof GrimoireValidationError
+		)
+			throw error;
 		throw new GrimoireStateError(
 			`Could not seal spell changes: ${error instanceof Error ? error.message : String(error)}. Inspect pending changes and resolve the Git error before retrying.`,
 		);

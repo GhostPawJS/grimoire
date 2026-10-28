@@ -34,170 +34,201 @@ export function catalogue(
 	const routingThreshold = options?.routingThreshold ?? DEFAULTS.routingThreshold;
 	const clusteringThreshold = options?.clusteringThreshold ?? DEFAULTS.clusteringThreshold;
 
-	return withTransaction(db, () => {
-		db.prepare(
-			"UPDATE spell_notes SET status = 'expired' WHERE status = 'pending' AND created_at < ?",
-		).run(now - DEFAULTS.noteExpiryDays * 86_400_000);
-		db.prepare(
-			"UPDATE spell_notes SET status = 'expired' WHERE id IN (SELECT id FROM spell_notes WHERE status = 'pending' ORDER BY created_at DESC, id DESC LIMIT -1 OFFSET ?)",
-		).run(DEFAULTS.noteCap);
-		const spells = discoverSpells(root);
-		const ranks = isGitAvailable()
-			? allRanks({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) })
-			: {};
-		const allRes = allResonance(db, { resonanceHalfLife, now });
+	const projected = now > Date.now() + 60_000;
+	let projection: CatalogueSnapshot | undefined;
+	const projectionComplete = new Error('projection complete');
+	try {
+		return withTransaction(db, () => {
+			const warnings: NonNullable<CatalogueSnapshot['warnings']> = [];
+			db.prepare(
+				"UPDATE spell_notes SET status = 'expired' WHERE status = 'pending' AND created_at < ?",
+			).run(now - DEFAULTS.noteExpiryDays * 86_400_000);
+			const expired = db
+				.prepare(
+					"UPDATE spell_notes SET status = 'expired' WHERE id IN (SELECT id FROM spell_notes WHERE status = 'pending' ORDER BY created_at DESC, id DESC LIMIT -1 OFFSET ?)",
+				)
+				.run(DEFAULTS.noteCap);
+			if (Number(expired.changes))
+				warnings.push({
+					code: 'notes_expired',
+					message: `${Number(expired.changes)} pending notes expired above the note cap.`,
+				});
+			if (projected)
+				warnings.push({
+					code: 'projected',
+					message: 'Future health projection; stored health and notes were preserved.',
+				});
+			const spells = discoverSpells(root);
+			const ranks = isGitAvailable()
+				? allRanks({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) })
+				: {};
+			const allRes = allResonance(db, { resonanceHalfLife, now });
 
-		const sealRows = db
-			.prepare("SELECT spell, ts FROM spell_events WHERE event = 'seal' ORDER BY spell, ts")
-			.all<{ spell: string; ts: number }>();
+			const sealRows = db
+				.prepare("SELECT spell, ts FROM spell_events WHERE event = 'seal' ORDER BY spell, ts")
+				.all<{ spell: string; ts: number }>();
 
-		const sealsBySpell = new Map<string, number[]>();
-		for (const row of sealRows) {
-			let timestamps = sealsBySpell.get(row.spell);
-			if (!timestamps) {
-				timestamps = [];
-				sealsBySpell.set(row.spell, timestamps);
-			}
-			timestamps.push(Number(row.ts));
-		}
-
-		const readRows = db
-			.prepare("SELECT spell, MAX(ts) as ts FROM spell_events WHERE event = 'read' GROUP BY spell")
-			.all<{ spell: string; ts: number }>();
-
-		const lastReadBySpell = new Map<string, number>();
-		for (const row of readRows) {
-			lastReadBySpell.set(row.spell, Number(row.ts));
-		}
-
-		const spellHealthMap: Record<string, number> = {};
-		const sealVelocityMap: Record<string, number> = {};
-		const chapterDistribution: Record<string, number> = {};
-		const staleSpells: string[] = [];
-		const dormantSpells: string[] = [];
-		const oversizedSpells: string[] = [];
-		const spellDescriptions = new Map<string, string>();
-		const spellsByChapter = new Map<string, number>();
-
-		for (const spell of spells) {
-			const chapterCount = spellsByChapter.get(spell.chapter) ?? 0;
-			spellsByChapter.set(spell.chapter, chapterCount + 1);
-			chapterDistribution[spell.chapter] = (chapterDistribution[spell.chapter] ?? 0) + 1;
-
-			const skillMdPath = join(root, spell.chapter, spell.name, 'SKILL.md');
-			let content: string;
-			try {
-				content = readFileSync(skillMdPath, 'utf-8');
-			} catch {
-				continue;
+			const sealsBySpell = new Map<string, number[]>();
+			for (const row of sealRows) {
+				let timestamps = sealsBySpell.get(row.spell);
+				if (!timestamps) {
+					timestamps = [];
+					sealsBySpell.set(row.spell, timestamps);
+				}
+				timestamps.push(Number(row.ts));
 			}
 
-			const parsed = parseSkillMd(content);
-			if (parsed.ok) {
-				spellDescriptions.set(spell.path, parsed.frontmatter.description);
+			const readRows = db
+				.prepare(
+					"SELECT spell, MAX(ts) as ts FROM spell_events WHERE event = 'read' GROUP BY spell",
+				)
+				.all<{ spell: string; ts: number }>();
+
+			const lastReadBySpell = new Map<string, number>();
+			for (const row of readRows) {
+				lastReadBySpell.set(row.spell, Number(row.ts));
 			}
 
-			const bodyLines = countBodyLines(content);
-			const oversizeRatio = Math.min(1, bodyLines / oversizeLines);
-			const isOversized = bodyLines > oversizeLines;
+			const spellHealthMap: Record<string, number> = {};
+			const sealVelocityMap: Record<string, number> = {};
+			const chapterDistribution: Record<string, number> = {};
+			const staleSpells: string[] = [];
+			const dormantSpells: string[] = [];
+			const oversizedSpells: string[] = [];
+			const spellDescriptions = new Map<string, string>();
+			const spellsByChapter = new Map<string, number>();
 
-			const res = allRes[spell.path];
-			const lastSealTs = res?.lastSealTs ?? now;
-			const lastReadTs = lastReadBySpell.get(spell.path) ?? null;
-			const resonanceWeight = Math.min(1, (res?.weightedReads ?? 0) / 6);
+			for (const spell of spells) {
+				const chapterCount = spellsByChapter.get(spell.chapter) ?? 0;
+				spellsByChapter.set(spell.chapter, chapterCount + 1);
+				chapterDistribution[spell.chapter] = (chapterDistribution[spell.chapter] ?? 0) + 1;
 
-			const { isStale, isDormant, staleness } = computeStaleness(
-				lastSealTs,
-				lastReadTs,
-				now,
-				staleDays,
-				dormantDays,
+				const skillMdPath = join(root, spell.chapter, spell.name, 'SKILL.md');
+				let content: string;
+				try {
+					content = readFileSync(skillMdPath, 'utf-8');
+				} catch {
+					continue;
+				}
+
+				const parsed = parseSkillMd(content);
+				if (parsed.ok) {
+					spellDescriptions.set(spell.path, parsed.frontmatter.description);
+				}
+
+				const bodyLines = countBodyLines(content);
+				const oversizeRatio = Math.min(1, bodyLines / oversizeLines);
+				const isOversized = bodyLines > oversizeLines;
+
+				const res = allRes[spell.path];
+				const lastSealTs = res?.lastSealTs ?? now;
+				const lastReadTs = lastReadBySpell.get(spell.path) ?? null;
+				const resonanceWeight = Math.min(1, (res?.weightedReads ?? 0) / 6);
+
+				const { isStale, isDormant, staleness } = computeStaleness(
+					lastSealTs,
+					lastReadTs,
+					now,
+					staleDays,
+					dormantDays,
+				);
+
+				const health = computeSpellHealth(staleness, oversizeRatio, resonanceWeight);
+				const sealTimestamps = sealsBySpell.get(spell.path) ?? [];
+				const sealVelocity = computeSealVelocity(sealTimestamps, now);
+
+				spellHealthMap[spell.path] = health;
+				sealVelocityMap[spell.path] = sealVelocity;
+
+				if (isStale) staleSpells.push(spell.path);
+				if (isDormant && now - (sealsBySpell.get(spell.path)?.[0] ?? now) >= 14 * 86_400_000)
+					dormantSpells.push(spell.path);
+				if (isOversized) oversizedSpells.push(spell.path);
+			}
+
+			const notesRouted = routeNotes(db, spellDescriptions, routingThreshold);
+			const orphanClusters = clusterOrphans(db, clusteringThreshold);
+
+			const pendingNoteCount = Number(
+				db
+					.prepare("SELECT COUNT(*) as cnt FROM spell_notes WHERE status = 'pending'")
+					.get<{ cnt: number }>()?.cnt ?? 0,
 			);
 
-			const health = computeSpellHealth(staleness, oversizeRatio, resonanceWeight);
-			const sealTimestamps = sealsBySpell.get(spell.path) ?? [];
-			const sealVelocity = computeSealVelocity(sealTimestamps, now);
+			const notesByChapterRows = db
+				.prepare(
+					"SELECT domain, COUNT(*) as cnt FROM spell_notes WHERE status = 'pending' AND domain IS NOT NULL GROUP BY domain",
+				)
+				.all<{ domain: string; cnt: number }>();
 
-			spellHealthMap[spell.path] = health;
-			sealVelocityMap[spell.path] = sealVelocity;
-
-			if (isStale) staleSpells.push(spell.path);
-			if (isDormant && now - (sealsBySpell.get(spell.path)?.[0] ?? now) >= 14 * 86_400_000)
-				dormantSpells.push(spell.path);
-			if (isOversized) oversizedSpells.push(spell.path);
-		}
-
-		const notesRouted = routeNotes(db, spellDescriptions, routingThreshold);
-		const orphanClusters = clusterOrphans(db, clusteringThreshold);
-
-		const pendingNoteCount = Number(
-			db
-				.prepare("SELECT COUNT(*) as cnt FROM spell_notes WHERE status = 'pending'")
-				.get<{ cnt: number }>()?.cnt ?? 0,
-		);
-
-		const notesByChapterRows = db
-			.prepare(
-				"SELECT domain, COUNT(*) as cnt FROM spell_notes WHERE status = 'pending' AND domain IS NOT NULL GROUP BY domain",
-			)
-			.all<{ domain: string; cnt: number }>();
-
-		const notesByChapter = new Map<string, number>();
-		for (const row of notesByChapterRows) {
-			const chapter = row.domain.split('/')[0];
-			if (chapter !== undefined) {
-				notesByChapter.set(chapter, (notesByChapter.get(chapter) ?? 0) + Number(row.cnt));
+			const notesByChapter = new Map<string, number>();
+			for (const row of notesByChapterRows) {
+				const chapter = row.domain.split('/')[0];
+				if (chapter !== undefined) {
+					notesByChapter.set(chapter, (notesByChapter.get(chapter) ?? 0) + Number(row.cnt));
+				}
 			}
-		}
 
-		const chapterBalance = computeChapterBalance(spellsByChapter, notesByChapter);
-		const chapterBalanceMap: Record<string, number> = {};
-		for (const cb of chapterBalance) {
-			chapterBalanceMap[cb.chapter] = cb.noteLoadRatio;
-		}
+			const chapterBalance = computeChapterBalance(spellsByChapter, notesByChapter);
+			const chapterBalanceMap: Record<string, number> = {};
+			for (const cb of chapterBalance) {
+				chapterBalanceMap[cb.chapter] = cb.noteLoadRatio;
+			}
 
-		const draftsQueued = pendingDrafts(db).length;
+			const draftsQueued = pendingDrafts(db).length;
 
-		const rankDistribution: Record<string, number> = {};
-		for (const [path, rank] of Object.entries(ranks)) {
-			rankDistribution[path] = rank;
-		}
+			const rankDistribution: Record<string, number> = {};
+			for (const [path, rank] of Object.entries(ranks)) {
+				rankDistribution[path] = rank;
+			}
 
-		const computedAt = new Date(now).toISOString();
+			const computedAt = new Date(now).toISOString();
 
-		const { id } = saveCatalogue(db, {
-			computedAt,
-			totalSpells: spells.length,
-			chapterDistribution,
-			rankDistribution,
-			staleSpells,
-			dormantSpells,
-			oversizedSpells,
-			pendingNotes: pendingNoteCount,
-			notesRouted,
-			orphanClusters,
-			draftsQueued,
-			chapterBalance: chapterBalanceMap,
-			spellHealth: spellHealthMap,
-			sealVelocity: sealVelocityMap,
+			const { id } = projected
+				? { id: 0 }
+				: saveCatalogue(db, {
+						computedAt,
+						totalSpells: spells.length,
+						chapterDistribution,
+						rankDistribution,
+						staleSpells,
+						dormantSpells,
+						oversizedSpells,
+						pendingNotes: pendingNoteCount,
+						notesRouted,
+						orphanClusters,
+						draftsQueued,
+						chapterBalance: chapterBalanceMap,
+						spellHealth: spellHealthMap,
+						sealVelocity: sealVelocityMap,
+					});
+
+			const snapshot: CatalogueSnapshot = {
+				...(warnings.length ? { warnings } : {}),
+				id,
+				computedAt,
+				totalSpells: spells.length,
+				chapterDistribution,
+				rankDistribution,
+				staleSpells,
+				dormantSpells,
+				oversizedSpells,
+				pendingNotes: pendingNoteCount,
+				notesRouted,
+				orphanClusters,
+				draftsQueued,
+				chapterBalance: chapterBalanceMap,
+				spellHealth: spellHealthMap,
+				sealVelocity: sealVelocityMap,
+			};
+			if (projected) {
+				projection = snapshot;
+				throw projectionComplete;
+			}
+			return snapshot;
 		});
-
-		return {
-			id,
-			computedAt,
-			totalSpells: spells.length,
-			chapterDistribution,
-			rankDistribution,
-			staleSpells,
-			dormantSpells,
-			oversizedSpells,
-			pendingNotes: pendingNoteCount,
-			notesRouted,
-			orphanClusters,
-			draftsQueued,
-			chapterBalance: chapterBalanceMap,
-			spellHealth: spellHealthMap,
-			sealVelocity: sealVelocityMap,
-		};
-	});
+	} catch (error) {
+		if (error === projectionComplete && projection) return projection;
+		throw error;
+	}
 }

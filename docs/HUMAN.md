@@ -345,7 +345,7 @@ local sources can stay offline.
 |---|---|
 | 0 | Success, including no_op |
 | 1 | Tool error |
-| 2 | Usage or schema error |
+| 2 | Usage or input validation error |
 | 3 | Clarification needed or not found |
 | 4 | Conflict or version mismatch |
 | 70 | Internal error |
@@ -353,8 +353,10 @@ local sources can stay offline.
 Errors go to stderr. With `--json`, usage and internal errors also print
 `{ok:false,error:{code,message}}` to stdout. Tool results retain their full
 shape. Legacy `tools [--json]`, `describe <tool>`, `call <tool> [JSON|-]`
-and `<tool_name> --parameter value` keep their existing exit codes.
-`completions bash`, `completions zsh` and `completions fish` print shell scripts.
+and `<tool_name> --parameter value` use the same exit codes.
+`completion` aliases `completions`. Bash and Zsh scripts complete command groups,
+verbs, and command flags for both `ghostpaw-grimoire` and `grimoire`.
+`completions fish` prints a Fish script.
 
 ```sh
 ghostpaw-grimoire note drop "Verify the build" --source practice --db /tmp/grimoire.db --json

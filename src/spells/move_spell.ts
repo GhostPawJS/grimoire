@@ -9,6 +9,7 @@ import { assertGitScope } from '../lib/assert_git_scope.ts';
 import { execGit } from '../lib/exec_git.ts';
 import { resolveGitDir } from '../lib/resolve_git_dir.ts';
 import { resolveSpellPath } from '../lib/safe_path.ts';
+import { validateStagingPaths } from '../lib/validate_staging_paths.ts';
 import { withGitLock } from '../lib/with_git_lock.ts';
 import { updateProvenance } from '../provenance/update_provenance.ts';
 import { assertSpellExists } from './assert_spell_exists.ts';
@@ -23,6 +24,7 @@ export function moveSpell(
 	return withGitLock(resolveGitDir(root, options?.gitDir), () => {
 		if (hasGitRepository({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }))
 			assertGitScope({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }, []);
+		validateStagingPaths(root, [from, to]);
 		assertSpellExists(root, from);
 
 		const source = resolveSpellPath(root, from);

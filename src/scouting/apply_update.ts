@@ -2,9 +2,11 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { GrimoireDb } from '../database.ts';
 import { GrimoireNotFoundError } from '../errors.ts';
+import { hasGitRepository } from '../git/has_git_repository.ts';
 import { history } from '../git/history.ts';
 import { rank } from '../git/rank.ts';
 import { seal } from '../git/seal.ts';
+import { assertGitScope } from '../lib/assert_git_scope.ts';
 import type { GitContext } from '../lib/exec_git.ts';
 import { execGit } from '../lib/exec_git.ts';
 import { resolveGitDir } from '../lib/resolve_git_dir.ts';
@@ -54,6 +56,7 @@ export async function applyUpdate(
 		const parsed = parseSkillMd(upstreamContent);
 		if (parsed.ok) assertSpellName(parsed.frontmatter.name);
 		return withGitLock(resolveGitDir(root, options?.gitDir), () => {
+			if (hasGitRepository(ctx)) assertGitScope(ctx, []);
 			const localRank = rank(ctx, spellPath);
 			if (localRank <= 1) {
 				const targetPath = join(root, spellPath, 'SKILL.md');

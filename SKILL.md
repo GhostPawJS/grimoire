@@ -171,7 +171,7 @@ Seal pending spell changes into a git commit, advancing spell ranks.
 
 Use when: After editing spell content with update_spell, to checkpoint changes and evolve spell tiers. Pass note_ids to mark which notes were absorbed during this honing session.
 
-Not for: When no changes have been made — the tool will return a no-op.
+Not for: When there are no spell changes or absorbed notes to record.
 
 Writes: writes_state.
 

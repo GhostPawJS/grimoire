@@ -4,8 +4,11 @@ import type { GrimoireDb } from '../database.ts';
 import { DEFAULTS } from '../defaults.ts';
 import { GrimoireConflictError, GrimoireValidationError } from '../errors.ts';
 import { logEvent } from '../events/log_event.ts';
+import { hasGitRepository } from '../git/has_git_repository.ts';
 import { isGitAvailable } from '../git/is_git_available.ts';
 import { seal } from '../git/seal.ts';
+import { assertGitScope } from '../lib/assert_git_scope.ts';
+import { execGit } from '../lib/exec_git.ts';
 import { resolveGitDir } from '../lib/resolve_git_dir.ts';
 import { assertChapter, assertSpellName, resolveInsideRoot } from '../lib/safe_path.ts';
 import { trigramJaccard } from '../lib/trigram_jaccard.ts';
@@ -23,6 +26,8 @@ export function inscribe(
 	input: InscribeInput,
 ): InscribeResult {
 	return withGitLock(resolveGitDir(root, input.gitDir), () => {
+		const gitCtx = { root, ...(input.gitDir ? { gitDir: input.gitDir } : {}) };
+		if (hasGitRepository(gitCtx)) assertGitScope(gitCtx, []);
 		const validation = validateSkillMd(input.content);
 		if (!validation.valid) {
 			throw new GrimoireValidationError(
@@ -50,7 +55,8 @@ export function inscribe(
 		if (
 			input.force &&
 			existsSync(join(absolutePath, 'SKILL.md')) &&
-			readFileSync(join(absolutePath, 'SKILL.md'), 'utf8') === input.content
+			readFileSync(join(absolutePath, 'SKILL.md'), 'utf8') === input.content &&
+			committedContentMatches(gitCtx, path, input.content)
 		)
 			return { spell: getSpell(root, path, undefined, input.gitDir), warnings: [], noOp: true };
 		mkdirSync(absolutePath, { recursive: true });
@@ -60,7 +66,10 @@ export function inscribe(
 
 		if (isGitAvailable()) {
 			seal(
-				{ root, ...(input.gitDir !== undefined ? { gitDir: input.gitDir } : {}) },
+				{
+					root,
+					...(input.gitDir !== undefined ? { gitDir: input.gitDir } : {}),
+				},
 				db,
 				[path],
 				`inscribe ${path}`,
@@ -105,4 +114,17 @@ function detectDuplicates(
 	}
 
 	return warnings;
+}
+
+function committedContentMatches(
+	ctx: { root: string; gitDir?: string },
+	path: string,
+	content: string,
+): boolean {
+	if (!hasGitRepository(ctx)) return true;
+	try {
+		return execGit(ctx, ['show', `HEAD:${path}/SKILL.md`]) === content.trim();
+	} catch {
+		return false;
+	}
 }

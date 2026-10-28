@@ -4,8 +4,10 @@ import type { GrimoireDb } from '../database.ts';
 import { DEFAULTS } from '../defaults.ts';
 import { GrimoireValidationError } from '../errors.ts';
 import { logEvent } from '../events/log_event.ts';
+import { hasGitRepository } from '../git/has_git_repository.ts';
 import { isGitAvailable } from '../git/is_git_available.ts';
 import { seal } from '../git/seal.ts';
+import { assertGitScope } from '../lib/assert_git_scope.ts';
 import { resolveGitDir } from '../lib/resolve_git_dir.ts';
 import { assertChapter, assertSpellName, resolveInsideRoot } from '../lib/safe_path.ts';
 import { trigramJaccard } from '../lib/trigram_jaccard.ts';
@@ -28,6 +30,8 @@ export function adoptSpell(
 	options?: AdoptSpellOptions,
 ): AdoptSpellResult {
 	return withGitLock(resolveGitDir(root, options?.gitDir), () => {
+		const gitCtx = { root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) };
+		if (hasGitRepository(gitCtx)) assertGitScope(gitCtx, []);
 		const skillMdPath = resolveInsideRoot(localPath, 'SKILL.md');
 		if (!existsSync(skillMdPath)) {
 			throw new GrimoireValidationError(`No SKILL.md found at ${localPath}`);

@@ -54,10 +54,14 @@ export function translateToolError(
 			...(next.length > 0 ? { next } : {}),
 		});
 		if (error.code === 'GRIMOIRE_NOT_FOUND') {
-			result.error.recovery =
-				'Search by name to locate the spell. For rollback, use inspect <path> to find an existing history hash.';
+			result.error.recovery = error.message.startsWith('Rollback failed')
+				? 'For rollback, use inspect <path> to find an existing history hash.'
+				: 'Search by name to locate the spell.';
 		}
-		if (error.code === 'GRIMOIRE_CONFLICT') result.error.recovery = error.message;
+		if (error.code === 'GRIMOIRE_CONFLICT')
+			result.error.recovery = error.message.includes('force: true')
+				? 'Inspect the existing spell before replacing it.'
+				: 'Choose another target or pass force: true to replace it.';
 		if (error.code === 'GRIMOIRE_VALIDATION') {
 			result.error.recovery = 'Fix the invalid input fields and retry.';
 		}

@@ -63,3 +63,14 @@ describe('withToolHandling', () => {
 		assert.equal((result as { ok: boolean }).ok, false);
 	});
 });
+
+it('history hash recovery is restricted to rollback errors', () => {
+	const ordinary = translateToolError(
+		new GrimoireNotFoundError('Spell not found: general/missing'),
+	);
+	assert.doesNotMatch(ordinary.error.recovery ?? '', /rollback|inspect/);
+	const rollback = translateToolError(
+		new GrimoireNotFoundError('Rollback failed for general/example'),
+	);
+	assert.match(rollback.error.recovery ?? '', /For rollback, use inspect/);
+});

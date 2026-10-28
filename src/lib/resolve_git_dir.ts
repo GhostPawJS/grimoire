@@ -1,5 +1,6 @@
 import { cpSync, existsSync, lstatSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
+import { assertGitScope } from './assert_git_scope.ts';
 import { execGit } from './exec_git.ts';
 import { resolveInsideRoot } from './safe_path.ts';
 import { withGitLock } from './with_git_lock.ts';
@@ -41,10 +42,11 @@ export function resolveGitDir(root: string, gitDir?: string): string {
 					}
 				});
 			}
+			if (safe) assertGitScope(ctx, []);
 		} catch {
-			return legacy;
+			return destination;
 		}
-		if (!safe) return legacy;
+		if (!safe) return destination;
 		cpSync(legacy, destination, {
 			recursive: true,
 			dereference: false,

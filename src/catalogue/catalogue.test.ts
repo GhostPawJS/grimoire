@@ -129,3 +129,39 @@ it('gives newly sealed spells fourteen days before dormancy and expires pending 
 		cleanup();
 	}
 });
+
+it('reports note cap expiry and keeps future projections out of stored health and notes', () => {
+	const db = createTestDb();
+	const { root, cleanup } = createTestRoot();
+	try {
+		const now = Date.now();
+		const insert = db.prepare(
+			"INSERT INTO spell_notes (source, content, status, created_at) VALUES ('test', 'pending evidence', 'pending', ?)",
+		);
+		for (let i = 0; i < 55; i++) insert.run(now);
+		const current = catalogue(root, db, { now });
+		assert.equal(current.pendingNotes, 50);
+		assert.ok(
+			current.warnings?.some(
+				(warning) => warning.code === 'notes_expired' && warning.message.startsWith('5 '),
+			),
+		);
+		const before = db.prepare('SELECT * FROM spell_notes ORDER BY id').all();
+		const future = catalogue(root, db, { now: now + 100 * 86_400_000 });
+		assert.equal(future.pendingNotes, 0);
+		assert.ok(future.warnings?.some((warning) => warning.code === 'projected'));
+		assert.deepEqual(db.prepare('SELECT * FROM spell_notes ORDER BY id').all(), before);
+		assert.equal(
+			db.prepare('SELECT COUNT(*) AS n FROM grimoire_health').get<{ n: number }>()?.n,
+			1,
+		);
+		assert.equal(
+			db.prepare('SELECT computed_at FROM grimoire_health').get<{ computed_at: string }>()
+				?.computed_at,
+			current.computedAt,
+		);
+	} finally {
+		db.close();
+		cleanup();
+	}
+});

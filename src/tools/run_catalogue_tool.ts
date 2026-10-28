@@ -63,7 +63,7 @@ export const runCatalogueTool = defineGrimoireTool<CatalogueInput, ToolResult<Ca
 			return toolSuccess(
 				`Catalogue complete: ${count(snapshot.totalSpells, 'spell')}, ${count(snapshot.notesRouted, 'note')} routed, ${count(snapshot.orphanClusters.length, 'orphan cluster')}.`,
 				snapshot,
-				{ entities, next },
+				{ entities, next, ...(snapshot.warnings ? { warnings: snapshot.warnings } : {}) },
 			);
 		} catch (error) {
 			return translateToolError(error);

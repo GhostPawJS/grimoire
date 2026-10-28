@@ -206,8 +206,8 @@ Each root stores Git history in `<ROOT>/.grimoire-git`, excluded from discovery.
 A legacy `<parent>/.grimoire-git` is copied into the root only when its configured
 work tree or HEAD tree identifies this root. The original stays in place, with a
 `MIGRATED_TO` marker. Shared or uncertain legacy repositories stay at their old
-location and produce `shared_git_dir` warnings; select a dedicated repository
-explicitly before migrating history. Git writes use a per-repository advisory
+location and produce one `shared_git_dir` warning per result; new writes use
+the root-local repository. Git writes use a per-repository advisory
 lock and path-scoped commits. File databases use WAL and a five-second busy timeout.
 Library callers supply their database and should configure those pragmas before use.
 
@@ -249,15 +249,17 @@ document frequency. Trigram Jaccard similarity of at least 0.3 adds fuzzy metada
 matches. Results expose `score` and sort by score, rank, then path. Legacy name
 and description substring matches remain supported. Uncheckpointed spells remain visible.
 Inscribe conflicts unless `--force` is supplied; identical forced content returns
-`no_op`. Hone accepts positional paths and returns `no_op` without a diff, preserving
-notes and resonance. `--note-ids` and `--note_ids` both work for hone and draft submit.
+`no_op` when it also matches committed content. Hone accepts positional paths and
+returns `no_op` without a diff; supplied note IDs are still marked distilled. `--note-ids` and `--note_ids` both work for hone and draft submit.
 Inspect includes commit hashes, short hashes, subjects, and ISO dates for rollback.
-`--now` accepts epoch milliseconds, ISO 8601 date-time, or YYYY-MM-DD.
+`--now` accepts epoch milliseconds, ISO 8601 date-time, or YYYY-MM-DD. Values more
+than one minute ahead return a projection with a `projected` warning and preserve
+stored health and notes.
 `review index --format prompt` returns only the formatted prompt block in `data`.
 Catalogue health fields measure honing pressure, rather than a quality rating:
 a fresh seal can have zero pressure. Dormancy has a 14-day grace period after
 the first seal. Catalogue expires pending notes older than 90 days and keeps at
-most 50 pending notes, expiring the oldest first. Deleting a spell purges its events.
+most 50 pending notes, expiring the oldest first with a `notes_expired` count warning. Deleting a spell purges its events.
 Array flags repeat and a final `-` reads JSON stdin (`spell inscribe <name> -` is supported). Only spell `--content` reads files: `@path` reads the file, `@-` reads stdin, and `@@text` passes a literal `@text`. Every other value, including note text and positionals, is taken literally even if it starts with `@`.
 Flags use kebab-case and override stdin fields. `--` ends flags.
 Database selection uses `--db`, `GHOSTPAW_GRIMOIRE_DB`, then `~/.ghostpaw/grimoire.db`.
@@ -269,7 +271,7 @@ local sources can stay offline.
 |---|---|
 | 0 | Success, including no_op |
 | 1 | Tool error |
-| 2 | Usage or schema error |
+| 2 | Usage or input validation error |
 | 3 | Clarification needed or not found |
 | 4 | Conflict or version mismatch |
 | 70 | Internal error |
@@ -277,8 +279,10 @@ local sources can stay offline.
 Errors go to stderr. With `--json`, usage and internal errors also print
 `{ok:false,error:{code,message}}` to stdout. Tool results retain their full
 shape. Legacy `tools [--json]`, `describe <tool>`, `call <tool> [JSON|-]`
-and `<tool_name> --parameter value` keep their existing exit codes.
-`completions bash`, `completions zsh` and `completions fish` print shell scripts.
+and `<tool_name> --parameter value` use the same exit codes.
+`completion` aliases `completions`. Bash and Zsh scripts complete command groups,
+verbs, and command flags for both `ghostpaw-grimoire` and `grimoire`.
+`completions fish` prints a Fish script.
 
 ```sh
 ghostpaw-grimoire note drop "Verify the build" --source practice --db /tmp/grimoire.db --json

@@ -4,6 +4,29 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+### Added
+
+- Contextual Bash and Zsh completion for command groups, verbs, and flags, registered for both the package binary and `grimoire`; `completion` aliases `completions`.
+- Search warnings when GitHub requires authentication, with `GITHUB_TOKEN` support and registry results retained.
+
+### Changed
+
+- Git staging validates the complete selected file set and directory components before adding anything; symbolic links and non-regular files are refused.
+- Unsafe parent legacy history is ignored with one warning in favor of root-local history. Inscribe and adoption check repository scope before writing; batch scope failures return one error.
+- CLI input validation uses exit 2, missing entities use exit 3, conflicts use exit 4, and internal errors use exit 70. Recovery hints no longer repeat conflict messages, and history-hash hints appear only for rollback errors.
+- No-change hone consumes supplied note IDs and returns the distilled IDs. Catalogue reports note-cap expiry counts; future projections leave persisted health and notes unchanged.
+
+### Fixed
+
+- Hand-deleted tracked spells no longer block other writes. Scoped hone leaves unrelated deletions pending; explicit or unscoped hone and delete record selected deletions. Repair and repair-all untrack missing spell folders and commit the repair.
+- Forced inscribe checkpoints identical on-disk content when it is absent from Git history.
+- Moves preserve rank and follow renamed spell history; rollback checkpoints do not raise rank. Existing move targets require `force: true`.
+- Registry search results carry `sourceRepo` and an adoptable `fetchUrl`: the skill folder is looked up in the repository tree (one request per repository) and returned as a GitHub tree URL, with a `path_unresolved` warning when it cannot be found. GitHub code-search results also point at their skill folder. `scout adopt` of a GitHub tree URL imports only that folder.
+- Verb help accepts trailing positional values, including `review index -h` and `--help`.
+- Usage documentation and bundled honing guidance describe note consumption, projections, root-local history, and shared CLI exit codes.
+- Tests cover note text, draft rationales and hone messages that begin with `@`; they are stored literally.
+- The release workflow waits up to 15 minutes for the npm registry and the binary upload up to 30 minutes for the GitHub Release.
+
 ## [0.5.1] - 2026-10-28
 
 ### Changed

@@ -1,6 +1,7 @@
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { resolveInsideRoot } from '../lib/safe_path.ts';
 import { cloneRepo } from './clone_repo.ts';
 import { downloadTarball } from './download_tarball.ts';
 import { resolveSource } from './resolve_source.ts';
@@ -24,7 +25,10 @@ export async function fetchSkills(source: string): Promise<FetchHandle> {
 
 	try {
 		const resolvedRepo = await fetchToStaging(resolved, stagingDir);
-		const skills = scanStaging(stagingDir);
+		// A GitHub tree URL names one folder; scan only that folder of the download.
+		const skills = scanStaging(
+			resolved.subpath ? resolveInsideRoot(stagingDir, resolved.subpath) : stagingDir,
+		);
 
 		return {
 			source,

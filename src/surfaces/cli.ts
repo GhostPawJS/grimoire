@@ -217,15 +217,15 @@ export async function runToolCli<TCtx>(
 			input = values;
 		}
 	} catch (cause) {
-		return fail(`Invalid input: ${cause instanceof Error ? cause.message : String(cause)}`, 1);
+		return fail(`Invalid input: ${cause instanceof Error ? cause.message : String(cause)}`, 2);
 	}
 	const errors = validateInput(tool.inputSchema, input);
-	if (errors.length) return fail(errors.join('\n'), 1);
+	if (errors.length) return fail(errors.join('\n'), 2);
 	let context: TCtx;
 	try {
 		context = await options.openContext(ctxOptions);
 	} catch (cause) {
-		return fail(String(cause), 1);
+		return fail(String(cause), 70);
 	}
 	try {
 		const result = await tool.handler(context, input as Record<string, unknown>);
@@ -237,9 +237,19 @@ export async function runToolCli<TCtx>(
 			result.outcome === 'needs_clarification'
 		)
 			return 3;
-		return isErrorResult(result) ? 1 : 0;
+		if (!isErrorResult(result)) return 0;
+		const code = (result as { error?: { code?: string } }).error?.code;
+		return code === 'validation_failed' || code === 'invalid_input'
+			? 2
+			: code === 'not_found'
+				? 3
+				: code === 'conflict'
+					? 4
+					: code === 'system_error'
+						? 70
+						: 1;
 	} catch (cause) {
-		return fail(String(cause), 1);
+		return fail(String(cause), 70);
 	} finally {
 		await options.closeContext?.(context);
 	}

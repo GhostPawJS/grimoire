@@ -63,7 +63,7 @@ test('sibling roots retain separate history and inspect shows two real seals', a
 	}
 });
 
-test('legacy migration copies history without moving it; shared history stays put and warns', async () => {
+test('legacy migration copies safe history and ignores shared history with one warning', async () => {
 	const dir = mkdtempSync(join(tmpdir(), 'grimoire-migrate-'));
 	try {
 		const root = join(dir, 'root');
@@ -89,22 +89,30 @@ test('legacy migration copies history without moving it; shared history stays pu
 		init(source, undefined, { gitDir: shared });
 		for (const name of ['alpha', 'beta'])
 			inscribe(source, undefined, { name, content: content(name), gitDir: shared });
+		writeFileSync(join(source, 'README.md'), 'Shared repository content');
+		execGit({ root: source, gitDir: shared }, ['add', '--', 'README.md']);
+		execGit({ root: source, gitDir: shared }, [
+			'-c',
+			'user.name=Test',
+			'-c',
+			'user.email=test@test.com',
+			'commit',
+			'-m',
+			'shared content',
+		]);
 		const partial = join(sharedBase, 'partial');
 		mkdirSync(join(partial, 'general'), { recursive: true });
 		cpSync(join(source, 'general/alpha'), join(partial, 'general/alpha'), { recursive: true });
-		assert.equal(resolveGitDir(partial), shared);
+		assert.equal(resolveGitDir(partial), join(partial, '.grimoire-git'));
 		assert.equal(existsSync(join(partial, '.grimoire-git')), false);
 		assert.equal(existsSync(join(shared, 'MIGRATED_TO')), false);
 		const inspected = await inspectGrimoireItemTool.handler(
-			{ root: partial, gitDir: shared },
+			{ root: partial },
 			{ path: 'general/alpha' },
 		);
-		assert.ok(inspected.warnings?.some((w) => w.code === 'shared_git_dir'));
-		const reviewed = await reviewGrimoireTool.handler(
-			{ root: partial, gitDir: shared },
-			{ view: 'index' },
-		);
-		assert.ok(reviewed.warnings?.some((w) => w.code === 'shared_git_dir'));
+		assert.equal(inspected.warnings?.filter((w) => w.code === 'shared_git_dir').length, 1);
+		const reviewed = await reviewGrimoireTool.handler({ root: partial }, { view: 'index' });
+		assert.equal(reviewed.warnings?.filter((w) => w.code === 'shared_git_dir').length, 1);
 		const sharedHead = execGit({ root: source, gitDir: shared }, ['rev-parse', 'HEAD']);
 		const seal = await honeSpellTool.handler({ root: partial, gitDir: shared }, {});
 		assert.equal(seal.ok, false);
@@ -114,7 +122,7 @@ test('legacy migration copies history without moving it; shared history stays pu
 	}
 });
 
-test('adopting fourteen files counts once and no-change honing preserves rank, notes, and resonance', async () => {
+test('adopting fourteen files counts once and no-change hone distills notes while preserving rank and resonance', async () => {
 	const dir = mkdtempSync(join(tmpdir(), 'grimoire-rank-'));
 	const db = createTestDb();
 	try {
@@ -140,12 +148,14 @@ test('adopting fourteen files counts once and no-change honing preserves rank, n
 			noteIds: [Number(note.lastInsertRowid)],
 		});
 		assert.equal(honed.outcome, 'no_op');
+		assert.ok(honed.ok);
+		assert.deepEqual(honed.data.distilledNoteIds, [Number(note.lastInsertRowid)]);
 		assert.deepEqual(resonance(db, adopted.spell.path, { now }), before);
 		assert.equal(
 			db
 				.prepare('SELECT status FROM spell_notes WHERE id = ?')
 				.get<{ status: string }>(note.lastInsertRowid)?.status,
-			'pending',
+			'distilled',
 		);
 		assert.equal(history(ctx, adopted.spell.path).length, 1);
 		assert.equal(catalogue(ctx.root, db, { now }).sealVelocity[adopted.spell.path], 1);

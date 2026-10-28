@@ -104,9 +104,12 @@ async function invoke(surface: string, ctx: GrimoireToolContext, name: string, i
 		const result = JSON.parse(out) as ToolResult<unknown>;
 		if (!result.ok) {
 			assert.ok('error' in result);
-			// Schema-level rejection (usage_error, exit 2) and handler-level validation (exit 1) both refuse the input.
+			// Schema and handler validation both use exit 2; retain the shared domain result below.
 			if (code === 2) {
-				assert.equal(result.error?.code, 'usage_error');
+				assert.equal(
+					result.error?.code,
+					result.error?.kind === 'protocol' ? 'validation_failed' : 'usage_error',
+				);
 				return { ok: false, code: 1 };
 			}
 			assert.equal(result.error?.code, code === 4 ? 'conflict' : 'validation_failed');

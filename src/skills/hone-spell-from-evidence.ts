@@ -31,8 +31,8 @@ Step-by-step sequence:
 2. Use \`review_grimoire\` with view "notes" to list pending notes and identify evidence relevant to the spell.
 3. Decide which notes inform the edit. Synthesize their insights into concrete changes.
 4. Edit the spell content to incorporate the evidence. Keep changes focused and traceable.
-5. Use \`hone_spell\` to seal the updated content into a git commit, advancing the spell's rank.
-6. Use \`run_catalogue\` to process the grimoire — this distills consumed notes and updates health scores.
+5. Use \`hone_spell\` to seal the updated content into a git commit, advancing the spell's rank. Pass absorbed note IDs with \`note_ids\` to mark them distilled.
+6. Use \`run_catalogue\` to process the grimoire — this routes remaining notes and updates health scores.
 7. Use \`inspect_grimoire_item\` again to verify the rank advanced and resonance reflects the update.
 
 Validation checks:
@@ -41,8 +41,8 @@ Validation checks:
 - After catalogue, check that note counts decreased.
 
 Pitfalls:
-- Honing with no pending changes produces a no-op — always edit content before sealing.
-- Forgetting to \`run_catalogue\` after honing leaves consumed notes unprocessed.
+- Honing with no pending changes produces a no-op; supplied note IDs are still marked distilled.
+- Omitting \`note_ids\` leaves absorbed notes pending.
 - Editing too many spells at once makes it hard to attribute notes to specific changes.
 
 Tips and tricks:

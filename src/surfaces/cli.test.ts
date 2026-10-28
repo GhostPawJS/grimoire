@@ -126,7 +126,7 @@ test('CLI JSON args and stdin, errors, clarification and usage exit codes', asyn
 	assert.equal((await invoke(['call', 'test_tool', '{"someValue":3}'])).code, 3);
 	for (const value of ['[]', '{}', '{"someValue":"wrong"}', '{']) {
 		const result = await invoke(['call', 'test_tool', value]);
-		assert.equal(result.code, 1);
+		assert.equal(result.code, 2);
 		assert.equal(result.opens, 0);
 		assert.ok(result.err);
 		assert.equal(result.out, '');
@@ -164,7 +164,7 @@ test('handler throws still close the context', async () => {
 			},
 		}),
 	});
-	assert.equal(code, 1);
+	assert.equal(code, 70);
 	assert.equal(closed, true);
 });
 
@@ -230,6 +230,9 @@ test('noun verb error results preserve JSON and conflict exit codes', async () =
 	for (const [errorCode, expected] of [
 		['not_found', 3],
 		['conflict', 4],
+		['validation_failed', 2],
+		['invalid_input', 2],
+		['system_error', 70],
 		['other', 1],
 	] as const) {
 		let out = '';
@@ -260,4 +263,13 @@ test('noun verb error results preserve JSON and conflict exit codes', async () =
 	}
 	assert.equal((await invoke(['tool', 'test', '--some-value=1', '-'], '{bad')).code, 2);
 	assert.equal((await invoke(['tool', 'test', '--some-value=2', '-'], '{"someValue":1}')).code, 0);
+});
+
+test('verb help accepts trailing positionals and both help spellings', async () => {
+	for (const flag of ['-h', '--help']) {
+		const result = await invoke(['tool', 'test', 'index', flag]);
+		assert.equal(result.code, 0);
+		assert.match(result.out, /--some-value/);
+		assert.equal(result.opens, 0);
+	}
 });

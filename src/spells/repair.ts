@@ -1,7 +1,13 @@
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { commitIdentity } from '../git/commit_identity.ts';
+import { hasGitRepository } from '../git/has_git_repository.ts';
 import { seal } from '../git/seal.ts';
+import { assertGitScope } from '../lib/assert_git_scope.ts';
+import { execGit } from '../lib/exec_git.ts';
 import { resolveGitDir } from '../lib/resolve_git_dir.ts';
+import { resolveSpellPath } from '../lib/safe_path.ts';
+import { validateStagingPaths } from '../lib/validate_staging_paths.ts';
 import { withGitLock } from '../lib/with_git_lock.ts';
 import { parseSkillMd } from '../spec/parse_skill_md.ts';
 import { serializeSkillMd } from '../spec/serialize_skill_md.ts';
@@ -10,6 +16,27 @@ import type { RepairFix, RepairResult } from './types.ts';
 
 export function repair(root: string, path: string, options?: { gitDir?: string }): RepairResult {
 	return withGitLock(resolveGitDir(root, options?.gitDir), () => {
+		const ctx = { root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) };
+		resolveSpellPath(root, path);
+		validateStagingPaths(root, [path]);
+		if (hasGitRepository(ctx)) {
+			assertGitScope(ctx, []);
+			if (!existsSync(join(root, path)) && execGit(ctx, ['ls-files', '--', `${path}/`])) {
+				execGit(ctx, ['rm', '--cached', '-r', '--quiet', '--', path]);
+				execGit(ctx, [
+					...commitIdentity(ctx),
+					'commit',
+					'-m',
+					`repair missing ${path}`,
+					'--',
+					path,
+				]);
+				return {
+					path,
+					fixes: [{ code: 'tracked-missing', description: 'Untracked missing spell' }],
+				};
+			}
+		}
 		assertSpellExists(root, path);
 
 		const fixes: RepairFix[] = [];

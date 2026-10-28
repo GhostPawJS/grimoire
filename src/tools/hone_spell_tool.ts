@@ -3,6 +3,7 @@ import { tierInfo } from '../git/tier_info.ts';
 import type { TierInfo } from '../git/types.ts';
 import { assertNoteIds } from '../notes/assert_note_ids.ts';
 import { distill } from '../notes/distill.ts';
+import { sharedGitWarning } from './shared_git_warning.ts';
 import { spellWriteData } from './spell_write_data.ts';
 import { translateToolError } from './tool_errors.ts';
 import {
@@ -39,7 +40,7 @@ export const honeSpellTool = defineGrimoireTool<HoneInput, ToolResult<HoneData>>
 	description: 'Seal pending spell changes into a git commit, advancing spell ranks.',
 	whenToUse:
 		'After editing spell content with update_spell, to checkpoint changes and evolve spell tiers. Pass note_ids to mark which notes were absorbed during this honing session.',
-	whenNotToUse: 'When no changes have been made — the tool will return a no-op.',
+	whenNotToUse: 'When there are no spell changes or absorbed notes to record.',
 	sideEffects: 'writes_state',
 	readOnly: false,
 	supportsClarification: false,
@@ -69,14 +70,48 @@ export const honeSpellTool = defineGrimoireTool<HoneInput, ToolResult<HoneData>>
 			const gitCtx = { root: ctx.root, ...(ctx.gitDir ? { gitDir: ctx.gitDir } : {}) };
 			const result = seal(gitCtx, ctx.db, input.paths, input.message);
 
+			// Distill notes that were absorbed during this honing session.
+			const distilledNoteIds: number[] = [];
+			const warnings: ToolWarning[] = sharedGitWarning(ctx);
+
+			if (noteIds.length > 0) {
+				if (!ctx.db) {
+					warnings.push(
+						toolWarning(
+							'degraded_no_db',
+							'note_ids provided but no database available — notes were not distilled.',
+						),
+					);
+				} else {
+					const primaryPath = result.sealedPaths[0] ?? input.paths?.[0] ?? '';
+					for (const noteId of noteIds) {
+						try {
+							distill(ctx.db, noteId, primaryPath);
+							distilledNoteIds.push(noteId);
+						} catch {
+							warnings.push(
+								toolWarning(
+									'invalid_state',
+									`Note #${noteId} could not be distilled (not found or already distilled).`,
+								),
+							);
+						}
+					}
+				}
+			}
+
 			if (result.sealedPaths.length === 0) {
-				return toolNoOp('No pending changes to seal.', {
-					commitHash: '',
-					sealedPaths: [],
-					ranks: {},
-					tiers: {},
-					distilledNoteIds: [],
-				});
+				return toolNoOp(
+					'No pending changes to seal.',
+					{
+						commitHash: '',
+						sealedPaths: [],
+						ranks: {},
+						tiers: {},
+						distilledNoteIds,
+					},
+					{ warnings },
+				);
 			}
 
 			const tiers: Record<string, TierInfo> = {};
@@ -94,36 +129,6 @@ export const honeSpellTool = defineGrimoireTool<HoneInput, ToolResult<HoneData>>
 			}
 
 			next.push(reviewViewNext('health'));
-
-			// Distill notes that were absorbed during this honing session.
-			const distilledNoteIds: number[] = [];
-			const warnings: ToolWarning[] = [];
-
-			if (noteIds.length > 0) {
-				if (!ctx.db) {
-					warnings.push(
-						toolWarning(
-							'degraded_no_db',
-							'note_ids provided but no database available — notes were not distilled.',
-						),
-					);
-				} else {
-					const primaryPath = result.sealedPaths[0] ?? '';
-					for (const noteId of noteIds) {
-						try {
-							distill(ctx.db, noteId, primaryPath);
-							distilledNoteIds.push(noteId);
-						} catch {
-							warnings.push(
-								toolWarning(
-									'invalid_state',
-									`Note #${noteId} could not be distilled (not found or already distilled).`,
-								),
-							);
-						}
-					}
-				}
-			}
 
 			const noteSuffix =
 				distilledNoteIds.length > 0 ? ` Distilled ${distilledNoteIds.length} note(s).` : '';

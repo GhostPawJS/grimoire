@@ -89,3 +89,7 @@ grimoire; the readiness check is a pure read that never inserts rows.
 - `read.readCatalogue(db)` — latest snapshot
 
 Catalogue expires pending notes older than 90 days and caps the pending inbox at 50, expiring the oldest first. Deleting a spell purges its usage and seal events.
+
+Catalogue returns a `notes_expired` warning with the count when the pending-note cap
+expires notes. A `now` value more than one minute ahead returns a health projection
+with a `projected` warning, preserving stored health snapshots and note state.

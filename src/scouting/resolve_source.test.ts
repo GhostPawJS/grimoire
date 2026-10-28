@@ -71,3 +71,14 @@ describe('resolveSource', () => {
 		assert.equal(result.url, 'https://gitlab.com/acme/repo.git');
 	});
 });
+
+it('decodes percent-encoded GitHub tree subpaths', () => {
+	assert.deepEqual(resolveSource('https://github.com/o/r/tree/HEAD/skills/my%20skill'), {
+		type: 'github',
+		owner: 'o',
+		repo: 'r',
+		ref: 'HEAD',
+		url: 'https://github.com/o/r/tree/HEAD/skills/my%20skill',
+		subpath: 'skills/my skill',
+	});
+});

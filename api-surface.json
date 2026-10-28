@@ -568,7 +568,7 @@
 	},
 	".:exports.skills.honeSpellFromEvidenceSkill.content": {
 		"kind": "string",
-		"value": "# Hone Spell From Evidence\n\nPrimary tools:\n- `inspect_grimoire_item` — check spell resonance and current tier\n- `review_grimoire` — list pending notes as evidence\n- `hone_spell` — seal edits into a git commit\n- `drop_note` — capture new observations during refinement\n- `run_catalogue` — distill consumed notes and update health\n\nGoal:\n- Refine an existing spell using accumulated evidence (notes), seal the changes, and clean up consumed notes.\n\nWhen to use:\n- A spell has pending notes that contain evidence for improvement\n- The spell's resonance color indicates it needs attention\n- You want to advance a spell's rank through evidence-backed edits\n\nWhen not to use:\n- Creating a brand-new spell from scratch — use `inscribe_spell` instead\n- No notes exist for the target spell — gather evidence first\n- The spell is shelved or dormant — unshelve it via `manage_spell` before honing\n\nStep-by-step sequence:\n1. Use `inspect_grimoire_item` with the spell path to check resonance color, current tier, and rank.\n2. Use `review_grimoire` with view \"notes\" to list pending notes and identify evidence relevant to the spell.\n3. Decide which notes inform the edit. Synthesize their insights into concrete changes.\n4. Edit the spell content to incorporate the evidence. Keep changes focused and traceable.\n5. Use `hone_spell` to seal the updated content into a git commit, advancing the spell's rank.\n6. Use `run_catalogue` to process the grimoire — this distills consumed notes and updates health scores.\n7. Use `inspect_grimoire_item` again to verify the rank advanced and resonance reflects the update.\n\nValidation checks:\n- Before honing, confirm the spell path exists via `inspect_grimoire_item`.\n- After sealing, verify the commit hash is returned and rank incremented.\n- After catalogue, check that note counts decreased.\n\nPitfalls:\n- Honing with no pending changes produces a no-op — always edit content before sealing.\n- Forgetting to `run_catalogue` after honing leaves consumed notes unprocessed.\n- Editing too many spells at once makes it hard to attribute notes to specific changes.\n\nTips and tricks:\n- Use `drop_note` during refinement to capture new observations that arise while reading evidence.\n- Check the resonance view via `review_grimoire` first to prioritize spells with the most activity.\n- Small, focused edits with clear commit messages produce better audit trails.\n\nTool calls to prefer:\n- `inspect_grimoire_item` before and after honing to track tier progression\n- `review_grimoire` with view \"notes\" to gather evidence\n- `hone_spell` to seal changes\n- `run_catalogue` to finalize the cycle\n\nRelated skills:\n- `maintain-grimoire-health` — follow up honing with a health maintenance pass\n- `distill-notes-into-spells` — when notes warrant a new spell rather than a refinement\n"
+		"value": "# Hone Spell From Evidence\n\nPrimary tools:\n- `inspect_grimoire_item` — check spell resonance and current tier\n- `review_grimoire` — list pending notes as evidence\n- `hone_spell` — seal edits into a git commit\n- `drop_note` — capture new observations during refinement\n- `run_catalogue` — distill consumed notes and update health\n\nGoal:\n- Refine an existing spell using accumulated evidence (notes), seal the changes, and clean up consumed notes.\n\nWhen to use:\n- A spell has pending notes that contain evidence for improvement\n- The spell's resonance color indicates it needs attention\n- You want to advance a spell's rank through evidence-backed edits\n\nWhen not to use:\n- Creating a brand-new spell from scratch — use `inscribe_spell` instead\n- No notes exist for the target spell — gather evidence first\n- The spell is shelved or dormant — unshelve it via `manage_spell` before honing\n\nStep-by-step sequence:\n1. Use `inspect_grimoire_item` with the spell path to check resonance color, current tier, and rank.\n2. Use `review_grimoire` with view \"notes\" to list pending notes and identify evidence relevant to the spell.\n3. Decide which notes inform the edit. Synthesize their insights into concrete changes.\n4. Edit the spell content to incorporate the evidence. Keep changes focused and traceable.\n5. Use `hone_spell` to seal the updated content into a git commit, advancing the spell's rank. Pass absorbed note IDs with `note_ids` to mark them distilled.\n6. Use `run_catalogue` to process the grimoire — this routes remaining notes and updates health scores.\n7. Use `inspect_grimoire_item` again to verify the rank advanced and resonance reflects the update.\n\nValidation checks:\n- Before honing, confirm the spell path exists via `inspect_grimoire_item`.\n- After sealing, verify the commit hash is returned and rank incremented.\n- After catalogue, check that note counts decreased.\n\nPitfalls:\n- Honing with no pending changes produces a no-op; supplied note IDs are still marked distilled.\n- Omitting `note_ids` leaves absorbed notes pending.\n- Editing too many spells at once makes it hard to attribute notes to specific changes.\n\nTips and tricks:\n- Use `drop_note` during refinement to capture new observations that arise while reading evidence.\n- Check the resonance view via `review_grimoire` first to prioritize spells with the most activity.\n- Small, focused edits with clear commit messages produce better audit trails.\n\nTool calls to prefer:\n- `inspect_grimoire_item` before and after honing to track tier progression\n- `review_grimoire` with view \"notes\" to gather evidence\n- `hone_spell` to seal changes\n- `run_catalogue` to finalize the cycle\n\nRelated skills:\n- `maintain-grimoire-health` — follow up honing with a health maintenance pass\n- `distill-notes-into-spells` — when notes warrant a new spell rather than a refinement\n"
 	},
 	".:exports.skills.honeSpellFromEvidenceSkill.description": {
 		"kind": "string",
@@ -950,7 +950,7 @@
 	},
 	".:exports.tools.honeSpellTool.whenNotToUse": {
 		"kind": "string",
-		"value": "When no changes have been made — the tool will return a no-op."
+		"value": "When there are no spell changes or absorbed notes to record."
 	},
 	".:exports.tools.honeSpellTool.whenToUse": {
 		"kind": "string",
@@ -5919,6 +5919,10 @@
 			"totalSpells": {
 				"type": "number",
 				"optional": false
+			},
+			"warnings": {
+				"type": "{ code: \"notes_expired\" | \"projected\"; message: string; }[] | undefined",
+				"optional": true
 			}
 		},
 		"definition": "type index$a_CatalogueSnapshot = CatalogueSnapshot;",
@@ -5989,9 +5993,13 @@
 			"totalSpells": {
 				"type": "number",
 				"optional": false
+			},
+			"warnings": {
+				"type": "{ code: \"notes_expired\" | \"projected\"; message: string; }[] | undefined",
+				"optional": true
 			}
 		},
-		"definition": "interface CatalogueSnapshot { id: number; computedAt: string; totalSpells: number; chapterDistribution: Record<string, number>; rankDistribution: Record<string, number>; staleSpells: string[]; dormantSpells: string[]; oversizedSpells: string[]; pendingNotes: number; notesRouted: number; orphanClusters: OrphanCluster[]; draftsQueued: number; chapterBalance: Record<string, number>; spellHealth: Record<string, number>; sealVelocity: Record<string, number>; }",
+		"definition": "interface CatalogueSnapshot { warnings?: { code: 'notes_expired' | 'projected'; message: string; }[]; id: number; computedAt: string; totalSpells: number; chapterDistribution: Record<string, number>; rankDistribution: Record<string, number>; staleSpells: string[]; dormantSpells: string[]; oversizedSpells: string[]; pendingNotes: number; notesRouted: number; orphanClusters: OrphanCluster[]; draftsQueued: number; chapterBalance: Record<string, number>; spellHealth: Record<string, number>; sealVelocity: Record<string, number>; }",
 		"references": {
 			"OrphanCluster": ".:public.catalogue.OrphanCluster.types.OrphanCluster"
 		}
@@ -8939,6 +8947,10 @@
 				"type": "number | undefined",
 				"optional": true
 			},
+			"onWarning": {
+				"type": "((warning: { code: \"auth_required\" | \"path_unresolved\"; message: string; }) => void) | undefined",
+				"optional": true
+			},
 			"sources": {
 				"type": "(\"agentskillhub\" | \"github\")[] | undefined",
 				"optional": true
@@ -8957,12 +8969,16 @@
 				"type": "number | undefined",
 				"optional": true
 			},
+			"onWarning": {
+				"type": "((warning: { code: \"auth_required\" | \"path_unresolved\"; message: string; }) => void) | undefined",
+				"optional": true
+			},
 			"sources": {
 				"type": "(\"agentskillhub\" | \"github\")[] | undefined",
 				"optional": true
 			}
 		},
-		"definition": "type SearchSkillsOptions = { sources?: Array<'agentskillhub' | 'github'>; limit?: number; };"
+		"definition": "type SearchSkillsOptions = { onWarning?: (warning: { code: 'auth_required' | 'path_unresolved'; message: string; }) => void; sources?: Array<'agentskillhub' | 'github'>; limit?: number; };"
 	},
 	".:public.registry.upsertIndexEntry": {
 		"kind": "value",
@@ -12598,7 +12614,7 @@
 				"optional": false
 			}
 		},
-		"definition": "type ToolWarningCode = 'shared_git_dir' | 'empty_result' | 'duplication_detected' | 'degraded_no_db' | 'degraded_no_git' | 'invalid_state' | 'oversize' | 'stale';"
+		"definition": "type ToolWarningCode = 'auth_required' | 'path_unresolved' | 'notes_expired' | 'projected' | 'shared_git_dir' | 'empty_result' | 'duplication_detected' | 'degraded_no_db' | 'degraded_no_git' | 'invalid_state' | 'oversize' | 'stale';"
 	},
 	".:public.tools.GrimoireToolDefinition.types.GrimoireToolDefinition.types.ToolResult.types.ToolFailure.types.ToolErrorCode": {
 		"kind": "type",

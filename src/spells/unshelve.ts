@@ -9,6 +9,7 @@ import { assertGitScope } from '../lib/assert_git_scope.ts';
 import { execGit } from '../lib/exec_git.ts';
 import { resolveGitDir } from '../lib/resolve_git_dir.ts';
 import { resolveInsideRoot, resolveSpellPath } from '../lib/safe_path.ts';
+import { validateStagingPaths } from '../lib/validate_staging_paths.ts';
 import { withGitLock } from '../lib/with_git_lock.ts';
 import { updateProvenance } from '../provenance/update_provenance.ts';
 
@@ -22,6 +23,7 @@ export function unshelve(
 		if (hasGitRepository({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }))
 			assertGitScope({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }, []);
 		resolveSpellPath(root, shelvedPath, true);
+		validateStagingPaths(root, [`.shelved/${shelvedPath}`, shelvedPath]);
 		const source = resolveInsideRoot(root, '.shelved', shelvedPath);
 		if (!existsSync(source)) {
 			throw new GrimoireNotFoundError(`Shelved spell not found: .shelved/${shelvedPath}`);

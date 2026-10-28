@@ -52,10 +52,7 @@ describe('remote registry operations with injected fetch', () => {
 		assert.deepEqual(results[0], item);
 		assert.equal(results[1]?.adoptionCount, 2);
 		assert.equal(results[1]?.sourcePath, 'skills/other');
-		assert.equal(
-			results[2]?.fetchUrl,
-			'https://raw.githubusercontent.com/owner/repo/HEAD/SKILL.md',
-		);
+		assert.equal(results[2]?.fetchUrl, 'https://github.com/owner/repo');
 		assert.ok(urls.every((url) => url.includes('a%20b')));
 		assert.equal((await searchSkills('query', { limit: 1 })).length, 1);
 		assert.deepEqual(await searchSkills('query', { sources: [] }), []);
@@ -123,4 +120,20 @@ describe('remote registry operations with injected fetch', () => {
 		);
 		await assert.rejects(analyzeRepo(url), /503 Unavailable/);
 	});
+});
+
+it('scout search returns registry matches together with the GitHub authentication hint', async (t) => {
+	t.mock.method(globalThis, 'fetch', async (url: string) =>
+		url.includes('agentskillhub') ? Response.json([item]) : new Response('', { status: 401 }),
+	);
+	const result = await scoutSkillsTool.handler(
+		{ root: '.' },
+		{ action: 'search', query: 'sample' },
+	);
+	assert.ok(result.ok);
+	assert.equal(
+		result.warnings?.find((warning) => warning.code === 'auth_required')?.message,
+		'Set GITHUB_TOKEN to search GitHub',
+	);
+	assert.equal(result.next?.[0]?.suggestedInput?.source, item.fetchUrl);
 });

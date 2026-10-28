@@ -49,6 +49,7 @@ export type SearchResult = {
 };
 
 export type SearchSkillsOptions = {
+	onWarning?: (warning: { code: 'auth_required' | 'path_unresolved'; message: string }) => void;
 	sources?: Array<'agentskillhub' | 'github'>;
 	limit?: number;
 };

@@ -6,6 +6,7 @@ import {
 	parseCliArgs,
 	renderCliHelp,
 } from './cli_args.ts';
+import { cliCompletion } from './cli_completion.ts';
 import { cliVersionOutput } from './cli_version.ts';
 import type { JsonSchema, SurfaceTool } from './surface_types.ts';
 import { validateInput } from './validate_input.ts';
@@ -192,7 +193,7 @@ export async function runCliCommand<T>(
 		}
 		if (help) {
 			const matches = tree.filter((command) => command.path.startsWith(args.join(' ')));
-			if (!matches.length) throw new CliUsageError(`Unknown command: ${args.join(' ')}`);
+			if (!entry && !matches.length) throw new CliUsageError(`Unknown command: ${args.join(' ')}`);
 			if (!quiet)
 				stdout.write(
 					entry
@@ -201,26 +202,26 @@ export async function runCliCommand<T>(
 				);
 			return 0;
 		}
-		if (args[0] === 'completions') {
+		if (args[0] === 'completions' || args[0] === 'completion') {
 			const shell = args[1];
 			if (!['bash', 'zsh', 'fish'].includes(shell ?? ''))
 				throw new CliUsageError('Expected completion shell: bash, zsh or fish');
 			if (quiet) return 0;
-			const words = [...new Set(tree.flatMap((command) => command.path.split(' ')))].concat([
-				'mcp',
-				'skill',
-				'tools',
-				'describe',
-				'call',
-				'completions',
-				'version',
-			]);
-			if (shell === 'bash') stdout.write(`complete -W '${words.join(' ')}' ${options.bin}\n`);
-			else if (shell === 'zsh')
-				stdout.write(`#compdef ${options.bin}\n_arguments '*:command:(${words.join(' ')})'\n`);
-			else if (shell === 'fish')
-				stdout.write(`complete -c ${options.bin} -f -a '${words.join(' ')}'\n`);
-			else throw new CliUsageError('Expected completion shell: bash, zsh or fish');
+			stdout.write(
+				cliCompletion(
+					options.bin,
+					shell as string,
+					tree.flatMap((command) => {
+						const flags = (specFor(command).flags ?? []).map((flag) => `--${flag.name}`);
+						const choices =
+							command.tool.inputSchema.properties?.[command.positionals[0] ?? '']?.enum ?? [];
+						return [
+							{ path: command.path, flags },
+							...choices.map((choice) => ({ path: `${command.path} ${String(choice)}`, flags })),
+						];
+					}),
+				),
+			);
 			return 0;
 		}
 		if (!entry) throw new CliUsageError(`Unknown command: ${args.join(' ')}`);
@@ -280,9 +281,13 @@ export async function runCliCommand<T>(
 					? 3
 					: ['conflict', 'version_mismatch'].includes(record.error?.code ?? '')
 						? 4
-						: record.ok === false
-							? 1
-							: 0;
+						: ['validation_failed', 'invalid_input'].includes(record.error?.code ?? '')
+							? 2
+							: record.error?.code === 'system_error'
+								? 70
+								: record.ok === false
+									? 1
+									: 0;
 			if (code) {
 				const missing = record.clarification?.missing.map(
 					(name) => `--${name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`,

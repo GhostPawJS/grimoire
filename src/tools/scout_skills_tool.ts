@@ -2,6 +2,7 @@ import { searchSkills } from '../registry/search_skills.ts';
 import { applyUpdate } from '../scouting/apply_update.ts';
 import { checkUpdates } from '../scouting/check_updates.ts';
 import { scout } from '../scouting/scout.ts';
+import { sharedGitWarning } from './shared_git_warning.ts';
 import { translateToolError } from './tool_errors.ts';
 import type { GrimoireToolContext } from './tool_metadata.ts';
 import { defineGrimoireTool, enumSchema, objectSchema, stringSchema } from './tool_metadata.ts';
@@ -91,9 +92,12 @@ export const scoutSkillsTool = defineGrimoireTool<ScoutInput, ToolResult<Record<
 					const next = result.imported
 						.slice(0, 3)
 						.map((r) => inspectSpellNext(r.spell.path, r.spell.name));
-					const warnings = result.errors.map((e) =>
-						toolWarning('empty_result', `Failed to adopt "${e.path}": ${e.error}`),
-					);
+					const warnings = [
+						...sharedGitWarning(ctx),
+						...result.errors.map((e) =>
+							toolWarning('empty_result', `Failed to adopt "${e.path}": ${e.error}`),
+						),
+					];
 					return toolSuccess(
 						`Adopted ${result.imported.length} spell(s), skipped ${result.skipped.length}.`,
 						{
@@ -105,7 +109,10 @@ export const scoutSkillsTool = defineGrimoireTool<ScoutInput, ToolResult<Record<
 					);
 				}
 				case 'search': {
-					const results = await searchSkills(input.query);
+					const warnings: ReturnType<typeof toolWarning>[] = [];
+					const results = await searchSkills(input.query, {
+						onWarning: (warning) => warnings.push(toolWarning(warning.code, warning.message)),
+					});
 					return toolSuccess(
 						summarizeCount(results.length, 'skill'),
 						{ results },
@@ -119,10 +126,11 @@ export const scoutSkillsTool = defineGrimoireTool<ScoutInput, ToolResult<Record<
 							...(results.length === 0
 								? {
 										warnings: [
+											...warnings,
 											toolWarning('empty_result', `No skills found for "${input.query}".`),
 										],
 									}
-								: {}),
+								: { warnings }),
 						},
 					);
 				}

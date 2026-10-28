@@ -33,7 +33,10 @@ export function resolveSource(source: string): ResolvedSource {
 
 function parseGitHubUrl(source: string): ResolvedSource {
 	const url = new URL(source);
-	const parts = url.pathname.split('/').filter(Boolean);
+	const parts = url.pathname
+		.split('/')
+		.filter(Boolean)
+		.map((part) => decodeURIComponent(part));
 	const owner = parts[0];
 	const rawRepo = parts[1];
 

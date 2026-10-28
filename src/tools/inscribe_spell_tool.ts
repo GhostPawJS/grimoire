@@ -2,6 +2,7 @@ import { history } from '../git/history.ts';
 import { parseSkillMd } from '../spec/parse_skill_md.ts';
 import { inscribe } from '../spells/inscribe.ts';
 import type { DuplicationWarning, Spell } from '../spells/types.ts';
+import { sharedGitWarning } from './shared_git_warning.ts';
 import { translateToolError } from './tool_errors.ts';
 import { defineGrimoireTool, objectSchema, stringSchema } from './tool_metadata.ts';
 import { inscribeSpellToolName } from './tool_names.ts';
@@ -85,12 +86,15 @@ export const inscribeSpellTool = defineGrimoireTool<
 			});
 			const entities = [toSpellRef(result.spell)];
 			const next = [inspectSpellNext(result.spell.path, result.spell.name)];
-			const warnings = result.warnings.map((w) =>
-				toolWarning(
-					'duplication_detected',
-					`Similar spell exists at "${w.existingPath}" (${Math.round(w.similarity * 100)}% similar).`,
+			const warnings = [
+				...sharedGitWarning(ctx),
+				...result.warnings.map((w) =>
+					toolWarning(
+						'duplication_detected',
+						`Similar spell exists at "${w.existingPath}" (${Math.round(w.similarity * 100)}% similar).`,
+					),
 				),
-			);
+			];
 			if (warnings.length > 0) {
 				next.push(searchNext(input.name, 'Search for potentially duplicate spells.'));
 			}
