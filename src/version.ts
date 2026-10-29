@@ -1,1 +1,1 @@
-export const grimoireVersion = '0.6.0';
+export const grimoireVersion = '0.6.1';

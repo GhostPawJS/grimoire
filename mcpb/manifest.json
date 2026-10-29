@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "ghostpaw-grimoire",
   "display_name": "GhostPaw Grimoire",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Local procedural knowledge with spells, notes, and revision history.",
   "long_description": "Local procedural knowledge with spells, notes, and revision history. Stores data in a local SQLite database.",
   "author": {
