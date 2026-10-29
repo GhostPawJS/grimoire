@@ -4,6 +4,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-10-29
+
 ### Fixed
 
 - Clean up temporary guard roots on exit, tarball directories on setup errors, and test roots on setup failures.
