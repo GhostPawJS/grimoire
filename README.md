@@ -276,6 +276,16 @@ local sources can stay offline.
 | 4 | Conflict or version mismatch |
 | 70 | Internal error |
 
+Frontmatter validation warns about invalid YAML values and unknown fields by default.
+Use `{ strict: true }` with `read.validateSkillMd`, `read.validate`, or `read.validateAll`
+to treat those warnings as errors; other warnings stay warnings. Write and scouting
+APIs that validate frontmatter also accept `strict` in their input or options.
+On the CLI, use `review validation --strict` or `inspect <path> --strict`;
+`spell inscribe`, `spell update`, `scout adopt`, and `scout apply-update` accept it too.
+Strict validation failures exit with code 2 and identify the field and value.
+The matching MCP tools accept an optional `strict` boolean. Hone only seals files;
+validate with `inspect <path> --strict` before honing manual edits.
+
 Errors go to stderr. With `--json`, usage and internal errors also print
 `{ok:false,error:{code,message}}` to stdout. Tool results retain their full
 shape. Legacy `tools [--json]`, `describe <tool>`, `call <tool> [JSON|-]`

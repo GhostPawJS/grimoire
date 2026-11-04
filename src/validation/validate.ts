@@ -12,7 +12,11 @@ import type { SpellValidationResult, ValidationIssue } from './types.ts';
 
 const NAME_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
-export function validate(root: string, path: string): SpellValidationResult {
+export function validate(
+	root: string,
+	path: string,
+	options?: { strict?: boolean },
+): SpellValidationResult {
 	const issues: ValidationIssue[] = [];
 	resolveSpellPath(root, path);
 	const skillMdPath = resolveInsideRoot(root, path, 'SKILL.md');
@@ -27,9 +31,15 @@ export function validate(root: string, path: string): SpellValidationResult {
 
 	const content = readFileSync(skillMdPath, 'utf-8');
 
-	const result = validateSkillMd(content);
+	const result = validateSkillMd(content, options);
 	for (const error of result.errors) {
-		issues.push({ severity: 'error', code: 'invalid-frontmatter', message: error });
+		issues.push({
+			severity: 'error',
+			code: error.includes('unknown frontmatter field')
+				? 'unknown-frontmatter-field'
+				: 'invalid-frontmatter',
+			message: error,
+		});
 	}
 	for (const warning of result.warnings) {
 		const code = warning.includes('unknown frontmatter field')

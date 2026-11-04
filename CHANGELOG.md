@@ -4,6 +4,10 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+### Added
+
+- Opt-in strict frontmatter validation in library options, validating CLI commands (`--strict`), and matching MCP tools. Invalid YAML values and unknown fields become errors with field/value details; default warnings remain unchanged.
+
 ## [0.6.1] - 2026-10-29
 
 ### Fixed

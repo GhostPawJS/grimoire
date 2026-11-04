@@ -8,12 +8,15 @@ import { resolveSource } from './resolve_source.ts';
 import { scanStaging } from './scan_staging.ts';
 import type { FetchHandle, ResolvedSource } from './types.ts';
 
-export async function fetchSkills(source: string): Promise<FetchHandle> {
+export async function fetchSkills(
+	source: string,
+	options?: { strict?: boolean },
+): Promise<FetchHandle> {
 	const resolved = resolveSource(source);
 
 	if (resolved.type === 'local') {
 		const localDir = resolved.url ?? source;
-		const skills = scanStaging(localDir);
+		const skills = scanStaging(localDir, options);
 		return {
 			source,
 			skills,
@@ -28,6 +31,7 @@ export async function fetchSkills(source: string): Promise<FetchHandle> {
 		// A GitHub tree URL names one folder; scan only that folder of the download.
 		const skills = scanStaging(
 			resolved.subpath ? resolveInsideRoot(stagingDir, resolved.subpath) : stagingDir,
+			options,
 		);
 
 		return {

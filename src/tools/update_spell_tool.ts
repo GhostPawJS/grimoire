@@ -7,7 +7,7 @@ import { inspectSpellNext, useToolNext } from './tool_next.ts';
 import type { ToolResult } from './tool_types.ts';
 import { toolSuccess } from './tool_types.ts';
 
-type UpdateSpellInput = { path: string; content: string; verbose?: boolean };
+type UpdateSpellInput = { strict?: boolean; path: string; content: string; verbose?: boolean };
 type UpdateSpellData = ReturnType<typeof spellWriteData>;
 
 export const updateSpellTool = defineGrimoireTool<UpdateSpellInput, ToolResult<UpdateSpellData>>({
@@ -30,6 +30,10 @@ export const updateSpellTool = defineGrimoireTool<UpdateSpellInput, ToolResult<U
 		'Confirms the spell was updated on disk. The change is uncommitted — call hone_spell to seal it.',
 	inputSchema: objectSchema(
 		{
+			strict: {
+				type: 'boolean',
+				description: 'Reject invalid YAML values and unknown frontmatter fields. Default false.',
+			},
 			path: stringSchema('Spell path'),
 			verbose: { type: 'boolean', description: 'Include the full spell in the result.' },
 			content: stringSchema('Full spec-compliant SKILL.md content'),
@@ -38,12 +42,10 @@ export const updateSpellTool = defineGrimoireTool<UpdateSpellInput, ToolResult<U
 	),
 	handler(ctx, input) {
 		try {
-			updateSpell(
-				ctx.root,
-				input.path,
-				input.content,
-				ctx.gitDir ? { gitDir: ctx.gitDir } : undefined,
-			);
+			updateSpell(ctx.root, input.path, input.content, {
+				...(ctx.gitDir ? { gitDir: ctx.gitDir } : {}),
+				...(input.strict !== undefined ? { strict: input.strict } : {}),
+			});
 			return toolSuccess(
 				`Updated spell \`${input.path}\`. Call hone_spell to seal and advance rank.`,
 				{ ...spellWriteData(ctx, input.path, input.verbose), commit: '' },

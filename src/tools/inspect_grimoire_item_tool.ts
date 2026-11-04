@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs';
+import { GrimoireValidationError } from '../errors.ts';
 import { resonance } from '../events/resonance.ts';
 import type { ResonanceResult } from '../events/types.ts';
 import { history } from '../git/history.ts';
@@ -21,7 +22,7 @@ import { toProvenanceRef, toSpellRef } from './tool_ref.ts';
 import type { ToolNextStepHint, ToolResult, ToolWarning } from './tool_types.ts';
 import { toolSuccess, toolWarning } from './tool_types.ts';
 
-type InspectInput = { path: string };
+type InspectInput = { strict?: boolean; path: string };
 
 type InspectData = {
 	spell: Spell;
@@ -49,6 +50,10 @@ export const inspectGrimoireItemTool = defineGrimoireTool<InspectInput, ToolResu
 		'Full spell details including tier info, resonance, validation, provenance, and git history.',
 	inputSchema: objectSchema(
 		{
+			strict: {
+				type: 'boolean',
+				description: 'Reject invalid YAML values and unknown frontmatter fields. Default false.',
+			},
 			path: stringSchema('Spell path'),
 		},
 		['path'],
@@ -57,7 +62,15 @@ export const inspectGrimoireItemTool = defineGrimoireTool<InspectInput, ToolResu
 		try {
 			const spell = getSpell(ctx.root, input.path, ctx.db, ctx.gitDir);
 			const ti = tierInfo(spell.rank);
-			const validationResult = validate(ctx.root, input.path);
+			const validationResult = validate(ctx.root, input.path, input);
+
+			if (input.strict && !validationResult.valid)
+				throw new GrimoireValidationError(
+					validationResult.issues
+						.filter((i) => i.severity === 'error')
+						.map((i) => i.message)
+						.join('; '),
+				);
 
 			const res = ctx.db ? resonance(ctx.db, input.path) : undefined;
 			const prov = ctx.db ? getProvenance(ctx.db, input.path) : undefined;

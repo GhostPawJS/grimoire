@@ -20,7 +20,10 @@ const KNOWN_FIELDS = new Set([
 	'metadata',
 ]);
 
-export function validateSkillMd(content: string): SkillMdValidationResult {
+export function validateSkillMd(
+	content: string,
+	options?: { strict?: boolean },
+): SkillMdValidationResult {
 	const errors: string[] = [];
 	const warnings: string[] = [];
 
@@ -72,12 +75,12 @@ export function validateSkillMd(content: string): SkillMdValidationResult {
 		warnings.push('body exceeds 500 lines');
 	}
 
-	checkUnknownFields(content, warnings);
+	checkUnknownFields(content, options?.strict ? errors : warnings, options?.strict);
 
 	return { valid: errors.length === 0, errors, warnings };
 }
 
-function checkUnknownFields(content: string, warnings: string[]): void {
+function checkUnknownFields(content: string, warnings: string[], strict = false): void {
 	const parsed = parseSkillMd(content);
 	if (!parsed.ok) return;
 
@@ -87,7 +90,7 @@ function checkUnknownFields(content: string, warnings: string[]): void {
 	if (secondDelim === -1) return;
 
 	const yamlBlock = content.slice(afterFirst, secondDelim);
-	warnings.push(...frontmatterWarnings(yamlBlock.replace(/^\s*\n/, '')));
+	warnings.push(...frontmatterWarnings(yamlBlock.replace(/^\s*\n/, ''), strict));
 	const lines = yamlBlock.split('\n');
 
 	for (const line of lines) {
@@ -99,7 +102,9 @@ function checkUnknownFields(content: string, warnings: string[]): void {
 
 		const key = line.slice(0, colonIdx).trim();
 		if (!KNOWN_FIELDS.has(key)) {
-			warnings.push(`unknown frontmatter field: ${key}`);
+			warnings.push(
+				`unknown frontmatter field: ${key}${strict ? `: ${line.slice(colonIdx + 1).trim()}` : ''}`,
+			);
 		}
 	}
 }

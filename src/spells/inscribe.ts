@@ -28,7 +28,7 @@ export function inscribe(
 	return withGitLock(resolveGitDir(root, input.gitDir), () => {
 		const gitCtx = { root, ...(input.gitDir ? { gitDir: input.gitDir } : {}) };
 		if (hasGitRepository(gitCtx)) assertGitScope(gitCtx, []);
-		const validation = validateSkillMd(input.content);
+		const validation = validateSkillMd(input.content, input);
 		if (!validation.valid) {
 			throw new GrimoireValidationError(
 				`Invalid SKILL.md content: ${validation.errors.join('; ')}`,

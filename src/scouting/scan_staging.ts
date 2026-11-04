@@ -5,7 +5,7 @@ import { parseSkillMd } from '../spec/parse_skill_md.ts';
 import { validateSkillMd } from '../spec/validate_skill_md.ts';
 import type { DiscoveredSkill } from './types.ts';
 
-export function scanStaging(dir: string): DiscoveredSkill[] {
+export function scanStaging(dir: string, options?: { strict?: boolean }): DiscoveredSkill[] {
 	const results: DiscoveredSkill[] = [];
 	const direct = join(dir, 'SKILL.md');
 	if (
@@ -15,7 +15,7 @@ export function scanStaging(dir: string): DiscoveredSkill[] {
 	) {
 		const content = readFileSync(direct, 'utf8');
 		const parsed = parseSkillMd(content);
-		const validation = validateSkillMd(content);
+		const validation = validateSkillMd(content, options);
 		results.push({
 			name: parsed.ok ? parsed.frontmatter.name : basename(dir),
 			description: parsed.ok ? parsed.frontmatter.description : '',
@@ -25,11 +25,16 @@ export function scanStaging(dir: string): DiscoveredSkill[] {
 			errors: validation.errors,
 			warnings: validation.warnings,
 		});
-	} else walk(dir, dir, results);
+	} else walk(dir, dir, results, options);
 	return results;
 }
 
-function walk(current: string, root: string, results: DiscoveredSkill[]): void {
+function walk(
+	current: string,
+	root: string,
+	results: DiscoveredSkill[],
+	options?: { strict?: boolean },
+): void {
 	if (!existsSync(current)) return;
 
 	const entries = readdirSync(current, { withFileTypes: true });
@@ -56,7 +61,7 @@ function walk(current: string, root: string, results: DiscoveredSkill[]): void {
 		const skillMdPath = join(full, 'SKILL.md');
 		if (existsSync(skillMdPath) && !lstatSync(skillMdPath).isSymbolicLink()) {
 			const content = readFileSync(skillMdPath, 'utf-8');
-			const validation = validateSkillMd(content);
+			const validation = validateSkillMd(content, options);
 			const parsed = parseSkillMd(content);
 			const relPath = relative(root, full);
 
@@ -82,7 +87,7 @@ function walk(current: string, root: string, results: DiscoveredSkill[]): void {
 				});
 			}
 		} else {
-			walk(full, root, results);
+			walk(full, root, results, options);
 		}
 	}
 }

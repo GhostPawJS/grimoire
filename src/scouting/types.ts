@@ -31,6 +31,7 @@ export type FetchHandle = {
 };
 
 export type AdoptSpellOptions = {
+	strict?: boolean;
 	chapter?: string;
 	provenance?: ProvenanceInput;
 	now?: number;
@@ -50,6 +51,7 @@ export type AdoptResult = {
 };
 
 export type ScoutOptions = {
+	strict?: boolean;
 	gitDir?: string;
 	chapter?: string;
 	filter?: (skill: DiscoveredSkill) => boolean;

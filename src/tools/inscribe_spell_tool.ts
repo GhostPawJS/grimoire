@@ -13,6 +13,7 @@ import { toolFailure, toolNoOp, toolSuccess, toolWarning } from './tool_types.ts
 
 type InscribeToolInput = {
 	name: string;
+	strict?: boolean;
 	content: string;
 	chapter?: string;
 	force?: boolean;
@@ -22,6 +23,7 @@ type InscribeToolData = {
 	path: string;
 	chapter: string;
 	name: string;
+	strict?: boolean;
 	rank: number;
 	tier: string;
 	commit?: string;
@@ -51,6 +53,10 @@ export const inscribeSpellTool = defineGrimoireTool<
 		'Compact spell metadata and duplication warnings; verbose includes the full spell.',
 	inputSchema: objectSchema(
 		{
+			strict: {
+				type: 'boolean',
+				description: 'Reject invalid YAML values and unknown frontmatter fields. Default false.',
+			},
 			name: { ...stringSchema('Spell name'), pattern: '^[a-z0-9]+(-[a-z0-9]+)*$', maxLength: 64 },
 			content: stringSchema('Spell body content in markdown'),
 			chapter: {
@@ -80,6 +86,9 @@ export const inscribeSpellTool = defineGrimoireTool<
 			const result = inscribe(ctx.root, ctx.db, {
 				...(input.force !== undefined ? { force: input.force } : {}),
 				...(ctx.gitDir ? { gitDir: ctx.gitDir } : {}),
+				...(input.strict !== undefined
+					? { ...(input.strict !== undefined ? { strict: input.strict } : {}) }
+					: {}),
 				name: input.name,
 				content: input.content,
 				...(input.chapter !== undefined ? { chapter: input.chapter } : {}),

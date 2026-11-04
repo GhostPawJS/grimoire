@@ -38,7 +38,7 @@ export function adoptSpell(
 		}
 
 		const content = readFileSync(skillMdPath, 'utf-8');
-		const validation = validateSkillMd(content);
+		const validation = validateSkillMd(content, options);
 		if (!validation.valid) {
 			throw new GrimoireValidationError(
 				`Invalid SKILL.md at ${localPath}: ${validation.errors.join('; ')}`,

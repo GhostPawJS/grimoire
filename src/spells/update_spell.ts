@@ -16,12 +16,12 @@ export function updateSpell(
 	root: string,
 	path: string,
 	content: string,
-	options?: { gitDir?: string },
+	options?: { gitDir?: string; strict?: boolean },
 ): void {
 	withGitLock(resolveGitDir(root, options?.gitDir), () => {
 		const ctx = { root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) };
 		if (hasGitRepository(ctx)) assertGitScope(ctx, []);
-		const validation = validateSkillMd(content);
+		const validation = validateSkillMd(content, options);
 		if (!validation.valid) {
 			throw new GrimoireValidationError(
 				`Invalid SKILL.md content: ${validation.errors.join('; ')}`,

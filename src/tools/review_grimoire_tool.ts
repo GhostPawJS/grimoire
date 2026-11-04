@@ -1,4 +1,5 @@
 import { pendingDrafts } from '../drafts/pending_drafts.ts';
+import { GrimoireValidationError } from '../errors.ts';
 import { allResonance } from '../events/all_resonance.ts';
 import { readCatalogue } from '../health/read_catalogue.ts';
 import { buildIndex } from '../indexing/build_index.ts';
@@ -42,7 +43,13 @@ type ReviewView =
 	| 'validation'
 	| 'provenance'
 	| 'index';
-type ReviewInput = { view: ReviewView; limit?: number; now?: number; format?: 'prompt' };
+type ReviewInput = {
+	strict?: boolean;
+	view: ReviewView;
+	limit?: number;
+	now?: number;
+	format?: 'prompt';
+};
 
 function dbRequiredFailure(view: string) {
 	return toolFailure(
@@ -75,6 +82,10 @@ export const reviewGrimoireTool = defineGrimoireTool<
 	outputDescription: 'View-specific data snapshot of the grimoire.',
 	inputSchema: objectSchema(
 		{
+			strict: {
+				type: 'boolean',
+				description: 'Reject invalid YAML values and unknown frontmatter fields. Default false.',
+			},
 			view: enumSchema('Review view', [
 				'chapters',
 				'health',
@@ -188,8 +199,20 @@ export const reviewGrimoireTool = defineGrimoireTool<
 				}
 
 				case 'validation': {
-					const results = validateAll(ctx.root);
+					const results = validateAll(ctx.root, input);
 					const invalid = results.filter((r) => !r.valid);
+					if (input.strict && invalid.length)
+						throw new GrimoireValidationError(
+							invalid
+								.map(
+									(r) =>
+										`${r.path}: ${r.issues
+											.filter((i) => i.severity === 'error')
+											.map((i) => i.message)
+											.join('; ')}`,
+								)
+								.join('; '),
+						);
 					const limited = limit !== undefined ? results.slice(0, limit) : results;
 					const entities = invalid.slice(0, 10).map((r) => toSpellPathRef(r.path));
 					const firstInvalid = invalid[0];

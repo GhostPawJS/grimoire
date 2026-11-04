@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { GrimoireDb } from '../database.ts';
-import { GrimoireNotFoundError } from '../errors.ts';
+import { GrimoireNotFoundError, GrimoireValidationError } from '../errors.ts';
 import { hasGitRepository } from '../git/has_git_repository.ts';
 import { history } from '../git/history.ts';
 import { rank } from '../git/rank.ts';
@@ -22,7 +22,7 @@ export async function applyUpdate(
 	root: string,
 	db: GrimoireDb,
 	spellPath: string,
-	options?: { gitDir?: string },
+	options?: { gitDir?: string; strict?: boolean },
 ): Promise<ApplyUpdateResult> {
 	resolveSpellPath(root, spellPath);
 	resolveInsideRoot(root, spellPath, 'SKILL.md');
@@ -38,7 +38,7 @@ export async function applyUpdate(
 
 	const ctx = { root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) };
 
-	const handle = await fetchSkills(source);
+	const handle = await fetchSkills(source, options);
 
 	try {
 		const upstream = prov.sourcePath
@@ -51,6 +51,8 @@ export async function applyUpdate(
 			);
 		}
 
+		if (options?.strict && !upstream.valid)
+			throw new GrimoireValidationError(upstream.errors.join('; '));
 		const upstreamContent = readFileSync(join(upstream.localPath, 'SKILL.md'), 'utf-8');
 
 		const parsed = parseSkillMd(upstreamContent);

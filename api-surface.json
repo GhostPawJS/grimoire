@@ -6473,7 +6473,7 @@
 	},
 	".:public.network.applyUpdate": {
 		"kind": "value",
-		"type": "(root: string, db: GrimoireDb, spellPath: string, options?: { gitDir?: string; }) => Promise<ApplyUpdateResult>"
+		"type": "(root: string, db: GrimoireDb, spellPath: string, options?: { gitDir?: string; strict?: boolean; }) => Promise<ApplyUpdateResult>"
 	},
 	".:public.network.checkUpdates": {
 		"kind": "value",
@@ -6481,7 +6481,7 @@
 	},
 	".:public.network.fetchSkills": {
 		"kind": "value",
-		"type": "(source: string) => Promise<FetchHandle>"
+		"type": "(source: string, options?: { strict?: boolean; }) => Promise<FetchHandle>"
 	},
 	".:public.network.refreshIndex": {
 		"kind": "value",
@@ -8118,15 +8118,15 @@
 	},
 	".:public.read.validate": {
 		"kind": "value",
-		"type": "(root: string, path: string) => SpellValidationResult"
+		"type": "(root: string, path: string, options?: { strict?: boolean; }) => SpellValidationResult"
 	},
 	".:public.read.validateAll": {
 		"kind": "value",
-		"type": "(root: string) => SpellValidationResult[]"
+		"type": "(root: string, options?: { strict?: boolean; }) => SpellValidationResult[]"
 	},
 	".:public.read.validateSkillMd": {
 		"kind": "value",
-		"type": "(content: string) => SkillMdValidationResult"
+		"type": "(content: string, options?: { strict?: boolean; }) => SkillMdValidationResult"
 	},
 	".:public.reconcileUpstreamUpdatesSkill": {
 		"kind": "value",
@@ -9314,6 +9314,10 @@
 			"provenance": {
 				"type": "ProvenanceInput | undefined",
 				"optional": true
+			},
+			"strict": {
+				"type": "boolean | undefined",
+				"optional": true
 			}
 		},
 		"definition": "type index$7_AdoptSpellOptions = AdoptSpellOptions;",
@@ -9340,9 +9344,13 @@
 			"provenance": {
 				"type": "ProvenanceInput | undefined",
 				"optional": true
+			},
+			"strict": {
+				"type": "boolean | undefined",
+				"optional": true
 			}
 		},
-		"definition": "type AdoptSpellOptions = { chapter?: string; provenance?: ProvenanceInput; now?: number; gitDir?: string; };",
+		"definition": "type AdoptSpellOptions = { strict?: boolean; chapter?: string; provenance?: ProvenanceInput; now?: number; gitDir?: string; };",
 		"references": {
 			"ProvenanceInput": ".:public.provenance.ProvenanceInput.types.ProvenanceInput"
 		}
@@ -9375,7 +9383,7 @@
 	},
 	".:public.scouting.applyUpdate": {
 		"kind": "value",
-		"type": "(root: string, db: GrimoireDb, spellPath: string, options?: { gitDir?: string; }) => Promise<ApplyUpdateResult>"
+		"type": "(root: string, db: GrimoireDb, spellPath: string, options?: { gitDir?: string; strict?: boolean; }) => Promise<ApplyUpdateResult>"
 	},
 	".:public.scouting.ApplyUpdateResult": {
 		"kind": "type",
@@ -9578,7 +9586,7 @@
 	},
 	".:public.scouting.fetchSkills": {
 		"kind": "value",
-		"type": "(source: string) => Promise<FetchHandle>"
+		"type": "(source: string, options?: { strict?: boolean; }) => Promise<FetchHandle>"
 	},
 	".:public.scouting.Reconciliation": {
 		"kind": "type",
@@ -9710,6 +9718,10 @@
 			"gitDir": {
 				"type": "string | undefined",
 				"optional": true
+			},
+			"strict": {
+				"type": "boolean | undefined",
+				"optional": true
 			}
 		},
 		"definition": "type index$7_ScoutOptions = ScoutOptions;",
@@ -9732,9 +9744,13 @@
 			"gitDir": {
 				"type": "string | undefined",
 				"optional": true
+			},
+			"strict": {
+				"type": "boolean | undefined",
+				"optional": true
 			}
 		},
-		"definition": "type ScoutOptions = { gitDir?: string; chapter?: string; filter?: (skill: DiscoveredSkill) => boolean; };",
+		"definition": "type ScoutOptions = { strict?: boolean; gitDir?: string; chapter?: string; filter?: (skill: DiscoveredSkill) => boolean; };",
 		"references": {
 			"DiscoveredSkill": ".:public.scouting.DiscoveredSkill.types.DiscoveredSkill"
 		}
@@ -10277,7 +10293,7 @@
 	},
 	".:public.spec.validateSkillMd": {
 		"kind": "value",
-		"type": "(content: string) => SkillMdValidationResult"
+		"type": "(content: string, options?: { strict?: boolean; }) => SkillMdValidationResult"
 	},
 	".:public.spells": {
 		"kind": "namespace"
@@ -10343,6 +10359,10 @@
 			"now": {
 				"type": "number | undefined",
 				"optional": true
+			},
+			"strict": {
+				"type": "boolean | undefined",
+				"optional": true
 			}
 		},
 		"definition": "type index$3_InscribeInput = InscribeInput;",
@@ -10377,9 +10397,13 @@
 			"now": {
 				"type": "number | undefined",
 				"optional": true
+			},
+			"strict": {
+				"type": "boolean | undefined",
+				"optional": true
 			}
 		},
-		"definition": "type InscribeInput = { force?: boolean; name: string; chapter?: string; content: string; now?: number; gitDir?: string; };"
+		"definition": "type InscribeInput = { strict?: boolean; force?: boolean; name: string; chapter?: string; content: string; now?: number; gitDir?: string; };"
 	},
 	".:public.spells.InscribeResult": {
 		"kind": "type",
@@ -10727,7 +10751,7 @@
 	},
 	".:public.spells.updateSpell": {
 		"kind": "value",
-		"type": "(root: string, path: string, content: string, options?: { gitDir?: string; }) => void"
+		"type": "(root: string, path: string, content: string, options?: { gitDir?: string; strict?: boolean; }) => void"
 	},
 	".:public.tools": {
 		"kind": "namespace"
@@ -10766,7 +10790,7 @@
 	},
 	".:public.tools.getGrimoireToolByName": {
 		"kind": "value",
-		"type": "(name: string) => GrimoireToolDefinition<{ content: string; source: string; domain?: string; }, ToolResult<{ noteId: number; }>> | GrimoireToolDefinition<{ paths?: string[]; message?: string; note_ids?: number[]; noteIds?: number[]; verbose?: boolean; }, ToolResult<{ spells?: ReturnType<typeof spellWriteData>[]; commitHash: string; sealedPaths: string[]; ranks: Record<string, number>; tiers: Record<string, TierInfo>; distilledNoteIds: number[]; }>> | GrimoireToolDefinition<{ name: string; content: string; chapter?: string; force?: boolean; verbose?: boolean; }, ToolResult<{ path: string; chapter: string; name: string; rank: number; tier: string; commit?: string; spell?: Spell; warnings: DuplicationWarning[]; }>> | GrimoireToolDefinition<{ path: string; }, ToolResult<{ spell: Spell; tierInfo: TierInfo; validation: SpellValidationResult; resonance?: ResonanceResult & { lastSealAtIso?: string | null; }; provenance?: Provenance; history?: HistoryEntry[]; }>> | GrimoireToolDefinition<{ action: \"submit\"; title: string; rationale: string; noteIds?: number[]; note_ids?: number[]; chapter: string; } | { action: \"approve\"; draftId: number; } | { action: \"dismiss\"; draftId: number; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<({ action: \"shelve\"; path: string; } | { action: \"unshelve\"; path: string; force?: boolean; } | { action: \"move\"; path: string; target: string; force?: boolean; } | { action: \"delete\"; path: string; } | { action: \"repair\"; path: string; } | { action: \"repair_all\"; } | { action: \"rollback\"; path: string; ref: string; }) & { verbose?: boolean; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ view: \"chapters\" | \"provenance\" | \"notes\" | \"health\" | \"drafts\" | \"validation\" | \"resonance\" | \"index\"; limit?: number; now?: number; format?: \"prompt\"; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ now?: number; }, ToolResult<CatalogueSnapshot>> | GrimoireToolDefinition<{ action: \"adopt\"; source: string; chapter?: string; } | { action: \"search\"; query: string; } | { action: \"check_updates\"; } | { action: \"apply_update\"; path: string; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ query: string; chapters?: string[]; }, ToolResult<{ results: (IndexEntry & { score: number; })[]; count: number; }>> | GrimoireToolDefinition<{ path: string; content: string; verbose?: boolean; }, ToolResult<{ spell?: Spell; path: string; chapter: string; name: string; rank: number; tier: Tier; commit: string; warnings: never[]; }>> | undefined"
+		"type": "(name: string) => GrimoireToolDefinition<{ content: string; source: string; domain?: string; }, ToolResult<{ noteId: number; }>> | GrimoireToolDefinition<{ paths?: string[]; message?: string; note_ids?: number[]; noteIds?: number[]; verbose?: boolean; }, ToolResult<{ spells?: ReturnType<typeof spellWriteData>[]; commitHash: string; sealedPaths: string[]; ranks: Record<string, number>; tiers: Record<string, TierInfo>; distilledNoteIds: number[]; }>> | GrimoireToolDefinition<{ name: string; strict?: boolean; content: string; chapter?: string; force?: boolean; verbose?: boolean; }, ToolResult<{ path: string; chapter: string; name: string; strict?: boolean; rank: number; tier: string; commit?: string; spell?: Spell; warnings: DuplicationWarning[]; }>> | GrimoireToolDefinition<{ strict?: boolean; path: string; }, ToolResult<{ spell: Spell; tierInfo: TierInfo; validation: SpellValidationResult; resonance?: ResonanceResult & { lastSealAtIso?: string | null; }; provenance?: Provenance; history?: HistoryEntry[]; }>> | GrimoireToolDefinition<{ action: \"submit\"; title: string; rationale: string; noteIds?: number[]; note_ids?: number[]; chapter: string; } | { action: \"approve\"; draftId: number; } | { action: \"dismiss\"; draftId: number; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<({ action: \"shelve\"; path: string; } | { action: \"unshelve\"; path: string; force?: boolean; } | { action: \"move\"; path: string; target: string; force?: boolean; } | { action: \"delete\"; path: string; } | { action: \"repair\"; path: string; } | { action: \"repair_all\"; } | { action: \"rollback\"; path: string; ref: string; }) & { verbose?: boolean; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ strict?: boolean; view: \"chapters\" | \"provenance\" | \"notes\" | \"health\" | \"drafts\" | \"validation\" | \"resonance\" | \"index\"; limit?: number; now?: number; format?: \"prompt\"; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ now?: number; }, ToolResult<CatalogueSnapshot>> | GrimoireToolDefinition<{ action: \"adopt\"; source: string; chapter?: string; strict?: boolean; } | { action: \"search\"; query: string; } | { action: \"check_updates\"; } | { action: \"apply_update\"; path: string; strict?: boolean; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ query: string; chapters?: string[]; }, ToolResult<{ results: (IndexEntry & { score: number; })[]; count: number; }>> | GrimoireToolDefinition<{ strict?: boolean; path: string; content: string; verbose?: boolean; }, ToolResult<{ spell?: Spell; path: string; chapter: string; name: string; rank: number; tier: Tier; commit: string; warnings: never[]; }>> | undefined"
 	},
 	".:public.tools.GrimoireToolContext": {
 		"kind": "type",
@@ -13578,7 +13602,7 @@
 	},
 	".:public.tools.grimoireTools": {
 		"kind": "value",
-		"type": "readonly [GrimoireToolDefinition<{ query: string; chapters?: string[]; }, ToolResult<{ results: (IndexEntry & { score: number; })[]; count: number; }>>, GrimoireToolDefinition<{ view: \"chapters\" | \"provenance\" | \"notes\" | \"health\" | \"drafts\" | \"validation\" | \"resonance\" | \"index\"; limit?: number; now?: number; format?: \"prompt\"; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ path: string; }, ToolResult<{ spell: Spell; tierInfo: TierInfo; validation: SpellValidationResult; resonance?: ResonanceResult & { lastSealAtIso?: string | null; }; provenance?: Provenance; history?: HistoryEntry[]; }>>, GrimoireToolDefinition<{ name: string; content: string; chapter?: string; force?: boolean; verbose?: boolean; }, ToolResult<{ path: string; chapter: string; name: string; rank: number; tier: string; commit?: string; spell?: Spell; warnings: DuplicationWarning[]; }>>, GrimoireToolDefinition<{ path: string; content: string; verbose?: boolean; }, ToolResult<{ spell?: Spell; path: string; chapter: string; name: string; rank: number; tier: Tier; commit: string; warnings: never[]; }>>, GrimoireToolDefinition<{ paths?: string[]; message?: string; note_ids?: number[]; noteIds?: number[]; verbose?: boolean; }, ToolResult<{ spells?: ReturnType<typeof spellWriteData>[]; commitHash: string; sealedPaths: string[]; ranks: Record<string, number>; tiers: Record<string, TierInfo>; distilledNoteIds: number[]; }>>, GrimoireToolDefinition<({ action: \"shelve\"; path: string; } | { action: \"unshelve\"; path: string; force?: boolean; } | { action: \"move\"; path: string; target: string; force?: boolean; } | { action: \"delete\"; path: string; } | { action: \"repair\"; path: string; } | { action: \"repair_all\"; } | { action: \"rollback\"; path: string; ref: string; }) & { verbose?: boolean; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ content: string; source: string; domain?: string; }, ToolResult<{ noteId: number; }>>, GrimoireToolDefinition<{ action: \"submit\"; title: string; rationale: string; noteIds?: number[]; note_ids?: number[]; chapter: string; } | { action: \"approve\"; draftId: number; } | { action: \"dismiss\"; draftId: number; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ now?: number; }, ToolResult<CatalogueSnapshot>>, GrimoireToolDefinition<{ action: \"adopt\"; source: string; chapter?: string; } | { action: \"search\"; query: string; } | { action: \"check_updates\"; } | { action: \"apply_update\"; path: string; }, ToolResult<Record<string, unknown>>>]"
+		"type": "readonly [GrimoireToolDefinition<{ query: string; chapters?: string[]; }, ToolResult<{ results: (IndexEntry & { score: number; })[]; count: number; }>>, GrimoireToolDefinition<{ strict?: boolean; view: \"chapters\" | \"provenance\" | \"notes\" | \"health\" | \"drafts\" | \"validation\" | \"resonance\" | \"index\"; limit?: number; now?: number; format?: \"prompt\"; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ strict?: boolean; path: string; }, ToolResult<{ spell: Spell; tierInfo: TierInfo; validation: SpellValidationResult; resonance?: ResonanceResult & { lastSealAtIso?: string | null; }; provenance?: Provenance; history?: HistoryEntry[]; }>>, GrimoireToolDefinition<{ name: string; strict?: boolean; content: string; chapter?: string; force?: boolean; verbose?: boolean; }, ToolResult<{ path: string; chapter: string; name: string; strict?: boolean; rank: number; tier: string; commit?: string; spell?: Spell; warnings: DuplicationWarning[]; }>>, GrimoireToolDefinition<{ strict?: boolean; path: string; content: string; verbose?: boolean; }, ToolResult<{ spell?: Spell; path: string; chapter: string; name: string; rank: number; tier: Tier; commit: string; warnings: never[]; }>>, GrimoireToolDefinition<{ paths?: string[]; message?: string; note_ids?: number[]; noteIds?: number[]; verbose?: boolean; }, ToolResult<{ spells?: ReturnType<typeof spellWriteData>[]; commitHash: string; sealedPaths: string[]; ranks: Record<string, number>; tiers: Record<string, TierInfo>; distilledNoteIds: number[]; }>>, GrimoireToolDefinition<({ action: \"shelve\"; path: string; } | { action: \"unshelve\"; path: string; force?: boolean; } | { action: \"move\"; path: string; target: string; force?: boolean; } | { action: \"delete\"; path: string; } | { action: \"repair\"; path: string; } | { action: \"repair_all\"; } | { action: \"rollback\"; path: string; ref: string; }) & { verbose?: boolean; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ content: string; source: string; domain?: string; }, ToolResult<{ noteId: number; }>>, GrimoireToolDefinition<{ action: \"submit\"; title: string; rationale: string; noteIds?: number[]; note_ids?: number[]; chapter: string; } | { action: \"approve\"; draftId: number; } | { action: \"dismiss\"; draftId: number; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ now?: number; }, ToolResult<CatalogueSnapshot>>, GrimoireToolDefinition<{ action: \"adopt\"; source: string; chapter?: string; strict?: boolean; } | { action: \"search\"; query: string; } | { action: \"check_updates\"; } | { action: \"apply_update\"; path: string; strict?: boolean; }, ToolResult<Record<string, unknown>>>]"
 	},
 	".:public.tools.honeNext": {
 		"kind": "value",
@@ -17034,11 +17058,11 @@
 	},
 	".:public.validation.validate": {
 		"kind": "value",
-		"type": "(root: string, path: string) => SpellValidationResult"
+		"type": "(root: string, path: string, options?: { strict?: boolean; }) => SpellValidationResult"
 	},
 	".:public.validation.validateAll": {
 		"kind": "value",
-		"type": "(root: string) => SpellValidationResult[]"
+		"type": "(root: string, options?: { strict?: boolean; }) => SpellValidationResult[]"
 	},
 	".:public.validation.ValidationIssue": {
 		"kind": "type",
@@ -17381,7 +17405,7 @@
 	},
 	".:public.write.updateSpell": {
 		"kind": "value",
-		"type": "(root: string, path: string, content: string, options?: { gitDir?: string; }) => void"
+		"type": "(root: string, path: string, content: string, options?: { gitDir?: string; strict?: boolean; }) => void"
 	},
 	"./mcp:exports.createGrimoireMcpServer": {
 		"kind": "function"

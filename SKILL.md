@@ -104,6 +104,7 @@ Read-only.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
+| strict | boolean | no | Reject invalid YAML values and unknown frontmatter fields. Default false. |
 | view | string | yes | chapters, health, resonance, notes, drafts, validation, provenance, index. Review view |
 | limit | integer | no | Maximum results to return |
 | now | integer | no | Timestamp override |
@@ -123,6 +124,7 @@ Read-only.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
+| strict | boolean | no | Reject invalid YAML values and unknown frontmatter fields. Default false. |
 | path | string | yes | Spell path |
 
 Example: `ghostpaw-grimoire call inspect_grimoire_item '{"path":"ops/verify-release"}'`
@@ -139,6 +141,7 @@ Writes: writes_state.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
+| strict | boolean | no | Reject invalid YAML values and unknown frontmatter fields. Default false. |
 | name | string | yes | Spell name |
 | content | string | yes | Spell body content in markdown |
 | chapter | string | no | Chapter name |
@@ -159,6 +162,7 @@ Writes: writes_state.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
+| strict | boolean | no | Reject invalid YAML values and unknown frontmatter fields. Default false. |
 | path | string | yes | Spell path |
 | verbose | boolean | no | Include the full spell in the result. |
 | content | string | yes | Full spec-compliant SKILL.md content |
@@ -274,6 +278,7 @@ Writes: writes_state.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
+| strict | boolean | no | Reject invalid YAML values and unknown frontmatter fields during adoption or updates. Default false. |
 | action | string | yes | adopt, search, check_updates, apply_update. Scout action to perform: adopt (import from source), search (find skills), check_updates, or apply_update. |
 | source | string | no | Source URL or identifier — required for adopt. |
 | chapter | string | no | Chapter for adopted spells — optional for adopt. |

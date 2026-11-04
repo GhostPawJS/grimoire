@@ -14,10 +14,10 @@ import type { ToolResult } from './tool_types.ts';
 import { toolFailure, toolSuccess, toolWarning } from './tool_types.ts';
 
 type ScoutInput =
-	| { action: 'adopt'; source: string; chapter?: string }
+	| { action: 'adopt'; source: string; chapter?: string; strict?: boolean }
 	| { action: 'search'; query: string }
 	| { action: 'check_updates' }
-	| { action: 'apply_update'; path: string };
+	| { action: 'apply_update'; path: string; strict?: boolean };
 
 export const scoutSkillsTool = defineGrimoireTool<ScoutInput, ToolResult<Record<string, unknown>>>({
 	name: scoutSkillsToolName,
@@ -41,6 +41,11 @@ export const scoutSkillsTool = defineGrimoireTool<ScoutInput, ToolResult<Record<
 		'Action-specific result: adopted spells, search results, update checks, or apply result.',
 	inputSchema: objectSchema(
 		{
+			strict: {
+				type: 'boolean',
+				description:
+					'Reject invalid YAML values and unknown frontmatter fields during adoption or updates. Default false.',
+			},
 			action: enumSchema(
 				'Scout action to perform: adopt (import from source), search (find skills), check_updates, or apply_update.',
 				['adopt', 'search', 'check_updates', 'apply_update'],
@@ -70,6 +75,7 @@ export const scoutSkillsTool = defineGrimoireTool<ScoutInput, ToolResult<Record<
 						);
 					}
 					const result = await scout(ctx.root, ctx.db, input.source, {
+						...(input.strict !== undefined ? { strict: input.strict } : {}),
 						...(input.chapter ? { chapter: input.chapter } : {}),
 						...(ctx.gitDir ? { gitDir: ctx.gitDir } : {}),
 					});
@@ -170,12 +176,10 @@ export const scoutSkillsTool = defineGrimoireTool<ScoutInput, ToolResult<Record<
 							'No database connection available.',
 						);
 					}
-					const result = await applyUpdate(
-						ctx.root,
-						ctx.db,
-						input.path,
-						ctx.gitDir ? { gitDir: ctx.gitDir } : undefined,
-					);
+					const result = await applyUpdate(ctx.root, ctx.db, input.path, {
+						...(ctx.gitDir ? { gitDir: ctx.gitDir } : {}),
+						...(input.strict !== undefined ? { strict: input.strict } : {}),
+					});
 					if ('applied' in result && result.applied) {
 						return toolSuccess(
 							`Applied update to \`${input.path}\`, new rank: ${result.newRank}.`,
