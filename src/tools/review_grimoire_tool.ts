@@ -67,9 +67,9 @@ export const reviewGrimoireTool = defineGrimoireTool<
 >({
 	name: reviewGrimoireToolName,
 	description:
-		'Review a dashboard view of the grimoire — chapters, health, resonance, notes, drafts, validation, provenance, or index.',
-	whenToUse: 'When you need a broad overview of grimoire state from a specific angle.',
-	whenNotToUse: 'When you need details about a single spell — use inspect_grimoire_item instead.',
+		'Review chapters, health, resonance, notes, drafts, validation, provenance, or index.',
+	whenToUse: 'Review grimoire state by view.',
+	whenNotToUse: 'Inspect one spell with inspect_grimoire_item.',
 	sideEffects: 'none',
 	readOnly: true,
 	supportsClarification: false,
@@ -84,7 +84,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 		{
 			strict: {
 				type: 'boolean',
-				description: 'Reject invalid YAML values and unknown frontmatter fields. Default false.',
+				description: 'Reject invalid YAML and unknown frontmatter.',
 			},
 			view: enumSchema('Review view', [
 				'chapters',

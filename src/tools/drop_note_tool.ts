@@ -12,17 +12,17 @@ type DropNoteData = { noteId: number };
 
 export const dropNoteTool = defineGrimoireTool<DropNoteInput, ToolResult<DropNoteData>>({
 	name: dropNoteToolName,
-	description: 'Drop an observation note into the grimoire for later cataloguing.',
-	whenToUse: 'When capturing an insight, observation, or piece of evidence about a spell topic.',
-	whenNotToUse: 'When creating or editing a spell directly — use inscribe_spell or hone_spell.',
+	description: 'Record an observation for later cataloguing.',
+	whenToUse: 'Capture evidence about a spell topic.',
+	whenNotToUse: 'Write spells with inscribe_spell or update_spell.',
 	sideEffects: 'writes_state',
 	readOnly: false,
 	supportsClarification: false,
 	targetKinds: ['note'],
 	inputDescriptions: {
-		content: 'The note content — an observation, insight, or evidence snippet.',
-		source: 'Who or what produced this note (e.g. "user", "agent", tool name).',
-		domain: 'Optional topic domain to aid routing (e.g. "typescript", "testing").',
+		content: 'Observation or evidence.',
+		source: 'Note author or source.',
+		domain: 'Topic domain for routing.',
 	},
 	outputDescription: 'The ID of the newly created note.',
 	inputSchema: objectSchema(

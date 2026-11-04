@@ -35,24 +35,22 @@ type InspectData = {
 
 export const inspectGrimoireItemTool = defineGrimoireTool<InspectInput, ToolResult<InspectData>>({
 	name: inspectGrimoireItemToolName,
-	description:
-		'Inspect a single spell in detail, including tier, resonance, validation, provenance, and history.',
-	whenToUse: 'When you need full details about a specific spell by its path.',
-	whenNotToUse: 'When you want a broad overview — use review_grimoire instead.',
+	description: 'Inspect spell content, tier, resonance, validation, provenance, and history.',
+	whenToUse: 'Inspect one spell by path.',
+	whenNotToUse: 'Use review_grimoire for an overview.',
 	sideEffects: 'none',
 	readOnly: true,
 	supportsClarification: false,
 	targetKinds: ['spell'],
 	inputDescriptions: {
-		path: 'The spell path (e.g. "chapter/spell-name").',
+		path: 'chapter/name',
 	},
-	outputDescription:
-		'Full spell details including tier info, resonance, validation, provenance, and git history.',
+	outputDescription: 'Spell content, health, provenance, and history.',
 	inputSchema: objectSchema(
 		{
 			strict: {
 				type: 'boolean',
-				description: 'Reject invalid YAML values and unknown frontmatter fields. Default false.',
+				description: 'Reject invalid YAML and unknown frontmatter.',
 			},
 			path: stringSchema('Spell path'),
 		},

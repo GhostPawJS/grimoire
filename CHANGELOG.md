@@ -6,8 +6,25 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ### Changed
 
+- `spell inscribe` and `spell move` refuse to overwrite an existing spell unless `--force` (tool: `force: true`) is passed. Before, the target was overwritten silently.
+- MCP `tools/list` payload shrinks from 10,714 to 7,311 bytes (2,336 to 1,602 cl100k tokens) with all 11 tools and every input field kept.
+- The `decompose-oversized-spells` guide first looks for a better abstraction that makes the spell smaller; splitting is the last resort.
 - Remove landing page sources and the automated site deployment workflow; retain the demo build tooling. Demo fonts can be supplied through `DOCS_FONT_DIR`.
 - Update the website for 0.7.0, including the pinned installer, release metadata, and opt-in strict frontmatter validation.
+
+### Added
+
+- `spell update --replace <old> --with <new>` (repeatable; each old text must match exactly once) and `--append-section <heading> --body <text|@file>`; tool inputs `replace` and `appendSection`.
+- Write results carry `commitHash` or `rollbackHash`.
+- `spell hone` warns `direct edit detected, not via update` for spells edited on disk, and still seals them.
+- `inspect --compact` omits the spell body.
+
+### Fixed
+
+- `inspect` and other git-backed reads honor `GHOSTPAW_GRIMOIRE_GIT_DIR` instead of warning `degraded_no_git`.
+- Re-inscribing identical content no longer raises the rank.
+- `spell hone` with nothing to seal returns `already sealed by inscribe <hash>` with that hash instead of an empty `commitHash`.
+- A `--db` path whose parent cannot be created reports `Cannot create database directory <dir>: <reason>` and exits 2.
 
 ## [0.7.0] - 2026-11-04
 

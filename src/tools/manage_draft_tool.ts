@@ -34,9 +34,8 @@ export const manageDraftTool = defineGrimoireTool<
 >({
 	name: manageDraftToolName,
 	description: 'Submit, approve, or dismiss spell drafts.',
-	whenToUse:
-		'When managing the draft pipeline — proposing new spells from notes, approving, or dismissing drafts.',
-	whenNotToUse: 'When creating spells directly — use inscribe_spell instead.',
+	whenToUse: 'Propose, approve, or dismiss drafts backed by notes.',
+	whenNotToUse: 'Create directly with inscribe_spell.',
 	sideEffects: 'writes_state',
 	readOnly: false,
 	supportsClarification: false,
@@ -58,7 +57,7 @@ export const manageDraftTool = defineGrimoireTool<
 				'dismiss',
 			]),
 			title: stringSchema('Draft title — required for submit.'),
-			rationale: stringSchema('Why this draft should become a spell — required for submit.'),
+			rationale: stringSchema('Required submission rationale.'),
 			noteIds: arraySchema(
 				integerSchema('Note ID'),
 				'Note IDs backing this draft — required for submit.',

@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { GrimoireDb } from '../database.ts';
 import { DEFAULTS } from '../defaults.ts';
@@ -19,6 +19,7 @@ import { withTransaction } from '../with_transaction.ts';
 import { discoverSpells } from './discover_spells.ts';
 import { getSpell } from './get_spell.ts';
 import type { DuplicationWarning, InscribeInput, InscribeResult } from './types.ts';
+import { recordWrite } from './write_state.ts';
 
 export function inscribe(
 	root: string,
@@ -49,8 +50,9 @@ export function inscribe(
 		assertChapter(chapter);
 		assertSpellName(input.name);
 		const absolutePath = resolveInsideRoot(root, chapter, input.name);
-		resolveInsideRoot(root, chapter, input.name, 'SKILL.md');
 		if (existsSync(absolutePath) && input.force !== true) throw new GrimoireConflictError(path);
+		if (!existsSync(absolutePath) || statSync(absolutePath).isDirectory())
+			resolveInsideRoot(root, chapter, input.name, 'SKILL.md');
 
 		if (
 			input.force &&
@@ -59,8 +61,12 @@ export function inscribe(
 			committedContentMatches(gitCtx, path, input.content)
 		)
 			return { spell: getSpell(root, path, undefined, input.gitDir), warnings: [], noOp: true };
+		if (input.force && existsSync(absolutePath) && !statSync(absolutePath).isDirectory())
+			rmSync(absolutePath);
 		mkdirSync(absolutePath, { recursive: true });
 		writeFileSync(join(absolutePath, 'SKILL.md'), input.content);
+
+		recordWrite(gitCtx, path, input.content);
 
 		const warnings = detectDuplicates(root, path, parsed.frontmatter.description);
 

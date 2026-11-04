@@ -56,7 +56,7 @@ export class GrimoireConflictError extends GrimoireError {
 	constructor(path: string) {
 		super(
 			'GRIMOIRE_CONFLICT',
-			`A spell already exists at ${path}. Use update_spell / \`spell update\` to change it, pick another name, or pass force: true to replace it.`,
+			`Spell already exists: ${path} (pass --force to overwrite; force: true in tools)`,
 		);
 	}
 }

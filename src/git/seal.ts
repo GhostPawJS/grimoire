@@ -10,6 +10,7 @@ import { resolveNow } from '../resolve_now.ts';
 import { allRanks } from './all_ranks.ts';
 import { commitIdentity } from './commit_identity.ts';
 import { hasGitRepository } from './has_git_repository.ts';
+import { history } from './history.ts';
 import type { GitContext, SealResult } from './types.ts';
 
 function statusPorcelain(ctx: GitContext): string {
@@ -31,6 +32,15 @@ function extractSpellPaths(porcelain: string): string[] {
 		}
 	}
 	return [...paths];
+}
+
+function unchangedSeal(ctx: GitContext, paths?: string[]): SealResult {
+	const last = history(ctx).find(
+		(entry) =>
+			!paths?.length ||
+			paths.some((path) => entry.files.some((file) => file.startsWith(`${path}/`))),
+	);
+	return { commitHash: last?.hash ?? '', sealedPaths: [], ranks: {} };
 }
 
 export function seal(
@@ -71,7 +81,7 @@ export function seal(
 						}
 					});
 			assertGitScope(ctx, []);
-			if (!spellPaths.length) return { commitHash: '', sealedPaths: [], ranks: {} };
+			if (!spellPaths.length) return unchangedSeal(ctx, paths);
 			const scoped = spellPaths.map((p) => `${p}/`);
 			execGit(ctx, ['add', '-A', '--', ...scoped]);
 			const changed = execGit(ctx, [
@@ -83,7 +93,7 @@ export function seal(
 				...scoped,
 			]).split('\0');
 			spellPaths = spellPaths.filter((path) => changed.some((file) => file.startsWith(`${path}/`)));
-			if (!spellPaths.length) return { commitHash: '', sealedPaths: [], ranks: {} };
+			if (!spellPaths.length) return unchangedSeal(ctx, paths);
 			execGit(ctx, [...commitIdentity(ctx), 'commit', '-m', message ?? 'seal', '--', ...scoped]);
 			const commitHash = execGit(ctx, ['rev-parse', 'HEAD']);
 

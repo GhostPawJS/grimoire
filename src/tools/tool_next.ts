@@ -11,7 +11,9 @@ import type { ToolNextStepHint } from './tool_types.ts';
 export function inspectSpellNext(path: string, name?: string): ToolNextStepHint {
 	return {
 		kind: 'inspect_item',
-		message: name ? `Inspect spell "${name}".` : `Inspect spell ${path}.`,
+		message: name
+			? `Inspect spell "${name}"; CLI --compact omits body.`
+			: `Inspect spell ${path}; CLI --compact omits body.`,
 		tool: inspectGrimoireItemToolName,
 		suggestedInput: { path },
 	};

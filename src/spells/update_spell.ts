@@ -7,6 +7,7 @@ import { resolveGitDir } from '../lib/resolve_git_dir.ts';
 import { withGitLock } from '../lib/with_git_lock.ts';
 import { validateSkillMd } from '../spec/validate_skill_md.ts';
 import { assertSpellExists } from './assert_spell_exists.ts';
+import { recordWrite } from './write_state.ts';
 
 /**
  * Write new SKILL.md content to an existing spell, leaving the change
@@ -29,5 +30,6 @@ export function updateSpell(
 		}
 		assertSpellExists(root, path);
 		writeFileSync(join(root, path, 'SKILL.md'), content);
+		recordWrite(ctx, path, content);
 	});
 }

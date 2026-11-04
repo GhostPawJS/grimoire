@@ -14,19 +14,18 @@ const count = (n: number, noun: string) => `${n} ${noun}${n === 1 ? '' : 's'}`;
 
 export const runCatalogueTool = defineGrimoireTool<CatalogueInput, ToolResult<CatalogueSnapshot>>({
 	name: runCatalogueToolName,
-	description:
-		'Run the full catalogue maintenance pass — detect stale/dormant/oversized spells, route notes, cluster orphans, compute honing pressure.',
-	whenToUse: 'Periodically or after dropping many notes to process and analyze grimoire health.',
-	whenNotToUse: 'When just reading health data — use review_grimoire with view "health" instead.',
+	description: 'Maintain health, route notes, cluster orphans, and score honing pressure.',
+	whenToUse: 'After accumulating notes or for periodic maintenance.',
+	whenNotToUse: 'Read health with review_grimoire.',
 	sideEffects: 'writes_state',
 	readOnly: false,
 	supportsClarification: false,
 	targetKinds: ['spell', 'note', 'cluster'],
 	inputDescriptions: {
-		now: 'Optional timestamp override (milliseconds since epoch) for staleness calculations.',
+		now: 'Staleness timestamp in epoch milliseconds.',
 	},
 	outputDescription:
-		'Full catalogue snapshot: stale/dormant/oversized spells, note routing results, orphan clusters, chapter balance, spell honing pressure scores (health fields).',
+		'Health snapshot, note routes, orphan clusters, chapter balance, and honing pressure.',
 	inputSchema: objectSchema({ now: integerSchema('Timestamp override (ms)') }, []),
 	handler(ctx, input) {
 		if (!ctx.db) {

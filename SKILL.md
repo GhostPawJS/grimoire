@@ -77,76 +77,60 @@ Inspect schemas with `ghostpaw-grimoire describe <tool>`. Use `--db <path>` to s
 
 ## search_grimoire
 
-Search the grimoire for spells by name, description, and body.
-
-Use when: When looking for spells matching a keyword, topic, or partial name.
-
-Not for: When you already know the exact spell path — use inspect_grimoire_item instead.
+Search spell names, descriptions, and bodies.
 
 Read-only.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
 | query | string | yes | Search query |
-| chapters | array of string | no | Chapters to filter by |
+| chapters | array of string | no |  |
 
 Example: `ghostpaw-grimoire call search_grimoire '{"query":"post image VPS"}'`
 
 ## review_grimoire
 
-Review a dashboard view of the grimoire — chapters, health, resonance, notes, drafts, validation, provenance, or index.
-
-Use when: When you need a broad overview of grimoire state from a specific angle.
-
-Not for: When you need details about a single spell — use inspect_grimoire_item instead.
+Review chapters, health, resonance, notes, drafts, validation, provenance, or index.
 
 Read-only.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
-| strict | boolean | no | Reject invalid YAML values and unknown frontmatter fields. Default false. |
-| view | string | yes | chapters, health, resonance, notes, drafts, validation, provenance, index. Review view |
+| strict | boolean | no | Reject invalid YAML and unknown frontmatter. |
+| view | string | yes | chapters, health, resonance, notes, drafts, validation, provenance, index.  |
 | limit | integer | no | Maximum results to return |
 | now | integer | no | Timestamp override |
-| format | string | no | prompt. Index output format |
+| format | string | no | prompt.  |
 
 Example: `ghostpaw-grimoire call review_grimoire '{"view":"index"}'`
 
 ## inspect_grimoire_item
 
-Inspect a single spell in detail, including tier, resonance, validation, provenance, and history.
-
-Use when: When you need full details about a specific spell by its path.
-
-Not for: When you want a broad overview — use review_grimoire instead.
+Inspect spell content, tier, resonance, validation, provenance, and history.
 
 Read-only.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
-| strict | boolean | no | Reject invalid YAML values and unknown frontmatter fields. Default false. |
+| strict | boolean | no | Reject invalid YAML and unknown frontmatter. |
 | path | string | yes | Spell path |
 
 Example: `ghostpaw-grimoire call inspect_grimoire_item '{"path":"ops/verify-release"}'`
 
 ## inscribe_spell
 
-Create a new spell in the grimoire.
-
-Use when: When writing a new skill/spell into the grimoire from scratch.
-
-Not for: When updating existing spell content — use update_spell to edit, then hone_spell to seal.
+Create a spell from SKILL.md content (YAML frontmatter and Markdown).
 
 Writes: writes_state.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
-| strict | boolean | no | Reject invalid YAML values and unknown frontmatter fields. Default false. |
+| strict | boolean | no | Reject invalid YAML and unknown frontmatter. |
 | name | string | yes | Spell name |
 | content | string | yes | Spell body content in markdown |
 | chapter | string | no | Chapter name |
-| verbose | boolean | no | Include the full spell in the result. |
-| force | boolean | no | Replace an existing spell at the same path. Default false. |
+| verbose | boolean | no | Include full spell. |
+| force | boolean | no | Overwrite the target spell. |
 
 Example: `ghostpaw-grimoire call inscribe_spell '{"name":"verify-release","content":"---\nname: verify-release\ndescription: Verify release checksums\n---\nCheck SHA256SUMS before installing.\n"}'`
 
@@ -154,18 +138,18 @@ Example: `ghostpaw-grimoire call inscribe_spell '{"name":"verify-release","conte
 
 Write new content to an existing spell, leaving the change uncommitted.
 
-Use when: When incorporating note evidence or improvements into an existing spell body. Follow with hone_spell to seal and advance rank.
-
-Not for: When creating a brand-new spell — use inscribe_spell instead. When you only want to checkpoint existing edits — use hone_spell directly.
-
 Writes: writes_state.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
-| strict | boolean | no | Reject invalid YAML values and unknown frontmatter fields. Default false. |
+| strict | boolean | no | Reject invalid YAML and unknown frontmatter. |
 | path | string | yes | Spell path |
-| verbose | boolean | no | Include the full spell in the result. |
-| content | string | yes | Full spec-compliant SKILL.md content |
+| verbose | boolean | no | Include full spell. |
+| content | string | no | Full SKILL.md |
+| replace | array of object | no |  |
+| appendSection | object | no |  |
+| appendSection.heading | string | yes | Heading |
+| appendSection.body | string | yes | Markdown |
 
 Example: `ghostpaw-grimoire call update_spell '{"path":"ops/verify-release","content":"---\nname: verify-release\ndescription: Verify release checksums\n---\nCheck SHA256SUMS and retry if the digest differs.\n"}'`
 
@@ -173,50 +157,38 @@ Example: `ghostpaw-grimoire call update_spell '{"path":"ops/verify-release","con
 
 Seal pending spell changes into a git commit, advancing spell ranks.
 
-Use when: After editing spell content with update_spell, to checkpoint changes and evolve spell tiers. Pass note_ids to mark which notes were absorbed during this honing session.
-
-Not for: When there are no spell changes or absorbed notes to record.
-
 Writes: writes_state.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
-| paths | array of string | no | Spell paths to seal |
-| verbose | boolean | no | Include full spells in the result. |
+| paths | array of string | no |  |
+| verbose | boolean | no | Include full spells. |
 | message | string | no | Commit message |
-| note_ids | array of integer | no | Note IDs to distill after sealing |
-| noteIds | array of integer | no | Alias of note_ids |
+| note_ids | array of integer | no |  |
+| noteIds | array of integer | no |  |
 
 Example: `ghostpaw-grimoire call hone_spell '{}'`
 
 ## manage_spell
 
-Manage spells: shelve, unshelve, move, delete, repair, repair all, or rollback to a previous seal.
-
-Use when: When you need to reorganize, archive, restore, move, remove, fix, or revert spells.
-
-Not for: When creating new spells — use inscribe_spell. When sealing changes — use hone_spell.
+Archive, restore, move, delete, repair, or roll back spells.
 
 Writes: writes_state.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
-| action | string | yes | shelve, unshelve, move, delete, repair, repair_all, rollback. The management action to perform: shelve, unshelve, move, delete, repair, repair_all, or rollback. |
-| verbose | boolean | no | Include the full spell when available. |
-| force | boolean | no | Replace an existing spell at the same path. Default false. |
-| path | string | no | Spell path — required for all actions except repair_all. |
-| target | string | no | Target path — required for move. |
-| ref | string | no | Git commit hash to revert to — required for rollback. Use inspect_grimoire_item to find seal hashes from history. |
+| action | string | yes | shelve, unshelve, move, delete, repair, repair_all, rollback.  |
+| verbose | boolean | no | Include full spell if available. |
+| force | boolean | no | Overwrite the target spell. |
+| path | string | no | Required except repair_all. |
+| target | string | no | Required move target. |
+| ref | string | no | Required rollback hash; find via inspect_grimoire_item. |
 
 Example: `ghostpaw-grimoire call manage_spell '{"action":"repair_all"}'`
 
 ## drop_note
 
-Drop an observation note into the grimoire for later cataloguing.
-
-Use when: When capturing an insight, observation, or piece of evidence about a spell topic.
-
-Not for: When creating or editing a spell directly — use inscribe_spell or hone_spell.
+Record an observation for later cataloguing.
 
 Writes: writes_state.
 
@@ -232,19 +204,15 @@ Example: `ghostpaw-grimoire call drop_note '{"content":"Verify the build before 
 
 Submit, approve, or dismiss spell drafts.
 
-Use when: When managing the draft pipeline — proposing new spells from notes, approving, or dismissing drafts.
-
-Not for: When creating spells directly — use inscribe_spell instead.
-
 Writes: writes_state.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
-| action | string | yes | submit, approve, dismiss. Draft action to perform: submit, approve, or dismiss. |
+| action | string | yes | submit, approve, dismiss.  |
 | title | string | no | Draft title — required for submit. |
-| rationale | string | no | Why this draft should become a spell — required for submit. |
-| noteIds | array of integer | no | Note IDs backing this draft — required for submit. |
-| note_ids | array of integer | no | Alias of noteIds |
+| rationale | string | no | Required submission rationale. |
+| noteIds | array of integer | no |  |
+| note_ids | array of integer | no |  |
 | chapter | string | no | Chapter for the potential spell — required for submit. |
 | draftId | integer | no | Draft ID — required for approve and dismiss. |
 
@@ -252,11 +220,7 @@ Example: `ghostpaw-grimoire call manage_draft '{"action":"submit","title":"Relea
 
 ## run_catalogue
 
-Run the full catalogue maintenance pass — detect stale/dormant/oversized spells, route notes, cluster orphans, compute honing pressure.
-
-Use when: Periodically or after dropping many notes to process and analyze grimoire health.
-
-Not for: When just reading health data — use review_grimoire with view "health" instead.
+Maintain health, route notes, cluster orphans, and score honing pressure.
 
 Writes: writes_state.
 
@@ -270,18 +234,14 @@ Example: `ghostpaw-grimoire call run_catalogue '{}'`
 
 Scout, search, adopt, and update spells from external sources.
 
-Use when: When discovering new skills from AgentSkillHub or GitHub, importing them, or checking for upstream updates.
-
-Not for: When working with local spells only — use inscribe_spell or hone_spell.
-
 Writes: writes_state.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
-| strict | boolean | no | Reject invalid YAML values and unknown frontmatter fields during adoption or updates. Default false. |
-| action | string | yes | adopt, search, check_updates, apply_update. Scout action to perform: adopt (import from source), search (find skills), check_updates, or apply_update. |
-| source | string | no | Source URL or identifier — required for adopt. |
-| chapter | string | no | Chapter for adopted spells — optional for adopt. |
+| strict | boolean | no | Reject invalid YAML and unknown frontmatter during import or update. |
+| action | string | yes | adopt, search, check_updates, apply_update.  |
+| source | string | no | Required adopt source. |
+| chapter | string | no | Adoption chapter. |
 | query | string | no | Search query — required for search. |
 | path | string | no | Spell path — required for apply_update. |
 
@@ -300,7 +260,7 @@ Example: `ghostpaw-grimoire call scout_skills '{"action":"search","query":"pdf"}
 - `ghostpaw-grimoire skill reorganize-spell-chapters`: Restructure chapter layout by moving, shelving, and unshelving spells to achieve balanced organization.
 - `ghostpaw-grimoire skill resolve-validation-failures`: Systematically diagnose and fix structural validation failures across the grimoire.
 - `ghostpaw-grimoire skill archive-and-prune-spells`: Identify dead weight and retire it using the correct archival action.
-- `ghostpaw-grimoire skill decompose-oversized-spells`: Split an oversized spell into focused modules, migrating content while preserving knowledge.
+- `ghostpaw-grimoire skill decompose-oversized-spells`: Find better abstractions before splitting oversized spells.
 - `ghostpaw-grimoire skill handle-edge-cases-gracefully`: Diagnose unexpected states by reading before mutating, following tool error recovery hints, and refusing to guess.
 
 ## Principles

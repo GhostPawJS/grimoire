@@ -44,13 +44,34 @@ describe('updateSpellTool', () => {
 		assert.ok(updateSpellTool.whenNotToUse && updateSpellTool.whenNotToUse.length > 0);
 	});
 
-	it('has valid input schema with required path and content', () => {
+	it('has valid input schema with required path and validates edit inputs', () => {
 		assert.equal(updateSpellTool.inputSchema.type, 'object');
 		const props = updateSpellTool.inputSchema.properties ?? {};
 		assert.ok('path' in props);
 		assert.ok('content' in props);
+		assert.ok('replace' in props);
+		assert.ok('appendSection' in props);
 		assert.ok(updateSpellTool.inputSchema.required?.includes('path'));
-		assert.ok(updateSpellTool.inputSchema.required?.includes('content'));
+		const { root, cleanup } = createTestRoot({
+			chapters: [{ name: 'general', spells: [{ name: 'writing' }] }],
+		});
+		try {
+			for (const input of [
+				{ path: 'general/writing' },
+				{
+					path: 'general/writing',
+					content: VALID_CONTENT,
+					replace: [{ old: 'Updated body.', with: 'Replaced body.' }],
+				},
+			]) {
+				const result = updateSpellTool.handler({ root }, input);
+				assert.ok(!(result instanceof Promise));
+				assert.equal(result.ok, false);
+				assert.equal(result.outcome, 'error');
+			}
+		} finally {
+			cleanup();
+		}
 	});
 
 	it('writes content to disk and returns success', () => {

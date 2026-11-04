@@ -1,5 +1,5 @@
 import { type Readable, Writable } from 'node:stream';
-import { readFileValue } from './cli_args.ts';
+import { CliUsageError, readFileValue } from './cli_args.ts';
 import { runCliCommand } from './cli_commands.ts';
 import { cliVersionOutput } from './cli_version.ts';
 import { isErrorResult, type JsonSchema, type SurfaceTool } from './surface_types.ts';
@@ -15,6 +15,7 @@ export interface ToolCliOptions<TCtx> {
 		tool: SurfaceTool<TCtx>,
 		input: Record<string, unknown>,
 		quiet: boolean,
+		compact?: boolean,
 	) => string;
 	tools: readonly SurfaceTool<TCtx>[];
 	openContext(opts: { db?: string; root?: string; gitDir?: string }): TCtx | Promise<TCtx>;
@@ -225,7 +226,10 @@ export async function runToolCli<TCtx>(
 	try {
 		context = await options.openContext(ctxOptions);
 	} catch (cause) {
-		return fail(String(cause), 70);
+		return fail(
+			cause instanceof Error ? cause.message : String(cause),
+			cause instanceof CliUsageError ? 2 : 70,
+		);
 	}
 	try {
 		const result = await tool.handler(context, input as Record<string, unknown>);
@@ -249,7 +253,10 @@ export async function runToolCli<TCtx>(
 						? 70
 						: 1;
 	} catch (cause) {
-		return fail(String(cause), 70);
+		return fail(
+			cause instanceof Error ? cause.message : String(cause),
+			cause instanceof CliUsageError ? 2 : 70,
+		);
 	} finally {
 		await options.closeContext?.(context);
 	}

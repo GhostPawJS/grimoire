@@ -460,11 +460,11 @@
 	},
 	".:exports.skills.decomposeOversizedSpellsSkill.content": {
 		"kind": "string",
-		"value": "# Decompose Oversized Spells\n\nPrimary tools:\n- `inspect_grimoire_item`\n- `inscribe_spell`\n- `manage_spell`\n- `hone_spell`\n- `review_grimoire`\n\nGoal:\n- Take a spell that has grown too large and break it into smaller, focused spells — each covering a distinct section of the original — then retire the original while preserving all knowledge.\n\nWhen to use:\n- When the catalogue flags a spell as oversized.\n- When a spell covers multiple distinct topics that would be better served as separate spells.\n- When a spell's body has grown beyond the point where it is easy to navigate or maintain.\n\nWhen not to use:\n- When the spell is large but cohesive — size alone is not a reason to split.\n- When the spell is dormant — consider archiving it instead of decomposing.\n- When the content is duplicated elsewhere — deduplicate rather than split.\n\nStep-by-step sequence:\n1. Call `inspect_grimoire_item` with the oversized spell path to read its full content, frontmatter, validation state, and tier.\n2. Identify distinct sections or topics within the body that can stand alone as independent spells.\n3. For each identified section, call `inscribe_spell` with a focused name, the extracted content, and the appropriate chapter.\n4. Call `review_grimoire` with view \"validation\" to verify all newly inscribed spells pass structural validation.\n5. If git is available, call `hone_spell` to seal the new spells, checkpointing the decomposition.\n6. Call `manage_spell` with action \"shelve\" on the original oversized spell to archive it — preserving its history while removing it from the active grimoire.\n7. Call `review_grimoire` with view \"chapters\" to confirm the new spells are present and the original is gone.\n\nValidation checks:\n- Each new spell must pass validation (check via `review_grimoire` with view \"validation\").\n- The original spell must be shelved, not deleted — its history may be valuable.\n- The total content across new spells should cover all sections from the original.\n- No orphaned references should remain pointing to the old spell path.\n\nPitfalls:\n- Do not create too many tiny spells — each should have enough substance to be useful on its own.\n- Do not delete the original before verifying the new spells pass validation.\n- Frontmatter (name, description) must be unique per new spell — do not copy the original's name.\n\nTips and tricks:\n- Name new spells by their specific focus area, using the original's name as a prefix for discoverability.\n- Place all parts in the same chapter as the original unless a different chapter is a better fit.\n- Use `search_grimoire` after decomposition to verify the new spells are findable by the same queries the original would have matched.\n\nTool calls to prefer:\n- `inspect_grimoire_item` to understand the original before splitting.\n- `inscribe_spell` to create each focused part.\n- `manage_spell` with action \"shelve\" to retire the original.\n\nRelated skills:\n- `archive-and-prune-spells` — when the spell should be retired outright rather than decomposed.\n- `resolve-validation-failures` — to fix any validation issues in the new spells.\n"
+		"value": "# Decompose Oversized Spells\n\nPrimary tools:\n- `inspect_grimoire_item`\n- `inscribe_spell`\n- `manage_spell`\n- `hone_spell`\n- `review_grimoire`\n\nGoal:\n- Compress oversized spells; split only as a last resort.\n\nWhen to use:\n- When the catalogue flags a spell as oversized.\n- When a spell covers multiple distinct topics that would be better served as separate spells.\n- When a spell's body has grown beyond the point where it is easy to navigate or maintain.\n\nWhen not to use:\n- When the spell is large but cohesive — size alone is not a reason to split.\n- When the spell is dormant — consider archiving it instead of decomposing.\n- When the content is duplicated elsewhere — deduplicate rather than split.\n\nStep-by-step sequence:\n1. Ask whether a better abstraction makes the spell smaller. Inspect with `inspect_grimoire_item`; replace specific steps with a general rule, merge duplicated cases, and keep one teaching example. Move rare detail to a reference spell only if needed. Edit with `update_spell`, then re-measure with `review_grimoire` before splitting.\n2. Only as a last resort, split using the following sequence.\n3. Call `inspect_grimoire_item` with the oversized spell path to read its full content, frontmatter, validation state, and tier.\n4. Identify distinct sections or topics within the body that can stand alone as independent spells.\n5. For each identified section, call `inscribe_spell` with a focused name, the extracted content, and the appropriate chapter.\n6. Call `review_grimoire` with view \"validation\" to verify all newly inscribed spells pass structural validation.\n7. If git is available, call `hone_spell` to seal the new spells, checkpointing the decomposition.\n8. Call `manage_spell` with action \"shelve\" on the original oversized spell to archive it — preserving its history while removing it from the active grimoire.\n9. Call `review_grimoire` with view \"chapters\" to confirm the new spells are present and the original is gone.\n\nValidation checks:\n- Each new spell must pass validation (check via `review_grimoire` with view \"validation\").\n- The original spell must be shelved, not deleted — its history may be valuable.\n- The total content across new spells should cover all sections from the original.\n- No orphaned references should remain pointing to the old spell path.\n\nPitfalls:\n- Do not create too many tiny spells — each should have enough substance to be useful on its own.\n- Do not delete the original before verifying the new spells pass validation.\n- Frontmatter (name, description) must be unique per new spell — do not copy the original's name.\n\nTips and tricks:\n- Name new spells by their specific focus area, using the original's name as a prefix for discoverability.\n- Place all parts in the same chapter as the original unless a different chapter is a better fit.\n- Use `search_grimoire` after decomposition to verify the new spells are findable by the same queries the original would have matched.\n\nTool calls to prefer:\n- `inspect_grimoire_item` to understand the original before splitting.\n- `inscribe_spell` to create each focused part.\n- `manage_spell` with action \"shelve\" to retire the original.\n\nRelated skills:\n- `archive-and-prune-spells` — when the spell should be retired outright rather than decomposed.\n- `resolve-validation-failures` — to fix any validation issues in the new spells.\n"
 	},
 	".:exports.skills.decomposeOversizedSpellsSkill.description": {
 		"kind": "string",
-		"value": "Split an oversized spell into focused modules, migrating content while preserving knowledge."
+		"value": "Find better abstractions before splitting oversized spells."
 	},
 	".:exports.skills.decomposeOversizedSpellsSkill.name": {
 		"kind": "string",
@@ -822,7 +822,7 @@
 	},
 	".:exports.tools.dropNoteTool.description": {
 		"kind": "string",
-		"value": "Drop an observation note into the grimoire for later cataloguing."
+		"value": "Record an observation for later cataloguing."
 	},
 	".:exports.tools.dropNoteTool.handler": {
 		"kind": "function"
@@ -856,11 +856,11 @@
 	},
 	".:exports.tools.dropNoteTool.whenNotToUse": {
 		"kind": "string",
-		"value": "When creating or editing a spell directly — use inscribe_spell or hone_spell."
+		"value": "Write spells with inscribe_spell or update_spell."
 	},
 	".:exports.tools.dropNoteTool.whenToUse": {
 		"kind": "string",
-		"value": "When capturing an insight, observation, or piece of evidence about a spell topic."
+		"value": "Capture evidence about a spell topic."
 	},
 	".:exports.tools.dropNoteToolName": {
 		"kind": "string",
@@ -933,7 +933,7 @@
 	},
 	".:exports.tools.honeSpellTool.outputDescription": {
 		"kind": "string",
-		"value": "The commit hash, sealed paths, resulting ranks, tier info, and any note IDs that were distilled."
+		"value": "Commit, sealed paths, ranks, tiers, and distilled note IDs."
 	},
 	".:exports.tools.honeSpellTool.readOnly": {
 		"kind": "boolean"
@@ -950,11 +950,11 @@
 	},
 	".:exports.tools.honeSpellTool.whenNotToUse": {
 		"kind": "string",
-		"value": "When there are no spell changes or absorbed notes to record."
+		"value": "No edits or absorbed notes."
 	},
 	".:exports.tools.honeSpellTool.whenToUse": {
 		"kind": "string",
-		"value": "After editing spell content with update_spell, to checkpoint changes and evolve spell tiers. Pass note_ids to mark which notes were absorbed during this honing session."
+		"value": "Checkpoint edits from update_spell; note_ids records absorbed notes."
 	},
 	".:exports.tools.honeSpellToolName": {
 		"kind": "string",
@@ -965,7 +965,7 @@
 	},
 	".:exports.tools.inscribeSpellTool.description": {
 		"kind": "string",
-		"value": "Create a new spell in the grimoire."
+		"value": "Create a spell from SKILL.md content (YAML frontmatter and Markdown)."
 	},
 	".:exports.tools.inscribeSpellTool.handler": {
 		"kind": "function"
@@ -982,7 +982,7 @@
 	},
 	".:exports.tools.inscribeSpellTool.outputDescription": {
 		"kind": "string",
-		"value": "Compact spell metadata and duplication warnings; verbose includes the full spell."
+		"value": "Spell metadata and duplication warnings; verbose adds content."
 	},
 	".:exports.tools.inscribeSpellTool.readOnly": {
 		"kind": "boolean"
@@ -999,11 +999,11 @@
 	},
 	".:exports.tools.inscribeSpellTool.whenNotToUse": {
 		"kind": "string",
-		"value": "When updating existing spell content — use update_spell to edit, then hone_spell to seal."
+		"value": "Edit with update_spell, then seal with hone_spell."
 	},
 	".:exports.tools.inscribeSpellTool.whenToUse": {
 		"kind": "string",
-		"value": "When writing a new skill/spell into the grimoire from scratch."
+		"value": "Create a spell."
 	},
 	".:exports.tools.inscribeSpellToolName": {
 		"kind": "string",
@@ -1014,7 +1014,7 @@
 	},
 	".:exports.tools.inspectGrimoireItemTool.description": {
 		"kind": "string",
-		"value": "Inspect a single spell in detail, including tier, resonance, validation, provenance, and history."
+		"value": "Inspect spell content, tier, resonance, validation, provenance, and history."
 	},
 	".:exports.tools.inspectGrimoireItemTool.handler": {
 		"kind": "function"
@@ -1031,7 +1031,7 @@
 	},
 	".:exports.tools.inspectGrimoireItemTool.outputDescription": {
 		"kind": "string",
-		"value": "Full spell details including tier info, resonance, validation, provenance, and git history."
+		"value": "Spell content, health, provenance, and history."
 	},
 	".:exports.tools.inspectGrimoireItemTool.readOnly": {
 		"kind": "boolean"
@@ -1048,11 +1048,11 @@
 	},
 	".:exports.tools.inspectGrimoireItemTool.whenNotToUse": {
 		"kind": "string",
-		"value": "When you want a broad overview — use review_grimoire instead."
+		"value": "Use review_grimoire for an overview."
 	},
 	".:exports.tools.inspectGrimoireItemTool.whenToUse": {
 		"kind": "string",
-		"value": "When you need full details about a specific spell by its path."
+		"value": "Inspect one spell by path."
 	},
 	".:exports.tools.inspectGrimoireItemToolName": {
 		"kind": "string",
@@ -1109,11 +1109,11 @@
 	},
 	".:exports.tools.manageDraftTool.whenNotToUse": {
 		"kind": "string",
-		"value": "When creating spells directly — use inscribe_spell instead."
+		"value": "Create directly with inscribe_spell."
 	},
 	".:exports.tools.manageDraftTool.whenToUse": {
 		"kind": "string",
-		"value": "When managing the draft pipeline — proposing new spells from notes, approving, or dismissing drafts."
+		"value": "Propose, approve, or dismiss drafts backed by notes."
 	},
 	".:exports.tools.manageDraftToolName": {
 		"kind": "string",
@@ -1127,7 +1127,7 @@
 	},
 	".:exports.tools.manageSpellTool.description": {
 		"kind": "string",
-		"value": "Manage spells: shelve, unshelve, move, delete, repair, repair all, or rollback to a previous seal."
+		"value": "Archive, restore, move, delete, repair, or roll back spells."
 	},
 	".:exports.tools.manageSpellTool.handler": {
 		"kind": "function"
@@ -1144,7 +1144,7 @@
 	},
 	".:exports.tools.manageSpellTool.outputDescription": {
 		"kind": "string",
-		"value": "Action-specific result with the affected spell path(s)."
+		"value": "Action result and affected paths."
 	},
 	".:exports.tools.manageSpellTool.readOnly": {
 		"kind": "boolean"
@@ -1161,11 +1161,11 @@
 	},
 	".:exports.tools.manageSpellTool.whenNotToUse": {
 		"kind": "string",
-		"value": "When creating new spells — use inscribe_spell. When sealing changes — use hone_spell."
+		"value": "Create with inscribe_spell; seal with hone_spell."
 	},
 	".:exports.tools.manageSpellTool.whenToUse": {
 		"kind": "string",
-		"value": "When you need to reorganize, archive, restore, move, remove, fix, or revert spells."
+		"value": "Manage spell files and history."
 	},
 	".:exports.tools.manageSpellToolName": {
 		"kind": "string",
@@ -1188,7 +1188,7 @@
 	},
 	".:exports.tools.reviewGrimoireTool.description": {
 		"kind": "string",
-		"value": "Review a dashboard view of the grimoire — chapters, health, resonance, notes, drafts, validation, provenance, or index."
+		"value": "Review chapters, health, resonance, notes, drafts, validation, provenance, or index."
 	},
 	".:exports.tools.reviewGrimoireTool.handler": {
 		"kind": "function"
@@ -1222,11 +1222,11 @@
 	},
 	".:exports.tools.reviewGrimoireTool.whenNotToUse": {
 		"kind": "string",
-		"value": "When you need details about a single spell — use inspect_grimoire_item instead."
+		"value": "Inspect one spell with inspect_grimoire_item."
 	},
 	".:exports.tools.reviewGrimoireTool.whenToUse": {
 		"kind": "string",
-		"value": "When you need a broad overview of grimoire state from a specific angle."
+		"value": "Review grimoire state by view."
 	},
 	".:exports.tools.reviewGrimoireToolName": {
 		"kind": "string",
@@ -1240,7 +1240,7 @@
 	},
 	".:exports.tools.runCatalogueTool.description": {
 		"kind": "string",
-		"value": "Run the full catalogue maintenance pass — detect stale/dormant/oversized spells, route notes, cluster orphans, compute honing pressure."
+		"value": "Maintain health, route notes, cluster orphans, and score honing pressure."
 	},
 	".:exports.tools.runCatalogueTool.handler": {
 		"kind": "function"
@@ -1257,7 +1257,7 @@
 	},
 	".:exports.tools.runCatalogueTool.outputDescription": {
 		"kind": "string",
-		"value": "Full catalogue snapshot: stale/dormant/oversized spells, note routing results, orphan clusters, chapter balance, spell honing pressure scores (health fields)."
+		"value": "Health snapshot, note routes, orphan clusters, chapter balance, and honing pressure."
 	},
 	".:exports.tools.runCatalogueTool.readOnly": {
 		"kind": "boolean"
@@ -1274,11 +1274,11 @@
 	},
 	".:exports.tools.runCatalogueTool.whenNotToUse": {
 		"kind": "string",
-		"value": "When just reading health data — use review_grimoire with view \"health\" instead."
+		"value": "Read health with review_grimoire."
 	},
 	".:exports.tools.runCatalogueTool.whenToUse": {
 		"kind": "string",
-		"value": "Periodically or after dropping many notes to process and analyze grimoire health."
+		"value": "After accumulating notes or for periodic maintenance."
 	},
 	".:exports.tools.runCatalogueToolName": {
 		"kind": "string",
@@ -1306,7 +1306,7 @@
 	},
 	".:exports.tools.scoutSkillsTool.outputDescription": {
 		"kind": "string",
-		"value": "Action-specific result: adopted spells, search results, update checks, or apply result."
+		"value": "Imported spells, matches, or update results."
 	},
 	".:exports.tools.scoutSkillsTool.readOnly": {
 		"kind": "boolean"
@@ -1323,11 +1323,11 @@
 	},
 	".:exports.tools.scoutSkillsTool.whenNotToUse": {
 		"kind": "string",
-		"value": "When working with local spells only — use inscribe_spell or hone_spell."
+		"value": "Write locally with inscribe_spell or hone_spell."
 	},
 	".:exports.tools.scoutSkillsTool.whenToUse": {
 		"kind": "string",
-		"value": "When discovering new skills from AgentSkillHub or GitHub, importing them, or checking for upstream updates."
+		"value": "Find, import, or update external skills."
 	},
 	".:exports.tools.scoutSkillsToolName": {
 		"kind": "string",
@@ -1338,7 +1338,7 @@
 	},
 	".:exports.tools.searchGrimoireTool.description": {
 		"kind": "string",
-		"value": "Search the grimoire for spells by name, description, and body."
+		"value": "Search spell names, descriptions, and bodies."
 	},
 	".:exports.tools.searchGrimoireTool.handler": {
 		"kind": "function"
@@ -1355,7 +1355,7 @@
 	},
 	".:exports.tools.searchGrimoireTool.outputDescription": {
 		"kind": "string",
-		"value": "Matching spells with path, chapter, name, tier, rank, and description."
+		"value": "Matching spell metadata."
 	},
 	".:exports.tools.searchGrimoireTool.readOnly": {
 		"kind": "boolean"
@@ -1372,11 +1372,11 @@
 	},
 	".:exports.tools.searchGrimoireTool.whenNotToUse": {
 		"kind": "string",
-		"value": "When you already know the exact spell path — use inspect_grimoire_item instead."
+		"value": "Inspect known paths with inspect_grimoire_item."
 	},
 	".:exports.tools.searchGrimoireTool.whenToUse": {
 		"kind": "string",
-		"value": "When looking for spells matching a keyword, topic, or partial name."
+		"value": "Find spells by topic or partial name."
 	},
 	".:exports.tools.searchGrimoireToolName": {
 		"kind": "string",
@@ -1647,7 +1647,7 @@
 	},
 	".:exports.tools.updateSpellTool.outputDescription": {
 		"kind": "string",
-		"value": "Confirms the spell was updated on disk. The change is uncommitted — call hone_spell to seal it."
+		"value": "Uncommitted spell metadata; hone_spell seals edits."
 	},
 	".:exports.tools.updateSpellTool.readOnly": {
 		"kind": "boolean"
@@ -1664,11 +1664,11 @@
 	},
 	".:exports.tools.updateSpellTool.whenNotToUse": {
 		"kind": "string",
-		"value": "When creating a brand-new spell — use inscribe_spell instead. When you only want to checkpoint existing edits — use hone_spell directly."
+		"value": "Create with inscribe_spell; checkpoint with hone_spell."
 	},
 	".:exports.tools.updateSpellTool.whenToUse": {
 		"kind": "string",
-		"value": "When incorporating note evidence or improvements into an existing spell body. Follow with hone_spell to seal and advance rank."
+		"value": "Edit existing content, then seal with hone_spell."
 	},
 	".:exports.tools.useToolNext": {
 		"kind": "function"
@@ -10790,7 +10790,7 @@
 	},
 	".:public.tools.getGrimoireToolByName": {
 		"kind": "value",
-		"type": "(name: string) => GrimoireToolDefinition<{ content: string; source: string; domain?: string; }, ToolResult<{ noteId: number; }>> | GrimoireToolDefinition<{ paths?: string[]; message?: string; note_ids?: number[]; noteIds?: number[]; verbose?: boolean; }, ToolResult<{ spells?: ReturnType<typeof spellWriteData>[]; commitHash: string; sealedPaths: string[]; ranks: Record<string, number>; tiers: Record<string, TierInfo>; distilledNoteIds: number[]; }>> | GrimoireToolDefinition<{ name: string; strict?: boolean; content: string; chapter?: string; force?: boolean; verbose?: boolean; }, ToolResult<{ path: string; chapter: string; name: string; strict?: boolean; rank: number; tier: string; commit?: string; spell?: Spell; warnings: DuplicationWarning[]; }>> | GrimoireToolDefinition<{ strict?: boolean; path: string; }, ToolResult<{ spell: Spell; tierInfo: TierInfo; validation: SpellValidationResult; resonance?: ResonanceResult & { lastSealAtIso?: string | null; }; provenance?: Provenance; history?: HistoryEntry[]; }>> | GrimoireToolDefinition<{ action: \"submit\"; title: string; rationale: string; noteIds?: number[]; note_ids?: number[]; chapter: string; } | { action: \"approve\"; draftId: number; } | { action: \"dismiss\"; draftId: number; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<({ action: \"shelve\"; path: string; } | { action: \"unshelve\"; path: string; force?: boolean; } | { action: \"move\"; path: string; target: string; force?: boolean; } | { action: \"delete\"; path: string; } | { action: \"repair\"; path: string; } | { action: \"repair_all\"; } | { action: \"rollback\"; path: string; ref: string; }) & { verbose?: boolean; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ strict?: boolean; view: \"chapters\" | \"provenance\" | \"notes\" | \"health\" | \"drafts\" | \"validation\" | \"resonance\" | \"index\"; limit?: number; now?: number; format?: \"prompt\"; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ now?: number; }, ToolResult<CatalogueSnapshot>> | GrimoireToolDefinition<{ action: \"adopt\"; source: string; chapter?: string; strict?: boolean; } | { action: \"search\"; query: string; } | { action: \"check_updates\"; } | { action: \"apply_update\"; path: string; strict?: boolean; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ query: string; chapters?: string[]; }, ToolResult<{ results: (IndexEntry & { score: number; })[]; count: number; }>> | GrimoireToolDefinition<{ strict?: boolean; path: string; content: string; verbose?: boolean; }, ToolResult<{ spell?: Spell; path: string; chapter: string; name: string; rank: number; tier: Tier; commit: string; warnings: never[]; }>> | undefined"
+		"type": "(name: string) => GrimoireToolDefinition<{ content: string; source: string; domain?: string; }, ToolResult<{ noteId: number; }>> | GrimoireToolDefinition<{ paths?: string[]; message?: string; note_ids?: number[]; noteIds?: number[]; verbose?: boolean; }, ToolResult<{ spells?: ReturnType<typeof spellWriteData>[]; commitHash: string; rollbackHash?: string; sealedPaths: string[]; ranks: Record<string, number>; tiers: Record<string, TierInfo>; distilledNoteIds: number[]; }>> | GrimoireToolDefinition<{ name: string; strict?: boolean; content: string; chapter?: string; force?: boolean; verbose?: boolean; }, ToolResult<{ path: string; chapter: string; name: string; strict?: boolean; rank: number; tier: string; commit?: string; commitHash?: string; rollbackHash?: string; spell?: Spell; warnings: DuplicationWarning[]; }>> | GrimoireToolDefinition<{ strict?: boolean; path: string; }, ToolResult<{ spell: Spell; tierInfo: TierInfo; validation: SpellValidationResult; resonance?: ResonanceResult & { lastSealAtIso?: string | null; }; provenance?: Provenance; history?: HistoryEntry[]; }>> | GrimoireToolDefinition<{ action: \"submit\"; title: string; rationale: string; noteIds?: number[]; note_ids?: number[]; chapter: string; } | { action: \"approve\"; draftId: number; } | { action: \"dismiss\"; draftId: number; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<({ action: \"shelve\"; path: string; } | { action: \"unshelve\"; path: string; force?: boolean; } | { action: \"move\"; path: string; target: string; force?: boolean; } | { action: \"delete\"; path: string; } | { action: \"repair\"; path: string; } | { action: \"repair_all\"; } | { action: \"rollback\"; path: string; ref: string; }) & { verbose?: boolean; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ strict?: boolean; view: \"chapters\" | \"provenance\" | \"notes\" | \"health\" | \"drafts\" | \"validation\" | \"resonance\" | \"index\"; limit?: number; now?: number; format?: \"prompt\"; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ now?: number; }, ToolResult<CatalogueSnapshot>> | GrimoireToolDefinition<{ action: \"adopt\"; source: string; chapter?: string; strict?: boolean; } | { action: \"search\"; query: string; } | { action: \"check_updates\"; } | { action: \"apply_update\"; path: string; strict?: boolean; }, ToolResult<Record<string, unknown>>> | GrimoireToolDefinition<{ query: string; chapters?: string[]; }, ToolResult<{ results: (IndexEntry & { score: number; })[]; count: number; }>> | GrimoireToolDefinition<{ strict?: boolean; path: string; content?: string; replace?: { old: string; with: string; }[]; appendSection?: { heading: string; body: string; }; verbose?: boolean; }, ToolResult<{ spell?: Spell; path: string; chapter: string; name: string; rank: number; tier: Tier; commit: string; warnings: never[]; } & { commitHash?: string; rollbackHash?: string; }>> | undefined"
 	},
 	".:public.tools.GrimoireToolContext": {
 		"kind": "type",
@@ -13602,7 +13602,7 @@
 	},
 	".:public.tools.grimoireTools": {
 		"kind": "value",
-		"type": "readonly [GrimoireToolDefinition<{ query: string; chapters?: string[]; }, ToolResult<{ results: (IndexEntry & { score: number; })[]; count: number; }>>, GrimoireToolDefinition<{ strict?: boolean; view: \"chapters\" | \"provenance\" | \"notes\" | \"health\" | \"drafts\" | \"validation\" | \"resonance\" | \"index\"; limit?: number; now?: number; format?: \"prompt\"; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ strict?: boolean; path: string; }, ToolResult<{ spell: Spell; tierInfo: TierInfo; validation: SpellValidationResult; resonance?: ResonanceResult & { lastSealAtIso?: string | null; }; provenance?: Provenance; history?: HistoryEntry[]; }>>, GrimoireToolDefinition<{ name: string; strict?: boolean; content: string; chapter?: string; force?: boolean; verbose?: boolean; }, ToolResult<{ path: string; chapter: string; name: string; strict?: boolean; rank: number; tier: string; commit?: string; spell?: Spell; warnings: DuplicationWarning[]; }>>, GrimoireToolDefinition<{ strict?: boolean; path: string; content: string; verbose?: boolean; }, ToolResult<{ spell?: Spell; path: string; chapter: string; name: string; rank: number; tier: Tier; commit: string; warnings: never[]; }>>, GrimoireToolDefinition<{ paths?: string[]; message?: string; note_ids?: number[]; noteIds?: number[]; verbose?: boolean; }, ToolResult<{ spells?: ReturnType<typeof spellWriteData>[]; commitHash: string; sealedPaths: string[]; ranks: Record<string, number>; tiers: Record<string, TierInfo>; distilledNoteIds: number[]; }>>, GrimoireToolDefinition<({ action: \"shelve\"; path: string; } | { action: \"unshelve\"; path: string; force?: boolean; } | { action: \"move\"; path: string; target: string; force?: boolean; } | { action: \"delete\"; path: string; } | { action: \"repair\"; path: string; } | { action: \"repair_all\"; } | { action: \"rollback\"; path: string; ref: string; }) & { verbose?: boolean; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ content: string; source: string; domain?: string; }, ToolResult<{ noteId: number; }>>, GrimoireToolDefinition<{ action: \"submit\"; title: string; rationale: string; noteIds?: number[]; note_ids?: number[]; chapter: string; } | { action: \"approve\"; draftId: number; } | { action: \"dismiss\"; draftId: number; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ now?: number; }, ToolResult<CatalogueSnapshot>>, GrimoireToolDefinition<{ action: \"adopt\"; source: string; chapter?: string; strict?: boolean; } | { action: \"search\"; query: string; } | { action: \"check_updates\"; } | { action: \"apply_update\"; path: string; strict?: boolean; }, ToolResult<Record<string, unknown>>>]"
+		"type": "readonly [GrimoireToolDefinition<{ query: string; chapters?: string[]; }, ToolResult<{ results: (IndexEntry & { score: number; })[]; count: number; }>>, GrimoireToolDefinition<{ strict?: boolean; view: \"chapters\" | \"provenance\" | \"notes\" | \"health\" | \"drafts\" | \"validation\" | \"resonance\" | \"index\"; limit?: number; now?: number; format?: \"prompt\"; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ strict?: boolean; path: string; }, ToolResult<{ spell: Spell; tierInfo: TierInfo; validation: SpellValidationResult; resonance?: ResonanceResult & { lastSealAtIso?: string | null; }; provenance?: Provenance; history?: HistoryEntry[]; }>>, GrimoireToolDefinition<{ name: string; strict?: boolean; content: string; chapter?: string; force?: boolean; verbose?: boolean; }, ToolResult<{ path: string; chapter: string; name: string; strict?: boolean; rank: number; tier: string; commit?: string; commitHash?: string; rollbackHash?: string; spell?: Spell; warnings: DuplicationWarning[]; }>>, GrimoireToolDefinition<{ strict?: boolean; path: string; content?: string; replace?: { old: string; with: string; }[]; appendSection?: { heading: string; body: string; }; verbose?: boolean; }, ToolResult<{ spell?: Spell; path: string; chapter: string; name: string; rank: number; tier: Tier; commit: string; warnings: never[]; } & { commitHash?: string; rollbackHash?: string; }>>, GrimoireToolDefinition<{ paths?: string[]; message?: string; note_ids?: number[]; noteIds?: number[]; verbose?: boolean; }, ToolResult<{ spells?: ReturnType<typeof spellWriteData>[]; commitHash: string; rollbackHash?: string; sealedPaths: string[]; ranks: Record<string, number>; tiers: Record<string, TierInfo>; distilledNoteIds: number[]; }>>, GrimoireToolDefinition<({ action: \"shelve\"; path: string; } | { action: \"unshelve\"; path: string; force?: boolean; } | { action: \"move\"; path: string; target: string; force?: boolean; } | { action: \"delete\"; path: string; } | { action: \"repair\"; path: string; } | { action: \"repair_all\"; } | { action: \"rollback\"; path: string; ref: string; }) & { verbose?: boolean; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ content: string; source: string; domain?: string; }, ToolResult<{ noteId: number; }>>, GrimoireToolDefinition<{ action: \"submit\"; title: string; rationale: string; noteIds?: number[]; note_ids?: number[]; chapter: string; } | { action: \"approve\"; draftId: number; } | { action: \"dismiss\"; draftId: number; }, ToolResult<Record<string, unknown>>>, GrimoireToolDefinition<{ now?: number; }, ToolResult<CatalogueSnapshot>>, GrimoireToolDefinition<{ action: \"adopt\"; source: string; chapter?: string; strict?: boolean; } | { action: \"search\"; query: string; } | { action: \"check_updates\"; } | { action: \"apply_update\"; path: string; strict?: boolean; }, ToolResult<Record<string, unknown>>>]"
 	},
 	".:public.tools.honeNext": {
 		"kind": "value",
@@ -16758,7 +16758,7 @@
 	},
 	".:public.tools.updateSpellTool": {
 		"kind": "value",
-		"type": "GrimoireToolDefinition<UpdateSpellInput, ToolResult<{ spell?: Spell; path: string; chapter: string; name: string; rank: number; tier: Tier; commit: string; warnings: never[]; }>>"
+		"type": "GrimoireToolDefinition<UpdateSpellInput, ToolResult<UpdateSpellData>>"
 	},
 	".:public.tools.useToolNext": {
 		"kind": "value",

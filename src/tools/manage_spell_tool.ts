@@ -30,40 +30,40 @@ type ManageInput = (
 export const manageSpellTool = defineGrimoireTool<ManageInput, ToolResult<Record<string, unknown>>>(
 	{
 		name: manageSpellToolName,
-		description:
-			'Manage spells: shelve, unshelve, move, delete, repair, repair all, or rollback to a previous seal.',
-		whenToUse:
-			'When you need to reorganize, archive, restore, move, remove, fix, or revert spells.',
-		whenNotToUse:
-			'When creating new spells — use inscribe_spell. When sealing changes — use hone_spell.',
+		description: 'Archive, restore, move, delete, repair, or roll back spells.',
+		whenToUse: 'Manage spell files and history.',
+		whenNotToUse: 'Create with inscribe_spell; seal with hone_spell.',
 		sideEffects: 'writes_state',
 		readOnly: false,
 		supportsClarification: false,
 		targetKinds: ['spell'],
 		inputDescriptions: {
-			action:
-				'The management action: shelve, unshelve, move, delete, repair, repair_all, or rollback.',
-			path: 'Spell path (required for all actions except repair_all).',
+			force: 'Overwrite the target spell.',
+			action: 'Management action.',
+			path: 'Required except repair_all.',
 			target: 'Target path for move action.',
-			ref: 'Git commit hash to rollback to (rollback only). Use inspect_grimoire_item to find seal hashes from history.',
+			ref: 'Rollback hash from inspect_grimoire_item history.',
 		},
-		outputDescription: 'Action-specific result with the affected spell path(s).',
+		outputDescription: 'Action result and affected paths.',
 		inputSchema: objectSchema(
 			{
-				action: enumSchema(
-					'The management action to perform: shelve, unshelve, move, delete, repair, repair_all, or rollback.',
-					['shelve', 'unshelve', 'move', 'delete', 'repair', 'repair_all', 'rollback'],
-				),
-				verbose: { type: 'boolean', description: 'Include the full spell when available.' },
+				action: enumSchema('Management action.', [
+					'shelve',
+					'unshelve',
+					'move',
+					'delete',
+					'repair',
+					'repair_all',
+					'rollback',
+				]),
+				verbose: { type: 'boolean', description: 'Include full spell if available.' },
 				force: {
 					type: 'boolean',
-					description: 'Replace an existing spell at the same path. Default false.',
+					description: 'Overwrite the target spell.',
 				},
-				path: stringSchema('Spell path — required for all actions except repair_all.'),
-				target: stringSchema('Target path — required for move.'),
-				ref: stringSchema(
-					'Git commit hash to revert to — required for rollback. Use inspect_grimoire_item to find seal hashes from history.',
-				),
+				path: stringSchema('Required except repair_all.'),
+				target: stringSchema('Required move target.'),
+				ref: stringSchema('Required rollback hash; find via inspect_grimoire_item.'),
 			},
 			['action'],
 			'Manage a spell. Use action to select the operation.',

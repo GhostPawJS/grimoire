@@ -4,6 +4,7 @@ import {
 	type CliSpec,
 	CliUsageError,
 	parseCliArgs,
+	readFileValue,
 	renderCliHelp,
 } from './cli_args.ts';
 import { cliCompletion } from './cli_completion.ts';
@@ -144,7 +145,7 @@ export async function runCliCommand<T>(
 				...(schema.items?.type ? { itemType: schema.items.type as CliArgument['type'] } : {}),
 			});
 			const properties = command.tool.inputSchema.properties ?? {};
-			return {
+			const spec: CliSpec = {
 				command: `${options.bin} ${command.path}`,
 				description: command.tool.description,
 				positionals: command.positionals.map((name) => ({
@@ -170,6 +171,19 @@ export async function runCliCommand<T>(
 						description: `${schema.description ?? ''}${command.tool.inputSchema.required?.includes(name) ? ' (required)' : ''}`,
 					})),
 			};
+			if (command.tool.name === 'update_spell') {
+				spec.flags = [
+					...(spec.flags ?? []).filter(
+						(flag) => !['replace', 'append-section'].includes(flag.name),
+					),
+					{ name: 'replace', type: 'array', description: 'Exact text; repeat with --with.' },
+					{ name: 'with', type: 'array', description: 'Replacement text.' },
+					{ name: 'append-section', type: 'string', description: 'New section heading.' },
+					{ name: 'body', type: 'string', file: true, description: 'Section body.' },
+				];
+			}
+
+			return spec;
 		};
 		if (
 			!entry &&
@@ -255,7 +269,40 @@ export async function runCliCommand<T>(
 			if (!base || typeof base !== 'object' || Array.isArray(base))
 				throw new CliUsageError('Expected stdin JSON object');
 		}
-		const input = { ...(base as object), ...parseCliArgs(rest, spec), ...entry.fixed };
+		const updateInput: Record<string, unknown> = {};
+		if (entry.tool.name === 'update_spell') {
+			const old: string[] = [],
+				replacements: string[] = [];
+			let heading: string | undefined, body: string | undefined;
+			for (let i = 0; i < rest.length; i++) {
+				const token = rest[i] as string;
+				if (token === '--') break;
+				const key = token.split('=')[0];
+				if (!['--replace', '--with', '--append-section', '--body'].includes(key ?? '')) continue;
+				const value = token.includes('=') ? token.slice(token.indexOf('=') + 1) : rest[i + 1];
+				if (value === undefined || (!token.includes('=') && value.startsWith('--')))
+					throw new CliUsageError(`${key} requires a value`);
+				if (key === '--replace') old.push(value);
+				else if (key === '--with') replacements.push(value);
+				else if (key === '--append-section') heading = value;
+				else body = readFileValue(value, '--body');
+				rest.splice(i, token.includes('=') ? 1 : 2);
+				i--;
+			}
+			if (old.length !== replacements.length)
+				throw new CliUsageError('--replace and --with counts must match');
+			if ((heading === undefined) !== (body === undefined))
+				throw new CliUsageError('--append-section requires --body');
+			if (old.length)
+				updateInput.replace = old.map((value, i) => ({ old: value, with: replacements[i] }));
+			if (heading !== undefined) updateInput.appendSection = { heading, body };
+		}
+		const input = {
+			...(base as object),
+			...parseCliArgs(rest, spec),
+			...updateInput,
+			...entry.fixed,
+		};
 		const errors = validateInput(entry.tool.inputSchema, input);
 		if (errors.length) {
 			const missing = errors
@@ -297,15 +344,19 @@ export async function runCliCommand<T>(
 				);
 			}
 			if ((json || !(stdout as { isTTY?: boolean }).isTTY) && !quiet)
-				stdout.write(`${JSON.stringify(result, null, compact ? undefined : 2)}\n`);
+				stdout.write(
+					`${JSON.stringify(compact && entry.tool.name === 'inspect_grimoire_item' && options.formatResult ? JSON.parse(options.formatResult(result, entry.tool, input, false, true)) : result, null, compact ? undefined : 2)}\n`,
+				);
 			else if (!code && options.formatResult) {
-				stdout.write(options.formatResult(result, entry.tool, input, quiet));
+				stdout.write(options.formatResult(result, entry.tool, input, quiet, compact));
 				const warnings = (result as { warnings?: { code?: string; message?: string }[] }).warnings;
 				if (!quiet)
 					for (const warning of warnings ?? [])
 						if (warning.code !== 'empty_result') stderr.write(`warning: ${warning.message}\n`);
 			} else if (!quiet && !code)
-				stdout.write(`${JSON.stringify(result, null, compact ? undefined : 2)}\n`);
+				stdout.write(
+					`${JSON.stringify(compact && entry.tool.name === 'inspect_grimoire_item' && options.formatResult ? JSON.parse(options.formatResult(result, entry.tool, input, false, true)) : result, null, compact ? undefined : 2)}\n`,
+				);
 			return code;
 		} finally {
 			await options.closeContext?.(context);

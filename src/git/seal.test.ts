@@ -54,7 +54,7 @@ describe('seal', () => {
 		}
 	});
 
-	it('returns empty result when no changes exist', () => {
+	it('returns the last seal hash with no sealed paths when no changes exist', () => {
 		const {
 			root,
 			gitDir,
@@ -64,9 +64,9 @@ describe('seal', () => {
 			chapters: [{ name: 'ch', spells: [{ name: 'sp' }] }],
 		});
 		try {
-			testSeal();
+			const lastHash = testSeal();
 			const result = seal({ root, gitDir });
-			assert.equal(result.commitHash, '');
+			assert.equal(result.commitHash, lastHash);
 			assert.deepEqual(result.sealedPaths, []);
 		} finally {
 			cleanup();

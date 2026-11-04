@@ -1,18 +1,37 @@
 import type { SurfaceTool } from '../surfaces/surface_types.ts';
-import type { GrimoireToolContext } from '../tools/tool_metadata.ts';
+import type { GrimoireToolContext, JsonSchema } from '../tools/tool_metadata.ts';
 import { grimoireTools } from '../tools/tool_registry.ts';
 import { parseCliTime } from './parse_cli_time.ts';
 import { parseNoteContent } from './parse_note_content.ts';
+
+// Enum values, containers, and array item types do not need repeated prose.
+function compactSchema(schema: JsonSchema, field = true): JsonSchema {
+	const { description, ...rest } = schema;
+	return {
+		...rest,
+		...(description && field && !schema.enum && schema.type !== 'object' && schema.type !== 'array'
+			? { description }
+			: {}),
+		...(schema.properties
+			? {
+					properties: Object.fromEntries(
+						Object.entries(schema.properties).map(([key, value]) => [key, compactSchema(value)]),
+					),
+				}
+			: {}),
+		...(schema.items ? { items: compactSchema(schema.items, false) } : {}),
+		...(schema.oneOf ? { oneOf: schema.oneOf.map((branch) => compactSchema(branch)) } : {}),
+	};
+}
 
 const grimoireMcpSurfaceTools: readonly SurfaceTool<GrimoireToolContext>[] = grimoireTools.map(
 	(tool) => ({
 		name: tool.name,
 		description: tool.description,
-		whenToUse: tool.whenToUse,
-		...(tool.whenNotToUse === undefined ? {} : { whenNotToUse: tool.whenNotToUse }),
+		whenToUse: '',
 		readOnly: tool.readOnly,
 		sideEffects: tool.sideEffects,
-		inputSchema: { ...tool.inputSchema, type: 'object' },
+		inputSchema: { ...compactSchema(tool.inputSchema), type: 'object' },
 		handler: tool.handler as SurfaceTool<GrimoireToolContext>['handler'],
 	}),
 );

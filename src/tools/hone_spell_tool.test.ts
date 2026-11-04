@@ -31,7 +31,7 @@ describe('honeSpellTool', () => {
 			assert.equal(result.ok, true);
 			if (!result.ok) return;
 			assert.equal(result.outcome, 'no_op');
-			assert.equal(result.summary, 'No pending changes to seal.');
+			assert.equal(result.summary, 'nothing to seal');
 			assert.deepEqual(result.data.sealedPaths, []);
 			assert.deepEqual(result.data.ranks, {});
 			assert.deepEqual(result.data.tiers, {});

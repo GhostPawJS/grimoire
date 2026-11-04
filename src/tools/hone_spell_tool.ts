@@ -1,10 +1,13 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { history } from '../git/history.ts';
 import { seal } from '../git/seal.ts';
 import { tierInfo } from '../git/tier_info.ts';
 import type { TierInfo } from '../git/types.ts';
 import { assertNoteIds } from '../notes/assert_note_ids.ts';
 import { distill } from '../notes/distill.ts';
+import { discoverSpells } from '../spells/discover_spells.ts';
+import { isDirectEdit } from '../spells/write_state.ts';
 import { sharedGitWarning } from './shared_git_warning.ts';
 import { spellWriteData } from './spell_write_data.ts';
 import { translateToolError } from './tool_errors.ts';
@@ -31,6 +34,7 @@ type HoneInput = {
 type HoneData = {
 	spells?: ReturnType<typeof spellWriteData>[];
 	commitHash: string;
+	rollbackHash?: string;
 	sealedPaths: string[];
 	ranks: Record<string, number>;
 	tiers: Record<string, TierInfo>;
@@ -40,25 +44,22 @@ type HoneData = {
 export const honeSpellTool = defineGrimoireTool<HoneInput, ToolResult<HoneData>>({
 	name: honeSpellToolName,
 	description: 'Seal pending spell changes into a git commit, advancing spell ranks.',
-	whenToUse:
-		'After editing spell content with update_spell, to checkpoint changes and evolve spell tiers. Pass note_ids to mark which notes were absorbed during this honing session.',
-	whenNotToUse: 'When there are no spell changes or absorbed notes to record.',
+	whenToUse: 'Checkpoint edits from update_spell; note_ids records absorbed notes.',
+	whenNotToUse: 'No edits or absorbed notes.',
 	sideEffects: 'writes_state',
 	readOnly: false,
 	supportsClarification: false,
 	targetKinds: ['spell'],
 	inputDescriptions: {
-		paths: 'Optional list of spell paths to seal. If omitted, seals all pending changes.',
-		message: 'Optional commit message. Auto-generated if omitted.',
-		note_ids:
-			'Optional list of note IDs to mark as distilled after sealing. Use when note evidence was incorporated into the spell during this session.',
+		paths: 'Spell paths; omitted seals all pending changes.',
+		message: 'Commit message.',
+		note_ids: 'IDs of notes absorbed into this seal.',
 	},
-	outputDescription:
-		'The commit hash, sealed paths, resulting ranks, tier info, and any note IDs that were distilled.',
+	outputDescription: 'Commit, sealed paths, ranks, tiers, and distilled note IDs.',
 	inputSchema: objectSchema(
 		{
 			paths: arraySchema(stringSchema('Spell path'), 'Spell paths to seal'),
-			verbose: { type: 'boolean', description: 'Include full spells in the result.' },
+			verbose: { type: 'boolean', description: 'Include full spells.' },
 			message: stringSchema('Commit message'),
 			note_ids: arraySchema(integerSchema('Note ID'), 'Note IDs to distill after sealing'),
 			noteIds: arraySchema(integerSchema('Note ID'), 'Alias of note_ids'),
@@ -70,11 +71,18 @@ export const honeSpellTool = defineGrimoireTool<HoneInput, ToolResult<HoneData>>
 			const noteIds = [...new Set([...(input.note_ids ?? []), ...(input.noteIds ?? [])])];
 			if (ctx.db) assertNoteIds(ctx.db, noteIds);
 			const gitCtx = { root: ctx.root, ...(ctx.gitDir ? { gitDir: ctx.gitDir } : {}) };
+			const directEdits = (
+				input.paths ?? discoverSpells(ctx.root).map((spell) => spell.path)
+			).filter((path) => isDirectEdit(gitCtx, path));
 			const result = seal(gitCtx, ctx.db, input.paths, input.message);
 
 			// Distill notes that were absorbed during this honing session.
 			const distilledNoteIds: number[] = [];
 			const warnings: ToolWarning[] = sharedGitWarning(ctx);
+			for (const path of result.sealedPaths.filter((path) => directEdits.includes(path)))
+				warnings.push(
+					toolWarning('invalid_state', `${path}: direct edit detected, not via update`),
+				);
 
 			if (noteIds.length > 0) {
 				if (!ctx.db) {
@@ -103,10 +111,13 @@ export const honeSpellTool = defineGrimoireTool<HoneInput, ToolResult<HoneData>>
 			}
 
 			if (result.sealedPaths.length === 0) {
+				const last = history(gitCtx).find((entry) => entry.hash === result.commitHash);
 				return toolNoOp(
-					'No pending changes to seal.',
+					last
+						? `already sealed by ${['inscribe', 'hone', 'move', 'repair', 'delete', 'shelve', 'unshelve', 'rollback'].includes(last.message.split(' ')[0] ?? '') ? last.message.split(' ')[0] : 'hone'} ${last.hash.slice(0, 8)}`
+						: 'nothing to seal',
 					{
-						commitHash: '',
+						commitHash: last?.hash ?? '',
 						sealedPaths: [],
 						ranks: {},
 						tiers: {},

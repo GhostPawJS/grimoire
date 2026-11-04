@@ -293,7 +293,7 @@ The current `skills` namespace exports these 13 workflow blocks:
   organization
 - `resolve-validation-failures` — diagnose and fix structural issues
 - `archive-and-prune-spells` — identify dead weight and retire it correctly
-- `decompose-oversized-spells` — split large spells into focused modules
+- `decompose-oversized-spells` — try semantic compression and re-measure first; split into focused modules as a last resort
 - `handle-edge-cases-gracefully` — diagnose before mutating, follow recovery
   hints
 

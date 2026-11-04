@@ -27,6 +27,8 @@ type InscribeToolData = {
 	rank: number;
 	tier: string;
 	commit?: string;
+	commitHash?: string;
+	rollbackHash?: string;
 	spell?: Spell;
 	warnings: DuplicationWarning[];
 };
@@ -36,26 +38,25 @@ export const inscribeSpellTool = defineGrimoireTool<
 	ToolResult<InscribeToolData>
 >({
 	name: inscribeSpellToolName,
-	description: 'Create a new spell in the grimoire.',
-	whenToUse: 'When writing a new skill/spell into the grimoire from scratch.',
-	whenNotToUse:
-		'When updating existing spell content — use update_spell to edit, then hone_spell to seal.',
+	description: 'Create a spell from SKILL.md content (YAML frontmatter and Markdown).',
+	whenToUse: 'Create a spell.',
+	whenNotToUse: 'Edit with update_spell, then seal with hone_spell.',
 	sideEffects: 'writes_state',
 	readOnly: false,
 	supportsClarification: false,
 	targetKinds: ['spell'],
 	inputDescriptions: {
-		name: 'Name of the spell (used as directory name, kebab-cased).',
-		content: 'Full markdown body content for the spell.',
-		chapter: 'Optional chapter to place the spell in (defaults to "general").',
+		force: 'Overwrite the target spell.',
+		name: 'Spell name in kebab-case.',
+		content: 'Full SKILL.md content.',
+		chapter: 'Chapter; defaults to general.',
 	},
-	outputDescription:
-		'Compact spell metadata and duplication warnings; verbose includes the full spell.',
+	outputDescription: 'Spell metadata and duplication warnings; verbose adds content.',
 	inputSchema: objectSchema(
 		{
 			strict: {
 				type: 'boolean',
-				description: 'Reject invalid YAML values and unknown frontmatter fields. Default false.',
+				description: 'Reject invalid YAML and unknown frontmatter.',
 			},
 			name: { ...stringSchema('Spell name'), pattern: '^[a-z0-9]+(-[a-z0-9]+)*$', maxLength: 64 },
 			content: stringSchema('Spell body content in markdown'),
@@ -64,10 +65,10 @@ export const inscribeSpellTool = defineGrimoireTool<
 				pattern: '^[a-z0-9]+(-[a-z0-9]+)*$',
 				maxLength: 64,
 			},
-			verbose: { type: 'boolean', description: 'Include the full spell in the result.' },
+			verbose: { type: 'boolean', description: 'Include full spell.' },
 			force: {
 				type: 'boolean',
-				description: 'Replace an existing spell at the same path. Default false.',
+				description: 'Overwrite the target spell.',
 			},
 		},
 		['name', 'content'],

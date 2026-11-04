@@ -2,6 +2,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { GrimoireDb } from '../database.ts';
 import { initGrimoireTables } from '../init_grimoire_tables.ts';
+import { CliUsageError } from '../surfaces/cli_args.ts';
 import { configureGrimoireDb } from './configure_grimoire_db.ts';
 
 export async function openGrimoireDb(path: string): Promise<GrimoireDb> {
@@ -26,7 +27,22 @@ export async function openGrimoireDb(path: string): Promise<GrimoireDb> {
 	} finally {
 		process.emitWarning = original;
 	}
-	if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
+	if (path !== ':memory:') {
+		const directory = dirname(path);
+		try {
+			mkdirSync(directory, { recursive: true });
+		} catch (error) {
+			const code = (error as NodeJS.ErrnoException).code ?? 'UNKNOWN';
+			const reason = ['ENOTDIR', 'EEXIST'].includes(code)
+				? 'a path component is not a directory'
+				: ['EACCES', 'EPERM'].includes(code)
+					? 'permission denied'
+					: code === 'EROFS'
+						? 'read-only file system'
+						: code;
+			throw new CliUsageError(`Cannot create database directory ${directory}: ${reason}`);
+		}
+	}
 	const db = new sqlite.DatabaseSync(path);
 	try {
 		configureGrimoireDb(db as unknown as GrimoireDb, path !== ':memory:');

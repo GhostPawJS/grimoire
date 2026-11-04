@@ -1,6 +1,8 @@
 import type { GrimoireDb } from '../database.ts';
+import { history } from '../git/history.ts';
 import type { ToolResult } from './tool_types.ts';
 import { validateToolInput } from './validate_tool_input.ts';
+import { writeHashes } from './write_hashes.ts';
 
 export type GrimoireToolContext = {
 	root: string;
@@ -69,7 +71,30 @@ export function defineGrimoireTool<TInput, TResult extends ToolResult<unknown>>(
 		handler(ctx, input) {
 			const failure = validateToolInput(tool.inputSchema, input);
 			if (failure) return failure as TResult;
-			return handler(ctx, input);
+			const action = (input as { action?: string }).action;
+			const writesSpell =
+				['inscribe_spell', 'update_spell', 'hone_spell', 'manage_spell'].includes(tool.name) ||
+				(tool.name === 'scout_skills' && ['adopt', 'apply_update'].includes(action ?? ''));
+			if (!writesSpell) return handler(ctx, input);
+			const git = { root: ctx.root, ...(ctx.gitDir ? { gitDir: ctx.gitDir } : {}) };
+			const before = history(git)[0]?.hash;
+			const finish = (result: TResult): TResult => {
+				if (
+					!result.ok ||
+					!('data' in result) ||
+					typeof result.data !== 'object' ||
+					result.data === null
+				)
+					return result;
+				const data = result.data as Record<string, unknown>;
+				const path = [data.to, data.restoredPath, data.path, data.shelvedPath].find(
+					(value) => typeof value === 'string',
+				) as string | undefined;
+				const hashes = writeHashes(ctx, before, path);
+				return { ...result, data: { ...data, ...hashes } };
+			};
+			const result = handler(ctx, input);
+			return result instanceof Promise ? result.then(finish) : finish(result);
 		},
 	};
 }

@@ -15,19 +15,18 @@ type SearchData = { results: (IndexEntry & { score: number })[]; count: number }
 
 export const searchGrimoireTool = defineGrimoireTool<SearchInput, ToolResult<SearchData>>({
 	name: searchGrimoireToolName,
-	description: 'Search the grimoire for spells by name, description, and body.',
-	whenToUse: 'When looking for spells matching a keyword, topic, or partial name.',
-	whenNotToUse: 'When you already know the exact spell path — use inspect_grimoire_item instead.',
+	description: 'Search spell names, descriptions, and bodies.',
+	whenToUse: 'Find spells by topic or partial name.',
+	whenNotToUse: 'Inspect known paths with inspect_grimoire_item.',
 	sideEffects: 'none',
 	readOnly: true,
 	supportsClarification: false,
 	targetKinds: ['spell'],
 	inputDescriptions: {
-		query:
-			'Multi-term search with weighted term frequency, stemming, and fuzzy name/description matching.',
+		query: 'Terms with stemming and fuzzy name/description matching.',
 		chapters: 'Optional list of chapters to restrict the search to.',
 	},
-	outputDescription: 'Matching spells with path, chapter, name, tier, rank, and description.',
+	outputDescription: 'Matching spell metadata.',
 	inputSchema: objectSchema(
 		{
 			query: stringSchema('Search query'),

@@ -8,7 +8,7 @@ Primary tools:
 - `review_grimoire`
 
 Goal:
-- Take a spell that has grown too large and break it into smaller, focused spells — each covering a distinct section of the original — then retire the original while preserving all knowledge.
+- Compress oversized spells; split only as a last resort.
 
 When to use:
 - When the catalogue flags a spell as oversized.
@@ -21,13 +21,15 @@ When not to use:
 - When the content is duplicated elsewhere — deduplicate rather than split.
 
 Step-by-step sequence:
-1. Call `inspect_grimoire_item` with the oversized spell path to read its full content, frontmatter, validation state, and tier.
-2. Identify distinct sections or topics within the body that can stand alone as independent spells.
-3. For each identified section, call `inscribe_spell` with a focused name, the extracted content, and the appropriate chapter.
-4. Call `review_grimoire` with view "validation" to verify all newly inscribed spells pass structural validation.
-5. If git is available, call `hone_spell` to seal the new spells, checkpointing the decomposition.
-6. Call `manage_spell` with action "shelve" on the original oversized spell to archive it — preserving its history while removing it from the active grimoire.
-7. Call `review_grimoire` with view "chapters" to confirm the new spells are present and the original is gone.
+1. Ask whether a better abstraction makes the spell smaller. Inspect with `inspect_grimoire_item`; replace specific steps with a general rule, merge duplicated cases, and keep one teaching example. Move rare detail to a reference spell only if needed. Edit with `update_spell`, then re-measure with `review_grimoire` before splitting.
+2. Only as a last resort, split using the following sequence.
+3. Call `inspect_grimoire_item` with the oversized spell path to read its full content, frontmatter, validation state, and tier.
+4. Identify distinct sections or topics within the body that can stand alone as independent spells.
+5. For each identified section, call `inscribe_spell` with a focused name, the extracted content, and the appropriate chapter.
+6. Call `review_grimoire` with view "validation" to verify all newly inscribed spells pass structural validation.
+7. If git is available, call `hone_spell` to seal the new spells, checkpointing the decomposition.
+8. Call `manage_spell` with action "shelve" on the original oversized spell to archive it — preserving its history while removing it from the active grimoire.
+9. Call `review_grimoire` with view "chapters" to confirm the new spells are present and the original is gone.
 
 Validation checks:
 - Each new spell must pass validation (check via `review_grimoire` with view "validation").

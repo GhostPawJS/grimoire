@@ -92,6 +92,12 @@ function spellContent(name: string, desc?: string): string {
 }
 
 describe('decompose-oversized-spells skill', () => {
+	it('tries abstraction and re-measures before splitting', () => {
+		const text = decomposeOversizedSpellsSkill.content;
+		ok(text.indexOf('better abstraction') < text.indexOf('last resort, split'));
+		ok(text.indexOf('re-measure') < text.indexOf('last resort, split'));
+	});
+
 	it('mentions the right tools', () => {
 		expectSkillMentionsTools(decomposeOversizedSpellsSkill, [
 			'inspect_grimoire_item',

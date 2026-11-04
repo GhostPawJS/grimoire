@@ -81,19 +81,19 @@
   "tools": [
     {
       "name": "search_grimoire",
-      "description": "Search the grimoire for spells by name, description, and body."
+      "description": "Search spell names, descriptions, and bodies."
     },
     {
       "name": "review_grimoire",
-      "description": "Review a dashboard view of the grimoire — chapters, health, resonance, notes, drafts, validation, provenance, or index."
+      "description": "Review chapters, health, resonance, notes, drafts, validation, provenance, or index."
     },
     {
       "name": "inspect_grimoire_item",
-      "description": "Inspect a single spell in detail, including tier, resonance, validation, provenance, and history."
+      "description": "Inspect spell content, tier, resonance, validation, provenance, and history."
     },
     {
       "name": "inscribe_spell",
-      "description": "Create a new spell in the grimoire."
+      "description": "Create a spell from SKILL.md content (YAML frontmatter and Markdown)."
     },
     {
       "name": "update_spell",
@@ -105,11 +105,11 @@
     },
     {
       "name": "manage_spell",
-      "description": "Manage spells: shelve, unshelve, move, delete, repair, repair all, or rollback to a previous seal."
+      "description": "Archive, restore, move, delete, repair, or roll back spells."
     },
     {
       "name": "drop_note",
-      "description": "Drop an observation note into the grimoire for later cataloguing."
+      "description": "Record an observation for later cataloguing."
     },
     {
       "name": "manage_draft",
@@ -117,7 +117,7 @@
     },
     {
       "name": "run_catalogue",
-      "description": "Run the full catalogue maintenance pass — detect stale/dormant/oversized spells, route notes, cluster orphans, compute honing pressure."
+      "description": "Maintain health, route notes, cluster orphans, and score honing pressure."
     },
     {
       "name": "scout_skills",

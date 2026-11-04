@@ -22,37 +22,30 @@ type ScoutInput =
 export const scoutSkillsTool = defineGrimoireTool<ScoutInput, ToolResult<Record<string, unknown>>>({
 	name: scoutSkillsToolName,
 	description: 'Scout, search, adopt, and update spells from external sources.',
-	whenToUse:
-		'When discovering new skills from AgentSkillHub or GitHub, importing them, or checking for upstream updates.',
-	whenNotToUse: 'When working with local spells only — use inscribe_spell or hone_spell.',
+	whenToUse: 'Find, import, or update external skills.',
+	whenNotToUse: 'Write locally with inscribe_spell or hone_spell.',
 	sideEffects: 'writes_state',
 	readOnly: false,
 	supportsClarification: false,
 	targetKinds: ['spell', 'provenance'],
 	inputDescriptions: {
-		action:
-			'Scout action: adopt (import from source), search (find skills), check_updates, or apply_update.',
-		source: 'Source URL or identifier (adopt only).',
-		chapter: 'Optional chapter for adopted spells (adopt only).',
+		action: 'Import, search, check, or apply updates.',
+		source: 'Adopt source.',
+		chapter: 'Adoption chapter.',
 		query: 'Search query (search only).',
 		path: 'Spell path to update (apply_update only).',
 	},
-	outputDescription:
-		'Action-specific result: adopted spells, search results, update checks, or apply result.',
+	outputDescription: 'Imported spells, matches, or update results.',
 	inputSchema: objectSchema(
 		{
 			strict: {
 				type: 'boolean',
-				description:
-					'Reject invalid YAML values and unknown frontmatter fields during adoption or updates. Default false.',
+				description: 'Reject invalid YAML and unknown frontmatter during import or update.',
 			},
-			action: enumSchema(
-				'Scout action to perform: adopt (import from source), search (find skills), check_updates, or apply_update.',
-				['adopt', 'search', 'check_updates', 'apply_update'],
-			),
-			source: stringSchema('Source URL or identifier — required for adopt.'),
+			action: enumSchema('Scout action.', ['adopt', 'search', 'check_updates', 'apply_update']),
+			source: stringSchema('Required adopt source.'),
 			chapter: {
-				...stringSchema('Chapter for adopted spells — optional for adopt.'),
+				...stringSchema('Adoption chapter.'),
 				pattern: '^[a-z0-9]+(-[a-z0-9]+)*$',
 				maxLength: 64,
 			},
