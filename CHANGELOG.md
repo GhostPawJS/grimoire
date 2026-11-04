@@ -4,6 +4,10 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+### Changed
+
+- Update the website for 0.7.0, including the pinned installer, release metadata, and opt-in strict frontmatter validation.
+
 ## [0.7.0] - 2026-11-04
 
 ### Added

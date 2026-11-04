@@ -41,7 +41,7 @@ Price: free, MIT licence
 Delivery: `npm install @ghostpaw/grimoire` into a Node.js 24+ project, or `npx -y @ghostpaw/grimoire mcp` as a local MCP server
 
 ## Facts
-- grimoire 0.3.0 is on npm with zero runtime dependencies and requires Node.js 24+ for node:sqlite. https://www.npmjs.com/package/@ghostpaw/grimoire
+- grimoire 0.7.0 is on npm with zero runtime dependencies and requires Node.js 24+ for node:sqlite. https://www.npmjs.com/package/@ghostpaw/grimoire
 - The README calls it a procedural knowledge engine for Node.js, built on Git, SQLite, and the filesystem. https://github.com/GhostPawJS/grimoire
 - A spell is a SKILL.md with YAML frontmatter and a markdown body; chapters are folders. https://github.com/GhostPawJS/grimoire
 - A seal is a git commit marking a verified improvement, and rank equals seal count. https://github.com/GhostPawJS/grimoire
@@ -147,6 +147,7 @@ Reduced motion: no sweep or flash.
 - Never present voices as customers. V041
 
 ## Changelog
+- 2026-11-04: update the current release badge, pinned installer and JSON-LD to 0.7.0; name 0.7.0 beside the latest-release link and installer description. Add one sentence about opt-in `--strict` frontmatter validation in the format-check explanation, based on CHANGELOG.md for 0.7.0. Preserve recorded runs, measurements and the 0.6.0 screenshot.
 - 2026-10-27: grimoire ships standalone binaries since 0.4.0; the section shows 0.4.1. New spine item 6, Binaries: install lines, targets and archive sizes from the v0.4.1 release assets, SHA256SUMS and attestation check, unsigned note, and the terminal session screenshot (new Imagery row). Kicker and JSON-LD version 0.4.1. Other sections unchanged.
 - 2026-10-24: first concept from the 2026-10-24 research batch (60 voices, 12 peers); sealed history chosen; replay of a real grimoire 0.3.0 run. Tier boundaries left off the page because the README table (journeyman 5–14) and the code (journeyman from 3) disagreed; the README now matches the code.
 - 2026-10-24: depth pass (15 more voices, now 75, the last five from Bluesky and GitHub to keep Hacker News at 40%); replay re-run against the current release; import time re-measured; comparison section added; page moved to https://grimoire.ghostpaw.dev/.
