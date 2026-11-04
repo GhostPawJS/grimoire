@@ -4,6 +4,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-04
+
 ### Added
 
 - Opt-in strict frontmatter validation in library options, validating CLI commands (`--strict`), and matching MCP tools. Invalid YAML values and unknown fields become errors with field/value details; default warnings remain unchanged.
@@ -240,7 +242,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 - Initial procedural knowledge library, tool facade, documentation, and browser demo. Early setup and demo improvements are grouped here.
 
-[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/GhostPawJS/grimoire/compare/v0.6.1...v0.7.0
 [0.6.0]: https://github.com/GhostPawJS/grimoire/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/GhostPawJS/grimoire/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/GhostPawJS/grimoire/compare/v0.4.3...v0.5.0
