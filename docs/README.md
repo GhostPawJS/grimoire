@@ -12,7 +12,7 @@ how it should be used, and which public APIs belong to it.
   surfaces for human operators and developers
 - [`LLM.md`](LLM.md): additive `soul`, `tools`, and `skills` runtime for
   harness builders wiring Grimoire into agents
-- [`PAGES.md`](PAGES.md): GitHub Pages demo app (Spell Forge)
+- [`PAGES.md`](PAGES.md): browser demo app (Spell Forge)
 
 ## Entity Manuals
 

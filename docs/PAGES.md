@@ -1,6 +1,8 @@
 # Spell Forge Demo
 
-The GitHub Pages demo is a **static SPA** that runs entirely in the browser: **sql.js-fts5**
+The demo is built with `npm run demo:build` (output `demo/`) and published at https://grimoire.ghostpaw.dev/docs/. The landing page https://grimoire.ghostpaw.dev/ is maintained separately.
+
+The demo is a **static SPA** that runs entirely in the browser: **sql.js-fts5**
 (WASM SQLite), an in-memory **virtual spell store** (SKILL.md content), and the same
 metadata/event/health/note/registry code paths as the Node package. **Git is absent**
 in the browser, so ranks stay at 0 and tiers read as **Uncheckpointed**.
