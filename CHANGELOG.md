@@ -4,6 +4,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-05
+
 ### Changed
 
 - `spell inscribe` and `spell move` refuse to overwrite an existing spell unless `--force` (tool: `force: true`) is passed. Before, the target was overwritten silently.
@@ -264,7 +266,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 - Initial procedural knowledge library, tool facade, documentation, and browser demo. Early setup and demo improvements are grouped here.
 
-[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/GhostPawJS/grimoire/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/GhostPawJS/grimoire/compare/v0.6.1...v0.7.0
 [0.6.0]: https://github.com/GhostPawJS/grimoire/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/GhostPawJS/grimoire/compare/v0.5.0...v0.5.1
