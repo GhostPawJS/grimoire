@@ -273,3 +273,29 @@ test('verb help accepts trailing positionals and both help spellings', async () 
 		assert.equal(result.opens, 0);
 	}
 });
+
+test('-q matches --quiet before and after modern, legacy and informational commands', async () => {
+	for (const args of [
+		['tool', 'test', '--some-value=2'],
+		['test_tool', '--some-value=2'],
+		['call', 'test_tool', '{"someValue":2}'],
+		['tools'],
+		['describe', 'test_tool'],
+		['skill'],
+		['--version'],
+		['version'],
+		['--help'],
+		['tool', 'test', '--some-value=bad', '--json'],
+	]) {
+		for (const before of [true, false]) {
+			const withFlag = (flag: string) => (before ? [flag, ...args] : [...args, flag]);
+			const long = await invoke(withFlag('--quiet'));
+			const short = await invoke(withFlag('-q'));
+			assert.equal(long.out, '');
+			assert.deepEqual(short, long, JSON.stringify(withFlag('-q')));
+		}
+	}
+	assert.match((await invoke(['--help'])).out, /-q, --quiet/);
+	for (const shell of ['bash', 'zsh'])
+		assert.match((await invoke(['completions', shell])).out, /-q --quiet/);
+});

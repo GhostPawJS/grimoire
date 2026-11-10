@@ -4,6 +4,10 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+### Added
+
+- `-q` short alias for `--quiet`.
+
 ## [0.7.1] - 2026-11-05
 
 ### Changed

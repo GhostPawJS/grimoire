@@ -5,7 +5,7 @@ interface CompletionCommand {
 
 export function cliCompletion(bin: string, shell: string, commands: CompletionCommand[]): string {
 	const nouns = [...new Set(commands.map((command) => command.path.split(' ')[0]))];
-	const globals = '--help --json --quiet --root --db --git-dir';
+	const globals = '--help --json -q --quiet --root --db --git-dir';
 	const cases = nouns.map((noun) => {
 		const verbs = commands
 			.filter((command) => command.path.startsWith(`${noun} `))

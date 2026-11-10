@@ -46,7 +46,7 @@ export async function runCliCommand<T>(
 	const args = [...argv];
 	const tree = cliCommands(options.tools);
 	let json = argv.includes('--json'),
-		quiet = argv.includes('--quiet'),
+		quiet = argv.includes('--quiet') || argv.includes('-q'),
 		compact = false,
 		help = false;
 	let db: string | undefined;
@@ -105,7 +105,7 @@ export async function runCliCommand<T>(
 				db = flag === '--db' ? args.splice(i + 1, 1)[0] : flag.slice(5);
 				if (!db || /^--[a-z]/i.test(db)) throw new CliUsageError('--db requires a path');
 			} else if (flag === '--json') json = true;
-			else if (flag === '--quiet') quiet = true;
+			else if (flag === '--quiet' || flag === '-q') quiet = true;
 			else if (flag === '--compact') compact = true;
 			else if (flag === '--help' || flag === '-h') help = true;
 			else if (['--version', '-V', '-v'].includes(flag ?? '')) {
@@ -212,7 +212,7 @@ export async function runCliCommand<T>(
 				stdout.write(
 					entry
 						? renderCliHelp(specFor(entry))
-						: `${options.bin} ${options.version}\n${options.description}\n${options.describeDb ? `\n${options.describeDb(contextOptions())}\n` : ''}\nCommands:\n${matches.map((command) => `  ${command.path}  ${command.description}`).join('\n')}\n  mcp, skill, tools [--json], describe <tool>, call <tool> [JSON|-], completions <bash|zsh|fish>, version\nGlobal flags: --db <path>, --root <path>, --git-dir <path>, --json, --quiet, --compact, --help/-h, --version/-V/-v, --no-color\n`,
+						: `${options.bin} ${options.version}\n${options.description}\n${options.describeDb ? `\n${options.describeDb(contextOptions())}\n` : ''}\nCommands:\n${matches.map((command) => `  ${command.path}  ${command.description}`).join('\n')}\n  mcp, skill, tools [--json], describe <tool>, call <tool> [JSON|-], completions <bash|zsh|fish>, version\nGlobal flags: --db <path>, --root <path>, --git-dir <path>, --json, -q, --quiet, --compact, --help/-h, --version/-V/-v, --no-color\n`,
 				);
 			return 0;
 		}

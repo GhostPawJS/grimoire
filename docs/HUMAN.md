@@ -326,12 +326,12 @@ ghostpaw-grimoire scout apply-update <path>
 ghostpaw-grimoire mcp|skill|tools|describe|call|completions|version|help
 ```
 
-Global flags can appear anywhere: `--db <path>`, `--json`, `--quiet`,
+Global flags can appear anywhere: `--db <path>`, `--json`, `-q, --quiet`,
 `--compact`, `--help`/`-h`, `--version`/`-V`/`-v`, `--no-color`.
 `NO_COLOR` is accepted; output uses no terminal colors.
 Noun-verb commands print the full tool result as JSON with `--json` or when
 stdout is piped. Terminal output shows the summary and payload.
-`--quiet` suppresses stdout. `--compact` removes JSON indentation.
+`-q, --quiet` suppresses stdout. `--compact` removes JSON indentation.
 
 Use `help spell` or `spell update --help` for schema-derived help.
 Array flags repeat, object flags accept JSON, and `-` reads JSON stdin. Only spell `--content` reads files: `@path` reads the file, `@-` reads stdin, and `@@text` passes a literal `@text`. Every other value, including note text and positionals, is taken literally even if it starts with `@`.

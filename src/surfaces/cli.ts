@@ -38,7 +38,7 @@ export async function runToolCli<TCtx>(
 			.slice(0, end < 0 ? argv.length : end)
 			.some((arg) => ['--version', '-V', '-v'].includes(arg))
 	) {
-		if (!argv.includes('--quiet'))
+		if (!(argv.includes('--quiet') || argv.includes('-q')))
 			(options.stdout ?? process.stdout).write(
 				cliVersionOutput(options.version, argv, { bin: options.bin }),
 			);
@@ -46,7 +46,7 @@ export async function runToolCli<TCtx>(
 	}
 	const modern = await runCliCommand(argv, options);
 	if (modern !== undefined) return modern;
-	const quiet = argv.includes('--quiet');
+	const quiet = argv.includes('--quiet') || argv.includes('-q');
 	const explicitJson = argv.includes('--json') && !argv.includes('tools');
 	if (quiet)
 		options = {
@@ -61,7 +61,11 @@ export async function runToolCli<TCtx>(
 	const stderr = options.stderr ?? process.stderr;
 	const stdin = options.stdin ?? process.stdin;
 	const args = argv.filter(
-		(arg) => arg !== '--quiet' && arg !== '--no-color' && !(explicitJson && arg === '--json'),
+		(arg) =>
+			arg !== '--quiet' &&
+			arg !== '-q' &&
+			arg !== '--no-color' &&
+			!(explicitJson && arg === '--json'),
 	);
 	let db: string | undefined;
 	let root: string | undefined;
