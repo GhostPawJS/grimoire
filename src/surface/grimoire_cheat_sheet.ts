@@ -41,8 +41,8 @@ export const grimoireCheatCommands = [
 
 export const grimoireCheatSheet = `## CLI cheat sheet
 
-State: DB = --db / GHOSTPAW_GRIMOIRE_DB / ~/.ghostpaw/grimoire.db; root = --root / GHOSTPAW_GRIMOIRE_ROOT / ~/.ghostpaw/grimoire.
-Git history lives at <ROOT>/.grimoire-git; override with --git-dir or GHOSTPAW_GRIMOIRE_GIT_DIR.
+State: DB = --db / GHOSTPAW_GRIMOIRE_DB / ~/.ghostpaw/grimoire.db; root = --root / GHOSTPAW_GRIMOIRE_ROOT / <DB parent>/grimoire when GHOSTPAW_GRIMOIRE_DB names a file / ~/.ghostpaw/grimoire.
+Git history lives at <ROOT>/.grimoire-git; precedence: --git-dir / GHOSTPAW_GRIMOIRE_GIT_DIR / <ROOT>/.grimoire-git. Empty env values are unset; :memory: does not select a filesystem root. --db overrides the DB file only, not the environment-derived root.
 A spell is <chapter>/<name>/SKILL.md with optional scripts/, references/, and assets/. Copy the folder to export it.
 Rank counts distinct commits per spell: Uncheckpointed 0, Apprentice 1–2, Journeyman 3–5, Expert 6–9, Master 10+.
 Search uses multiple terms across names, descriptions, and bodies with stemming and fuzzy metadata matching.

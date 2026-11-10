@@ -53,3 +53,33 @@ test('explicit Git directories override the environment for CLI and MCP contexts
 		rmSync(directory, { recursive: true, force: true });
 	}
 });
+
+test('a DB-only environment keeps spell files and Git history in the isolated directory', async () => {
+	const directory = mkdtempSync(join(tmpdir(), 'grimoire-db-only-'));
+	const names = [
+		'GHOSTPAW_GRIMOIRE_DB',
+		'GHOSTPAW_GRIMOIRE_ROOT',
+		'GHOSTPAW_GRIMOIRE_GIT_DIR',
+	] as const;
+	const previous = names.map((name) => process.env[name]);
+	try {
+		process.env.GHOSTPAW_GRIMOIRE_DB = join(directory, 'state.db');
+		delete process.env.GHOSTPAW_GRIMOIRE_ROOT;
+		delete process.env.GHOSTPAW_GRIMOIRE_GIT_DIR;
+		const context = await openGrimoireContext();
+		try {
+			assert.equal(context.root, join(directory, 'grimoire'));
+			assert.equal(context.gitDir, join(directory, 'grimoire', '.grimoire-git'));
+			assert.ok(existsSync(context.gitDir));
+			assert.ok(existsSync(join(context.root, 'general')));
+		} finally {
+			context.db.close();
+		}
+	} finally {
+		names.forEach((name, index) => {
+			if (previous[index] === undefined) delete process.env[name];
+			else process.env[name] = previous[index];
+		});
+		rmSync(directory, { recursive: true, force: true });
+	}
+});

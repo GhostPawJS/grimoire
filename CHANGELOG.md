@@ -4,6 +4,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+- Derive the default spell root and root-local Git history from a file-backed GHOSTPAW_GRIMOIRE_DB; document explicit state precedence.
+
 ### Added
 
 - `-q` short alias for `--quiet`.

@@ -99,7 +99,7 @@ Cursor, Claude Desktop, or a project `.mcp.json`:
 
 Download `server.mcpb` from [releases](https://github.com/GhostPawJS/grimoire/releases) for clients supporting MCP Bundles. Build the supplied Dockerfile with `docker build -t ghostpaw-grimoire .` and mount `/data` for persistence.
 
-Supports MCP 2026-07-28 and initialize-based protocol versions (2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05). The database defaults to `~/.ghostpaw/grimoire.db`; `--db` overrides `GHOSTPAW_GRIMOIRE_DB`. Spells default to `~/.ghostpaw/grimoire/`; set `GHOSTPAW_GRIMOIRE_ROOT` to choose another directory. No credentials are required for local tools.
+Supports MCP 2026-07-28 and initialize-based protocol versions (2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05). The database defaults to `~/.ghostpaw/grimoire.db`; `--db` overrides `GHOSTPAW_GRIMOIRE_DB`. Spell root selection follows the [state precedence](#state). No credentials are required for local tools.
 
 ### npx / npm (for npm-based environments)
 
@@ -199,8 +199,12 @@ The install check runs on ubuntu-24.04, macos-15 and windows-2025.
 ## State
 
 The database defaults to `~/.ghostpaw/grimoire.db`; select it with `--db` or
-`GHOSTPAW_GRIMOIRE_DB`. Spells default to `~/.ghostpaw/grimoire`; select the root
-with `--root` or `GHOSTPAW_GRIMOIRE_ROOT`. CLI flags take precedence over the environment.
+`GHOSTPAW_GRIMOIRE_DB`. Spell root precedence is `--root`, `GHOSTPAW_GRIMOIRE_ROOT`, then
+`<parent of GHOSTPAW_GRIMOIRE_DB>/grimoire` when that variable names a file,
+then `~/.ghostpaw/grimoire`. Relative DB paths resolve against the current directory.
+Empty environment values count as unset; `:memory:` retains the home root default.
+`--db` overrides the database only; the environment DB still supplies the default root.
+Explicit root and Git settings always win.
 Each root stores Git history in `<ROOT>/.grimoire-git`, excluded from discovery.
 `--git-dir` overrides `GHOSTPAW_GRIMOIRE_GIT_DIR`, which overrides this default.
 A legacy `<parent>/.grimoire-git` is copied into the root only when its configured
@@ -263,7 +267,7 @@ most 50 pending notes, expiring the oldest first with a `notes_expired` count wa
 Array flags repeat and a final `-` reads JSON stdin (`spell inscribe <name> -` is supported). Only spell `--content` reads files: `@path` reads the file, `@-` reads stdin, and `@@text` passes a literal `@text`. Every other value, including note text and positionals, is taken literally even if it starts with `@`.
 Flags use kebab-case and override stdin fields. `--` ends flags.
 Database selection uses `--db`, `GHOSTPAW_GRIMOIRE_DB`, then `~/.ghostpaw/grimoire.db`.
-Spell files use `--root`, then `GHOSTPAW_GRIMOIRE_ROOT` (default `~/.ghostpaw/grimoire`).
+Spell files and Git history follow the full precedence in [State](#state).
 Context initialization may run Git. Scout remote operations need network access;
 local sources can stay offline.
 

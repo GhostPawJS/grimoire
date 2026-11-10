@@ -1,10 +1,9 @@
-import { homedir } from 'node:os';
-import { join, resolve } from 'node:path';
 import type { GrimoireDb } from '../database.ts';
 import { init } from '../init.ts';
 import { resolveGitDir } from '../lib/exec_git.ts';
 import { openGrimoireDb } from './open_grimoire_db.ts';
 import { resolveGrimoireDbPath } from './resolve_grimoire_db_path.ts';
+import { resolveGrimoireRoot } from './resolve_grimoire_root.ts';
 export async function openGrimoireContext(
 	options: { db?: GrimoireDb; dbPath?: string; root?: string; gitDir?: string } = {},
 ) {
@@ -13,10 +12,7 @@ export async function openGrimoireContext(
 		(await openGrimoireDb(
 			resolveGrimoireDbPath(options.dbPath === undefined ? {} : { flag: options.dbPath }),
 		));
-	const root = resolve(
-		options.root ??
-			(process.env.GHOSTPAW_GRIMOIRE_ROOT || join(homedir(), '.ghostpaw', 'grimoire')),
-	);
+	const root = resolveGrimoireRoot(options);
 	try {
 		const gitDir = resolveGitDir(
 			root,
