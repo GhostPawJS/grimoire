@@ -4,6 +4,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-11-10
+
 ### Changed
 
 - Document writable database roots for sandboxed agent harnesses in the README and generated agent skill.
@@ -276,7 +278,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 - Initial procedural knowledge library, tool facade, documentation, and browser demo. Early setup and demo improvements are grouped here.
 
-[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.7.2...HEAD
+[0.7.2]: https://github.com/GhostPawJS/grimoire/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/GhostPawJS/grimoire/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/GhostPawJS/grimoire/compare/v0.6.1...v0.7.0
 [0.6.0]: https://github.com/GhostPawJS/grimoire/compare/v0.5.1...v0.6.0
