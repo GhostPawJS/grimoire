@@ -4,6 +4,10 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+### Changed
+
+- Document writable database roots for sandboxed agent harnesses in the README and generated agent skill.
+
 - Derive the default spell root and root-local Git history from a file-backed GHOSTPAW_GRIMOIRE_DB; document explicit state precedence.
 
 ### Added

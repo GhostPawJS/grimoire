@@ -67,6 +67,39 @@ ghostpaw-grimoire describe hone_spell
 
 Grimoire manages local procedural knowledge as spells, notes, and drafts. Search before creating a spell. Inspect before updating, then hone to seal revisions. Preserve provenance and use scouting only when external acquisition is intended.
 
+## Running inside sandboxed agent harnesses
+
+Inside a Codex CLI `--sandbox workspace-write` session, the database and its
+parent directory must be inside a writable root, including SQLite's `-wal` and
+`-shm` side files. A default DB under `~/.ghostpaw` outside those roots can fail
+with `SQLITE_CANTOPEN` or `EPERM` (often exit 70; directory creation failures
+may exit 2), even when normal shell permissions allow access. Put the DB inside the workspace with `--db ./state/grimoire.db`,
+or set `GHOSTPAW_GRIMOIRE_DB="$PWD/state/grimoire.db"` for CLI/MCP use.
+
+To use an external DB directory, add it when starting the OpenAI Codex CLI
+(replace `<dir-with-db>` with its absolute path):
+
+```sh
+codex exec --sandbox workspace-write --add-dir <dir-with-db> "Run the GhostPaw CLI"
+```
+
+Alternatively, set `sandbox_workspace_write.writable_roots` in
+`~/.codex/config.toml` before starting the session:
+
+```toml
+[sandbox_workspace_write]
+writable_roots = ["/absolute/dir-with-db"]
+```
+
+The spell root and Git directory must also be inside writable roots. Select
+`--root ./state/spells` (or `GHOSTPAW_GRIMOIRE_ROOT`) as well as `--db`;
+`--db` alone does not relocate the spell root. Git defaults to
+`<root>/.grimoire-git`; keep it there or select a writable directory with
+`--git-dir ./state/spell-history` / `GHOSTPAW_GRIMOIRE_GIT_DIR`. Add each
+external directory with another `--add-dir` or writable_roots entry. Avoid a
+protected workspace `.git` directory; use the dedicated spell history directory.
+
+
 ## Calling tools
 
 MCP: connect to ghostpaw-grimoire, then call a tool by name with its JSON arguments.
