@@ -99,6 +99,10 @@ export const manageSpellTool = defineGrimoireTool<ManageInput, ToolResult<Record
 						)[0]?.hash.slice(0, 8) ?? '';
 					return toolSuccess(summary, { ...metadata, ...data, commit }, options);
 				};
+				const inspected = (path: string) => ({
+					entities: [toSpellPathRef(path)],
+					next: [inspectSpellNext(path)],
+				});
 				switch (input.action) {
 					case 'shelve': {
 						const result = shelve(
@@ -124,10 +128,7 @@ export const manageSpellTool = defineGrimoireTool<ManageInput, ToolResult<Record
 						return success(
 							summarizeSpellAction('Unshelved', input.path),
 							{ action: 'unshelve', restoredPath: result.path },
-							{
-								entities: [toSpellPathRef(result.path)],
-								next: [inspectSpellNext(result.path)],
-							},
+							inspected(result.path),
 						);
 					}
 					case 'move': {
@@ -138,10 +139,7 @@ export const manageSpellTool = defineGrimoireTool<ManageInput, ToolResult<Record
 						return success(
 							summarizeSpellAction('Moved', input.path),
 							{ action: 'move', from: result.from, to: result.to },
-							{
-								entities: [toSpellPathRef(result.to)],
-								next: [inspectSpellNext(result.to)],
-							},
+							inspected(result.to),
 						);
 					}
 					case 'delete': {
@@ -170,10 +168,7 @@ export const manageSpellTool = defineGrimoireTool<ManageInput, ToolResult<Record
 								? `Repaired spell \`${input.path}\` with ${result.fixes.length} fix(es).`
 								: `Spell \`${input.path}\` needs no repairs.`,
 							{ action: 'repair', ...result },
-							{
-								entities: [toSpellPathRef(input.path)],
-								next: [inspectSpellNext(input.path)],
-							},
+							inspected(input.path),
 						);
 					}
 					case 'repair_all': {
@@ -213,10 +208,7 @@ export const manageSpellTool = defineGrimoireTool<ManageInput, ToolResult<Record
 						return success(
 							`Rolled back spell \`${input.path}\` to seal ${input.ref.slice(0, 8)}.`,
 							{ action: 'rollback', path: input.path, restoredRef: result.restoredRef },
-							{
-								entities: [toSpellPathRef(input.path)],
-								next: [inspectSpellNext(input.path)],
-							},
+							inspected(input.path),
 						);
 					}
 				}

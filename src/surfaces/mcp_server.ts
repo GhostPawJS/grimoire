@@ -1,3 +1,4 @@
+import { errorMessage } from '../lib/error_message.ts';
 import {
 	isErrorResult as defaultIsErrorResult,
 	type McpServer,
@@ -80,6 +81,8 @@ export function createMcpServer<TCtx>(options: McpServerOptions<TCtx>): McpServe
 					}
 				: value,
 		});
+		const toolError = (text: string) =>
+			result({ content: [{ type: 'text', text }], isError: true });
 		if (!modern && msg.method === 'initialize') {
 			initialized = true;
 			const version =
@@ -135,8 +138,7 @@ export function createMcpServer<TCtx>(options: McpServerOptions<TCtx>): McpServe
 				if (!tool) return error(id, -32602, `Unknown tool: ${String(params.name)}`);
 				const input = params.arguments === undefined ? {} : params.arguments;
 				const errors = validateInput(tool.inputSchema, input);
-				if (errors.length)
-					return result({ content: [{ type: 'text', text: errors.join('\n') }], isError: true });
+				if (errors.length) return toolError(errors.join('\n'));
 				try {
 					const override = options.contextForCall?.(tool, input as Record<string, unknown>);
 					if (override === undefined) context ??= Promise.resolve().then(options.context);
@@ -150,12 +152,7 @@ export function createMcpServer<TCtx>(options: McpServerOptions<TCtx>): McpServe
 						isError: (options.isErrorResult ?? defaultIsErrorResult)(value),
 					});
 				} catch (cause) {
-					return result({
-						content: [
-							{ type: 'text', text: cause instanceof Error ? cause.message : String(cause) },
-						],
-						isError: true,
-					});
+					return toolError(errorMessage(cause));
 				}
 			}
 			default:

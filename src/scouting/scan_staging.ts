@@ -13,18 +13,7 @@ export function scanStaging(dir: string, options?: { strict?: boolean }): Discov
 		!lstatSync(dir).isSymbolicLink() &&
 		!lstatSync(direct).isSymbolicLink()
 	) {
-		const content = readFileSync(direct, 'utf8');
-		const parsed = parseSkillMd(content);
-		const validation = validateSkillMd(content, options);
-		results.push({
-			name: parsed.ok ? parsed.frontmatter.name : basename(dir),
-			description: parsed.ok ? parsed.frontmatter.description : '',
-			localPath: dir,
-			repoPath: '',
-			valid: validation.valid,
-			errors: validation.errors,
-			warnings: validation.warnings,
-		});
+		results.push(readStagedSkill(dir, '', options, true));
 	} else walk(dir, dir, results, options);
 	return results;
 }
@@ -60,34 +49,29 @@ function walk(
 		}
 		const skillMdPath = join(full, 'SKILL.md');
 		if (existsSync(skillMdPath) && !lstatSync(skillMdPath).isSymbolicLink()) {
-			const content = readFileSync(skillMdPath, 'utf-8');
-			const validation = validateSkillMd(content, options);
-			const parsed = parseSkillMd(content);
-			const relPath = relative(root, full);
-
-			if (parsed.ok) {
-				results.push({
-					name: parsed.frontmatter.name,
-					description: parsed.frontmatter.description,
-					localPath: full,
-					repoPath: relPath,
-					valid: validation.valid,
-					errors: validation.errors,
-					warnings: validation.warnings,
-				});
-			} else {
-				results.push({
-					name: entry.name,
-					description: '',
-					localPath: full,
-					repoPath: relPath,
-					valid: false,
-					errors: [parsed.error],
-					warnings: [],
-				});
-			}
+			results.push(readStagedSkill(full, relative(root, full), options));
 		} else {
 			walk(full, root, results, options);
 		}
 	}
+}
+
+function readStagedSkill(
+	localPath: string,
+	repoPath: string,
+	options?: { strict?: boolean },
+	direct = false,
+): DiscoveredSkill {
+	const content = readFileSync(join(localPath, 'SKILL.md'), 'utf8');
+	const parsed = parseSkillMd(content);
+	const validation = validateSkillMd(content, options);
+	return {
+		name: parsed.ok ? parsed.frontmatter.name : basename(localPath),
+		description: parsed.ok ? parsed.frontmatter.description : '',
+		localPath,
+		repoPath,
+		valid: validation.valid,
+		errors: parsed.ok || direct ? validation.errors : [parsed.error],
+		warnings: parsed.ok || direct ? validation.warnings : [],
+	};
 }

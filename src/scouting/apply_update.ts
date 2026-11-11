@@ -107,26 +107,17 @@ function resolveOriginalContent(
 	spellPath: string,
 	sealHistory: Array<{ hash: string }>,
 ): string {
-	if (sealHistory.length === 0) {
+	const firstSeal = sealHistory.at(-1);
+	if (firstSeal) {
 		try {
-			return readFileSync(join(ctx.root, spellPath, 'SKILL.md'), 'utf-8');
+			return execGit(ctx, ['show', `${firstSeal.hash}:${spellPath}/SKILL.md`, '--']);
 		} catch {
-			return '';
+			// Fall back to current content if the original revision is unavailable.
 		}
 	}
-
-	const firstSeal = sealHistory[sealHistory.length - 1];
-	if (!firstSeal) {
-		return '';
-	}
-
 	try {
-		return execGit(ctx, ['show', `${firstSeal.hash}:${spellPath}/SKILL.md`, '--']);
+		return readFileSync(join(ctx.root, spellPath, 'SKILL.md'), 'utf-8');
 	} catch {
-		try {
-			return readFileSync(join(ctx.root, spellPath, 'SKILL.md'), 'utf-8');
-		} catch {
-			return '';
-		}
+		return '';
 	}
 }

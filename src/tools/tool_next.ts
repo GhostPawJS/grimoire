@@ -11,9 +11,7 @@ import type { ToolNextStepHint } from './tool_types.ts';
 export function inspectSpellNext(path: string, name?: string): ToolNextStepHint {
 	return {
 		kind: 'inspect_item',
-		message: name
-			? `Inspect spell "${name}"; CLI --compact omits body.`
-			: `Inspect spell ${path}; CLI --compact omits body.`,
+		message: `Inspect spell ${name ? `"${name}"` : path}; CLI --compact omits body.`,
 		tool: inspectGrimoireItemToolName,
 		suggestedInput: { path },
 	};
@@ -42,38 +40,26 @@ export function useToolNext(
 }
 
 export function honeNext(paths?: string[]): ToolNextStepHint {
-	return {
-		kind: 'use_tool',
-		message: 'Seal pending changes to evolve spell ranks.',
-		tool: honeSpellToolName,
-		...(paths ? { suggestedInput: { paths } } : {}),
-	};
+	return useToolNext(
+		honeSpellToolName,
+		'Seal pending changes to evolve spell ranks.',
+		paths ? { paths } : undefined,
+	);
 }
 
 export function searchNext(query: string, message?: string): ToolNextStepHint {
-	return {
-		kind: 'use_tool',
-		message: message ?? `Search for "${query}".`,
-		tool: searchGrimoireToolName,
-		suggestedInput: { query },
-	};
+	return useToolNext(searchGrimoireToolName, message ?? `Search for "${query}".`, { query });
 }
 
 export function catalogueNext(): ToolNextStepHint {
-	return {
-		kind: 'use_tool',
-		message: 'Run the catalogue maintenance pass.',
-		tool: runCatalogueToolName,
-	};
+	return useToolNext(runCatalogueToolName, 'Run the catalogue maintenance pass.');
 }
 
 export function manageSpellNext(action: string, path?: string): ToolNextStepHint {
-	return {
-		kind: 'use_tool',
-		message: `${action} the spell.`,
-		tool: manageSpellToolName,
-		suggestedInput: { action, ...(path ? { path } : {}) },
-	};
+	return useToolNext(manageSpellToolName, `${action} the spell.`, {
+		action,
+		...(path ? { path } : {}),
+	});
 }
 
 export function askUserNext(message: string): ToolNextStepHint {

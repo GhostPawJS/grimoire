@@ -28,16 +28,11 @@ export function resonance(
 
 	const lastSealTs = sealRow ? Number(sealRow.ts) : null;
 
-	const readRows =
-		lastSealTs !== null
-			? db
-					.prepare(
-						"SELECT ts FROM spell_events WHERE spell = ? AND event = 'read' AND ts > ? ORDER BY id",
-					)
-					.all<{ ts: number }>(path, lastSealTs)
-			: db
-					.prepare("SELECT ts FROM spell_events WHERE spell = ? AND event = 'read' ORDER BY id")
-					.all<{ ts: number }>(path);
+	const readRows = db
+		.prepare(
+			`SELECT ts FROM spell_events WHERE spell = ? AND event = 'read'${lastSealTs !== null ? ' AND ts > ?' : ''} ORDER BY id`,
+		)
+		.all<{ ts: number }>(path, ...(lastSealTs !== null ? [lastSealTs] : []));
 
 	let weightedReads = 0;
 	for (const row of readRows) {

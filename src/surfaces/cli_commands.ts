@@ -1,3 +1,4 @@
+import { errorMessage } from '../lib/error_message.ts';
 import type { ToolCliOptions } from './cli.ts';
 import {
 	type CliArgument,
@@ -8,39 +9,49 @@ import {
 	renderCliHelp,
 } from './cli_args.ts';
 import { cliCompletion } from './cli_completion.ts';
+import { cliErrorCode } from './cli_error_code.ts';
+import { cliFlagName, cliPropertyName } from './cli_names.ts';
 import { cliVersionOutput } from './cli_version.ts';
+import { jsonLine } from './json_line.ts';
+import { readCliStdin } from './read_cli_stdin.ts';
 import type { JsonSchema, SurfaceTool } from './surface_types.ts';
 import { validateInput } from './validate_input.ts';
 
+const updateFlags: CliArgument[] = [
+	{ name: 'replace', type: 'array', file: true, description: 'Exact text; repeat with --with.' },
+	{ name: 'with', type: 'array', file: true, description: 'Replacement text.' },
+	{ name: 'append-section', type: 'string', description: 'New section heading.' },
+	{ name: 'body', type: 'string', file: true, description: 'Section body.' },
+];
+const isUpdateFlag = (flag: string | undefined) =>
+	updateFlags.some((arg) => flag === `--${arg.name}`);
+
 export function cliCommands<T>(tools: readonly SurfaceTool<T>[]) {
-	return tools
-		.flatMap((tool) => {
-			const split = tool.name.indexOf('_');
-			const cli = tool.cli ?? { noun: tool.name.slice(split + 1), verb: tool.name.slice(0, split) };
-			const action =
-				cli.action ??
-				(tool.inputSchema.properties?.action?.enum ? { property: 'action' } : undefined);
-			const actions = action
-				? (tool.inputSchema.properties?.[action.property]?.enum ?? [])
-				: [undefined];
-			return actions.map((value) => {
-				const verb =
-					value === undefined ? cli.verb : (action?.verbs?.[String(value)] ?? String(value));
-				return {
-					tool,
-					description: action?.descriptions?.[String(value)] ?? tool.description,
-					path: [cli.noun, verb].filter(Boolean).join(' '),
-					fixed: action && value !== undefined ? { [action.property]: value } : {},
-					positionals: action?.positionals?.[String(value)] ?? cli.positionals ?? [],
-					flags: action?.flags?.[String(value)],
-				};
-			});
-		})
-		.flatMap((command) =>
-			command.tool.name === 'review_grimoire'
+	return tools.flatMap((tool) => {
+		const split = tool.name.indexOf('_');
+		const cli = tool.cli ?? { noun: tool.name.slice(split + 1), verb: tool.name.slice(0, split) };
+		const action =
+			cli.action ??
+			(tool.inputSchema.properties?.action?.enum ? { property: 'action' } : undefined);
+		const actions = action
+			? (tool.inputSchema.properties?.[action.property]?.enum ?? [])
+			: [undefined];
+		return actions.flatMap((value) => {
+			const verb =
+				value === undefined ? cli.verb : (action?.verbs?.[String(value)] ?? String(value));
+			const command = {
+				tool,
+				description: action?.descriptions?.[String(value)] ?? tool.description,
+				path: [cli.noun, verb].filter(Boolean).join(' '),
+				fixed: action && value !== undefined ? { [action.property]: value } : {},
+				positionals: action?.positionals?.[String(value)] ?? cli.positionals ?? [],
+				flags: action?.flags?.[String(value)],
+			};
+			return tool.name === 'review_grimoire'
 				? [command, { ...command, path: 'check', fixed: { view: 'check' }, positionals: [] }]
-				: [command],
-		);
+				: [command];
+		});
+	});
 }
 export async function runCliCommand<T>(
 	argv: string[],
@@ -94,24 +105,20 @@ export async function runCliCommand<T>(
 		for (let i = 0; i < args.length; i++) {
 			const flag = args[i];
 			if (flag === '--') break;
-			if (
-				flag === '--root' ||
-				flag === '--git-dir' ||
-				flag?.startsWith('--root=') ||
-				flag?.startsWith('--git-dir=')
-			) {
-				const key = flag.split('=')[0];
-				const value = flag.includes('=')
-					? flag.slice(flag.indexOf('=') + 1)
+			const key = flag?.split('=')[0];
+			if (['--root', '--git-dir', '--db'].includes(key ?? '')) {
+				const inline = flag?.includes('=');
+				const value = inline
+					? flag?.slice((flag?.indexOf('=') ?? 0) + 1)
 					: args.splice(i + 1, 1)[0];
-				if (!value || (!flag.includes('=') && value.startsWith('--')))
+				if (
+					!value ||
+					(!inline && (key === '--db' ? /^--[a-z]/i.test(value) : value.startsWith('--')))
+				)
 					throw new CliUsageError(`${key} requires a path`);
 				if (key === '--root') root = value;
-				else gitDir = value;
-			} else if (flag === '--db' || flag?.startsWith('--db=')) {
-				db = flag === '--db' ? args.splice(i + 1, 1)[0] : flag.slice(5);
-				if (!db || (flag === '--db' && /^--[a-z]/i.test(db)))
-					throw new CliUsageError('--db requires a path');
+				else if (key === '--git-dir') gitDir = value;
+				else db = value;
 			} else if (flag === '--json') json = true;
 			else if (flag === '--quiet' || flag === '-q') quiet = true;
 			else if (flag === '--compact') compact = true;
@@ -121,12 +128,10 @@ export async function runCliCommand<T>(
 				return 0;
 			} else if (flag !== '--no-color') {
 				const valueFlag =
-					['--replace', '--with', '--append-section', '--body'].includes(flag ?? '') ||
+					isUpdateFlag(flag) ||
 					options.tools.some((tool) =>
 						Object.entries(tool.inputSchema.properties ?? {}).some(
-							([name, schema]) =>
-								schema.type !== 'boolean' &&
-								flag === `--${name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`,
+							([name, schema]) => schema.type !== 'boolean' && flag === `--${cliFlagName(name)}`,
 						),
 					);
 				if (valueFlag) i++;
@@ -147,23 +152,22 @@ export async function runCliCommand<T>(
 			command.path.split(' ').every((part, i) => args[i] === part),
 		);
 		const specFor = (command: (typeof tree)[number]): CliSpec => {
-			const argument = (name: string, schema: JsonSchema): CliArgument => ({
-				name,
-				type:
-					schema.type === 'object' || !schema.type ? 'json' : (schema.type as CliArgument['type']),
-				description: schema.description,
-				enum: schema.enum,
-				parseValue:
-					command.tool.cli?.valueParsers?.[
-						name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
-					],
-				...(command.tool.cli?.fileArgs?.includes(
-					name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase()),
-				)
-					? { file: true }
-					: {}),
-				...(schema.items?.type ? { itemType: schema.items.type as CliArgument['type'] } : {}),
-			});
+			const argument = (name: string, schema: JsonSchema): CliArgument => {
+				const property = cliPropertyName(name);
+				const arg: CliArgument = {
+					name,
+					type:
+						schema.type === 'object' || !schema.type
+							? 'json'
+							: (schema.type as CliArgument['type']),
+					description: schema.description,
+					enum: schema.enum,
+					parseValue: command.tool.cli?.valueParsers?.[property],
+				};
+				if (command.tool.cli?.fileArgs?.includes(property)) arg.file = true;
+				if (schema.items?.type) arg.itemType = schema.items.type as CliArgument['type'];
+				return arg;
+			};
 			const properties = command.tool.inputSchema.properties ?? {};
 			const spec: CliSpec = {
 				command: `${options.bin} ${command.path}`,
@@ -183,10 +187,7 @@ export async function runCliCommand<T>(
 							!(name in command.fixed) && (!command.flags || command.flags.includes(name)),
 					)
 					.map(([name, schema]) => ({
-						...argument(
-							name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`),
-							schema,
-						),
+						...argument(cliFlagName(name), schema),
 						required: false,
 						description: `${schema.description ?? ''}${command.tool.inputSchema.required?.includes(name) ? ' (required)' : ''}`,
 					})),
@@ -196,15 +197,7 @@ export async function runCliCommand<T>(
 					...(spec.flags ?? []).filter(
 						(flag) => !['replace', 'append-section'].includes(flag.name),
 					),
-					{
-						name: 'replace',
-						type: 'array',
-						file: true,
-						description: 'Exact text; repeat with --with.',
-					},
-					{ name: 'with', type: 'array', file: true, description: 'Replacement text.' },
-					{ name: 'append-section', type: 'string', description: 'New section heading.' },
-					{ name: 'body', type: 'string', file: true, description: 'Section body.' },
+					...updateFlags,
 				];
 			}
 
@@ -267,7 +260,7 @@ export async function runCliCommand<T>(
 		const rest = args.slice(entry.path.split(' ').length);
 		let base: unknown = {};
 		const spec = specFor(entry);
-		const positionalIndexes: number[] = [];
+		let lastPositional: number | undefined;
 		let ended = false;
 		for (let i = 0; i < rest.length; i++) {
 			const token = rest[i] as string;
@@ -278,16 +271,14 @@ export async function runCliCommand<T>(
 			if (!ended && token.startsWith('--')) {
 				const flag = spec.flags?.find((arg) => `--${arg.name}` === token);
 				if (!token.includes('=') && flag && flag.type !== 'boolean') i++;
-			} else positionalIndexes.push(i);
+			} else lastPositional = i;
 		}
-		const stdinIndex =
-			rest[positionalIndexes.at(-1) as number] === '-' ? positionalIndexes.at(-1) : undefined;
+		const stdinIndex = rest[lastPositional as number] === '-' ? lastPositional : undefined;
 		// The check alias already supplies its view and needs no implicit stdin input.
 		const fixedCheck = entry.tool.name === 'review_grimoire' && entry.fixed.view === 'check';
 		if (stdinIndex !== undefined || (!rest.length && !stdin.isTTY && !fixedCheck)) {
 			if (stdinIndex !== undefined) rest.splice(stdinIndex, 1);
-			let raw = '';
-			for await (const chunk of stdin) raw += String(chunk);
+			const raw = await readCliStdin(stdin);
 			try {
 				base = raw.trim() ? JSON.parse(raw) : {};
 			} catch {
@@ -305,7 +296,7 @@ export async function runCliCommand<T>(
 				const token = rest[i] as string;
 				if (token === '--') break;
 				const key = token.split('=')[0];
-				if (!['--replace', '--with', '--append-section', '--body'].includes(key ?? '')) continue;
+				if (!isUpdateFlag(key)) continue;
 				const value = token.includes('=') ? token.slice(token.indexOf('=') + 1) : rest[i + 1];
 				if (value === undefined || (!token.includes('=') && value.startsWith('--')))
 					throw new CliUsageError(`${key} requires a value`);
@@ -356,46 +347,41 @@ export async function runCliCommand<T>(
 				data?: unknown;
 			};
 			const code =
-				record.outcome === 'needs_clarification' || record.error?.code === 'not_found'
+				record.outcome === 'needs_clarification'
 					? 3
-					: ['conflict', 'version_mismatch'].includes(record.error?.code ?? '')
+					: record.error?.code === 'version_mismatch'
 						? 4
-						: ['validation_failed', 'invalid_input'].includes(record.error?.code ?? '')
-							? 2
-							: record.error?.code === 'system_error'
-								? 70
-								: record.ok === false
-									? 1
-									: 0;
+						: (cliErrorCode(record.error?.code) ?? (record.ok === false ? 1 : 0));
 			if (code) {
-				const missing = record.clarification?.missing.map(
-					(name) => `--${name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`,
-				);
+				const missing = record.clarification?.missing.map((name) => `--${cliFlagName(name)}`);
 				stderr.write(
 					`${record.clarification?.question ?? record.error?.message ?? record.summary ?? 'Tool failed'}\n${missing?.length ? `Missing: ${missing.join(', ')}\n` : ''}${record.error?.recovery ? `${record.error.recovery}\n` : ''}`,
 				);
 			}
-			if ((json || !(stdout as { isTTY?: boolean }).isTTY) && !quiet)
+			const writeJson = () =>
 				stdout.write(
-					`${JSON.stringify(compact && entry.tool.name === 'inspect_grimoire_item' && options.formatResult ? JSON.parse(options.formatResult(result, entry.tool, input, false, true)) : result, null, compact ? undefined : 2)}\n`,
+					jsonLine(
+						compact && entry.tool.name === 'inspect_grimoire_item' && options.formatResult
+							? JSON.parse(options.formatResult(result, entry.tool, input, false, true))
+							: result,
+						compact,
+					),
 				);
+			if ((json || !(stdout as { isTTY?: boolean }).isTTY) && !quiet) writeJson();
 			else if (!code && options.formatResult) {
 				stdout.write(options.formatResult(result, entry.tool, input, quiet, compact));
 				const warnings = (result as { warnings?: { code?: string; message?: string }[] }).warnings;
 				if (!quiet)
 					for (const warning of warnings ?? [])
 						if (warning.code !== 'empty_result') stderr.write(`warning: ${warning.message}\n`);
-			} else if (!quiet && !code)
-				stdout.write(
-					`${JSON.stringify(compact && entry.tool.name === 'inspect_grimoire_item' && options.formatResult ? JSON.parse(options.formatResult(result, entry.tool, input, false, true)) : result, null, compact ? undefined : 2)}\n`,
-				);
+			} else if (!quiet && !code) writeJson();
 			return code;
 		} finally {
 			await options.closeContext?.(context);
 		}
 	} catch (error) {
 		return fail(
-			error instanceof Error ? error.message : String(error),
+			errorMessage(error),
 			error instanceof CliUsageError ? 2 : 70,
 			error instanceof CliUsageError ? error.errorCode : 'internal_error',
 		);

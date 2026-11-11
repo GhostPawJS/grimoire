@@ -1,3 +1,4 @@
+import { nullableString } from '../lib/nullable_string.ts';
 import type { SpellEvent, SpellEventRow, SpellEventType } from './types.ts';
 
 export function mapEventRow(row: SpellEventRow): SpellEvent {
@@ -5,7 +6,7 @@ export function mapEventRow(row: SpellEventRow): SpellEvent {
 		id: Number(row.id),
 		spell: String(row.spell),
 		event: row.event as SpellEventType,
-		contextId: row.context_id === null ? null : String(row.context_id),
+		contextId: nullableString(row.context_id),
 		ts: Number(row.ts),
 	};
 }

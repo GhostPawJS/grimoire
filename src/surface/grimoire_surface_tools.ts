@@ -6,22 +6,17 @@ import { parseNoteContent } from './parse_note_content.ts';
 
 // Enum values, containers, and array item types do not need repeated prose.
 function compactSchema(schema: JsonSchema, field = true): JsonSchema {
-	const { description, ...rest } = schema;
-	return {
-		...rest,
-		...(description && field && !schema.enum && schema.type !== 'object' && schema.type !== 'array'
-			? { description }
-			: {}),
-		...(schema.properties
-			? {
-					properties: Object.fromEntries(
-						Object.entries(schema.properties).map(([key, value]) => [key, compactSchema(value)]),
-					),
-				}
-			: {}),
-		...(schema.items ? { items: compactSchema(schema.items, false) } : {}),
-		...(schema.oneOf ? { oneOf: schema.oneOf.map((branch) => compactSchema(branch)) } : {}),
-	};
+	const { description, ...fields } = schema;
+	const rest: JsonSchema = fields;
+	if (description && field && !schema.enum && schema.type !== 'object' && schema.type !== 'array')
+		rest.description = description;
+	if (schema.properties)
+		rest.properties = Object.fromEntries(
+			Object.entries(schema.properties).map(([key, value]) => [key, compactSchema(value)]),
+		);
+	if (schema.items) rest.items = compactSchema(schema.items, false);
+	if (schema.oneOf) rest.oneOf = schema.oneOf.map((branch) => compactSchema(branch));
+	return rest;
 }
 
 const grimoireMcpSurfaceTools: readonly SurfaceTool<GrimoireToolContext>[] = grimoireTools.map(

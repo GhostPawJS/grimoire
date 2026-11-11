@@ -87,9 +87,7 @@ export const inscribeSpellTool = defineGrimoireTool<
 			const result = inscribe(ctx.root, ctx.db, {
 				...(input.force !== undefined ? { force: input.force } : {}),
 				...(ctx.gitDir ? { gitDir: ctx.gitDir } : {}),
-				...(input.strict !== undefined
-					? { ...(input.strict !== undefined ? { strict: input.strict } : {}) }
-					: {}),
+				...(input.strict !== undefined ? { strict: input.strict } : {}),
 				name: input.name,
 				content: input.content,
 				...(input.chapter !== undefined ? { chapter: input.chapter } : {}),

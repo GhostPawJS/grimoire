@@ -1,4 +1,5 @@
 import { type GrimoireError, isGrimoireError } from '../errors.ts';
+import { errorMessage } from '../lib/error_message.ts';
 import { reviewViewNext, searchNext } from './tool_next.ts';
 import type {
 	ToolEntityRef,
@@ -25,8 +26,6 @@ function mapGrimoireErrorCode(code: string): { kind: ToolErrorKind; toolCode: To
 			return { kind: 'protocol', toolCode: 'validation_failed' };
 		case 'GRIMOIRE_STATE':
 			return { kind: 'domain', toolCode: 'invalid_state' };
-		case 'GRIMOIRE_INVARIANT':
-			return { kind: 'system', toolCode: 'system_error' };
 		default:
 			return { kind: 'system', toolCode: 'system_error' };
 	}
@@ -69,7 +68,7 @@ export function translateToolError(
 			result.error.recovery = 'Resolve the reported state or repository configuration and retry.';
 		return result;
 	}
-	const message = error instanceof Error ? error.message : String(error);
+	const message = errorMessage(error);
 	return toolFailure(
 		'system',
 		'system_error',

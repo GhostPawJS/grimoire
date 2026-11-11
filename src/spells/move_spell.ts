@@ -3,10 +3,9 @@ import { dirname, join } from 'node:path';
 import type { GrimoireDb } from '../database.ts';
 import { GrimoireConflictError } from '../errors.ts';
 import { logEvent } from '../events/log_event.ts';
-import { commitIdentity } from '../git/commit_identity.ts';
+import { checkpointPaths } from '../git/checkpoint_paths.ts';
 import { hasGitRepository } from '../git/has_git_repository.ts';
 import { assertGitScope } from '../lib/assert_git_scope.ts';
-import { execGit } from '../lib/exec_git.ts';
 import { resolveGitDir } from '../lib/resolve_git_dir.ts';
 import { resolveSpellPath } from '../lib/safe_path.ts';
 import { validateStagingPaths } from '../lib/validate_staging_paths.ts';
@@ -23,8 +22,8 @@ export function moveSpell(
 	options?: { force?: boolean; gitDir?: string },
 ): { from: string; to: string } {
 	return withGitLock(resolveGitDir(root, options?.gitDir), () => {
-		if (hasGitRepository({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }))
-			assertGitScope({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }, []);
+		const ctx = { root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) };
+		if (hasGitRepository(ctx)) assertGitScope(ctx, []);
 		validateStagingPaths(root, [from, to]);
 		assertSpellExists(root, from);
 
@@ -52,22 +51,9 @@ export function moveSpell(
 		}
 		rmSync(source, { recursive: true, force: true });
 
-		if (hasGitRepository({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) })) {
+		if (hasGitRepository(ctx)) {
 			const paths = [from, to];
-			execGit({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }, [
-				'add',
-				'-A',
-				'--',
-				...paths,
-			]);
-			execGit({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }, [
-				...commitIdentity({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }),
-				'commit',
-				'-m',
-				`move ${from} -> ${to}`,
-				'--',
-				...paths,
-			]);
+			checkpointPaths(ctx, paths, `move ${from} -> ${to}`);
 		}
 
 		if (db) {

@@ -19,25 +19,17 @@ export function deleteSpell(
 	options?: { gitDir?: string },
 ): void {
 	withGitLock(resolveGitDir(root, options?.gitDir), () => {
-		if (hasGitRepository({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }))
-			assertGitScope({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }, []);
+		const ctx = { root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) };
+		if (hasGitRepository(ctx)) assertGitScope(ctx, []);
 		resolveSpellPath(root, path);
 		validateStagingPaths(root, [path]);
 		if (existsSync(join(root, path))) assertSpellExists(root, path);
-		else if (
-			!hasGitRepository({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }) ||
-			!execGit({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) }, [
-				'ls-files',
-				'--',
-				`${path}/`,
-			])
-		)
+		else if (!hasGitRepository(ctx) || !execGit(ctx, ['ls-files', '--', `${path}/`]))
 			assertSpellExists(root, path);
 		const absolutePath = join(root, path);
 		rmSync(absolutePath, { recursive: true, force: true });
 
-		if (hasGitRepository({ root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) })) {
-			const ctx = { root, ...(options?.gitDir ? { gitDir: options.gitDir } : {}) };
+		if (hasGitRepository(ctx)) {
 			execGit(ctx, ['add', '-A', '--', path]);
 			execGit(ctx, [...commitIdentity(ctx), 'commit', '-m', `delete ${path}`, '--', path]);
 		}

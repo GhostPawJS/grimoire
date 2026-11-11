@@ -2,6 +2,7 @@ import type { GrimoireDb } from '../database.ts';
 import { GrimoireStateError } from '../errors.ts';
 import { hasGitRepository } from '../git/has_git_repository.ts';
 import { assertGitScope } from '../lib/assert_git_scope.ts';
+import { errorMessage } from '../lib/error_message.ts';
 import { adoptSpell } from './adopt_spell.ts';
 import type { AdoptResult, AdoptSpellOptions } from './types.ts';
 
@@ -19,7 +20,7 @@ export function adoptSpells(
 	} catch (error) {
 		result.errors.push({
 			path: root,
-			error: error instanceof Error ? error.message : String(error),
+			error: errorMessage(error),
 			code: 'seal_failed',
 		});
 		return result;
@@ -30,7 +31,7 @@ export function adoptSpells(
 			const adopted = adoptSpell(root, db, localPath, options);
 			result.adopted.push(adopted);
 		} catch (err) {
-			const message = err instanceof Error ? err.message : String(err);
+			const message = errorMessage(err);
 			result.errors.push({
 				path: localPath,
 				error: message,

@@ -1,10 +1,19 @@
 import { join, resolve } from 'node:path';
 import type { ToolCliOptions } from '../surfaces/cli.ts';
+import { jsonLine } from '../surfaces/json_line.ts';
 import type { GrimoireToolContext } from '../tools/tool_metadata.ts';
 import { grimoireVersion } from '../version.ts';
 import { grimoireSurfaceTools } from './grimoire_surface_tools.ts';
 import { resolveGrimoireDbPath } from './resolve_grimoire_db_path.ts';
 import { resolveGrimoireRoot } from './resolve_grimoire_root.ts';
+
+function contextOptions(options: { db?: string; root?: string; gitDir?: string }) {
+	return {
+		...(options.db === undefined ? {} : { dbPath: options.db }),
+		...(options.root === undefined ? {} : { root: options.root }),
+		...(options.gitDir === undefined ? {} : { gitDir: options.gitDir }),
+	};
+}
 
 export const grimoireCliOptions: ToolCliOptions<GrimoireToolContext> = {
 	bin: 'ghostpaw-grimoire',
@@ -26,7 +35,7 @@ export const grimoireCliOptions: ToolCliOptions<GrimoireToolContext> = {
 			const history = record.data.history ?? [];
 			return `${JSON.stringify({ ...record, data: { ...record.data, spell, history: undefined, historyCount: history.length, lastCommit: history[0] ?? null } })}\n`;
 		}
-		if (tool.readOnly) return `${JSON.stringify(result, null, compact ? undefined : 2)}\n`;
+		if (tool.readOnly) return jsonLine(result, compact);
 		const record = result as {
 			summary: string;
 			outcome?: string;
@@ -40,9 +49,7 @@ export const grimoireCliOptions: ToolCliOptions<GrimoireToolContext> = {
 		const { openGrimoireContext } = await import('./open_grimoire_context.ts');
 		return openGrimoireContext({
 			...(options.readOnly ? { readOnly: true } : {}),
-			...(options.db === undefined ? {} : { dbPath: options.db }),
-			...(options.root === undefined ? {} : { root: options.root }),
-			...(options.gitDir === undefined ? {} : { gitDir: options.gitDir }),
+			...contextOptions(options),
 		});
 	},
 	closeContext: (ctx) => ctx.db?.close(),
@@ -50,9 +57,7 @@ export const grimoireCliOptions: ToolCliOptions<GrimoireToolContext> = {
 		mcp: async (options) => {
 			const { serveGrimoireMcp } = await import('./serve_grimoire_mcp.ts');
 			await serveGrimoireMcp({
-				...(options.db === undefined ? {} : { dbPath: options.db }),
-				...(options.root === undefined ? {} : { root: options.root }),
-				...(options.gitDir === undefined ? {} : { gitDir: options.gitDir }),
+				...contextOptions(options),
 			});
 		},
 		skill: async (args) => {

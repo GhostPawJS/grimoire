@@ -6,22 +6,19 @@ import { openGrimoireContext } from './open_grimoire_context.ts';
 export async function serveGrimoireMcp(
 	options: { db?: GrimoireDb; dbPath?: string; root?: string; gitDir?: string } = {},
 ): Promise<void> {
-	let owned: GrimoireDb | undefined;
-	let reader: Awaited<ReturnType<typeof openGrimoireContext>> | undefined;
+	const owned: (GrimoireDb | undefined)[] = [];
 	let readerContext: ReturnType<typeof openGrimoireContext> | undefined;
+	const open = async (readOnly = false) => {
+		const context = await openGrimoireContext(readOnly ? { ...options, readOnly } : options);
+		if (!options.db) owned[Number(readOnly)] = context.db;
+		return context;
+	};
 	const server = createMcpServer(
 		grimoireMcpOptions(
-			async () => {
-				const context = await openGrimoireContext(options);
-				if (!options.db) owned = context.db;
-				return context;
-			},
+			() => open(),
 			(tool, input) => {
 				if (tool.name !== 'review_grimoire' || input.view !== 'check') return undefined;
-				readerContext ??= openGrimoireContext({ ...options, readOnly: true }).then((context) => {
-					reader = context;
-					return context;
-				});
+				readerContext ??= open(true);
 				return readerContext;
 			},
 		),
@@ -29,7 +26,6 @@ export async function serveGrimoireMcp(
 	try {
 		await serveMcpStdio(server);
 	} finally {
-		owned?.close();
-		if (!options.db) reader?.db.close();
+		for (const db of owned) db?.close();
 	}
 }

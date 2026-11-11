@@ -10,16 +10,14 @@ import { seal } from '../git/seal.ts';
 import { assertGitScope } from '../lib/assert_git_scope.ts';
 import { resolveGitDir } from '../lib/resolve_git_dir.ts';
 import { assertChapter, assertSpellName, resolveInsideRoot } from '../lib/safe_path.ts';
-import { trigramJaccard } from '../lib/trigram_jaccard.ts';
 import { withGitLock } from '../lib/with_git_lock.ts';
 import { getProvenance } from '../provenance/get_provenance.ts';
 import { recordProvenance } from '../provenance/record_provenance.ts';
 import { parseSkillMd } from '../spec/parse_skill_md.ts';
 import { serializeSkillMd } from '../spec/serialize_skill_md.ts';
 import { validateSkillMd } from '../spec/validate_skill_md.ts';
-import { discoverSpells } from '../spells/discover_spells.ts';
+import { detectDuplicates } from '../spells/detect_duplicates.ts';
 import { getSpell } from '../spells/get_spell.ts';
-import type { DuplicationWarning } from '../spells/types.ts';
 import { withTransaction } from '../with_transaction.ts';
 import type { AdoptSpellOptions, AdoptSpellResult } from './types.ts';
 
@@ -45,12 +43,8 @@ export function adoptSpell(
 			);
 		}
 
-		const parsed = parseSkillMd(content);
-		if (!parsed.ok) {
-			throw new GrimoireValidationError(
-				`Failed to parse SKILL.md at ${localPath}: ${parsed.error}`,
-			);
-		}
+		// Successful validation guarantees that this same content parses.
+		const parsed = parseSkillMd(content) as Extract<ReturnType<typeof parseSkillMd>, { ok: true }>;
 
 		const name = parsed.frontmatter.name;
 		const chapter = options?.chapter ?? DEFAULTS.defaultChapter;
@@ -88,60 +82,24 @@ export function adoptSpell(
 		}
 
 		const perform = (): AdoptSpellResult => {
-			if (db && options?.provenance) {
-				recordProvenance(db, { ...options.provenance, spellPath });
-				logEvent(db, {
-					spell: spellPath,
-					event: 'adopt',
-					...(options.now !== undefined ? { now: options.now } : {}),
-				});
-				const prov = getProvenance(db, spellPath);
-				return {
-					spell: getSpell(root, spellPath, undefined, options?.gitDir),
-					warnings,
-					...(prov ? { provenance: prov } : {}),
-				};
-			}
-
 			if (db) {
+				if (options?.provenance) recordProvenance(db, { ...options.provenance, spellPath });
 				logEvent(db, {
 					spell: spellPath,
 					event: 'adopt',
 					...(options?.now !== undefined ? { now: options.now } : {}),
 				});
 			}
-
-			return { spell: getSpell(root, spellPath, undefined, options?.gitDir), warnings };
+			const prov = db && options?.provenance ? getProvenance(db, spellPath) : undefined;
+			return {
+				spell: getSpell(root, spellPath, undefined, options?.gitDir),
+				warnings,
+				...(prov ? { provenance: prov } : {}),
+			};
 		};
 
 		return db ? withTransaction(db, perform) : perform();
 	});
-}
-
-function detectDuplicates(
-	root: string,
-	newPath: string,
-	newDescription: string,
-): DuplicationWarning[] {
-	const warnings: DuplicationWarning[] = [];
-	const existing = discoverSpells(root);
-
-	for (const entry of existing) {
-		if (entry.path === newPath) continue;
-		try {
-			const content = readFileSync(join(root, entry.path, 'SKILL.md'), 'utf-8');
-			const parsed = parseSkillMd(content);
-			if (!parsed.ok) continue;
-			const similarity = trigramJaccard(newDescription, parsed.frontmatter.description);
-			if (similarity >= DEFAULTS.routingThreshold) {
-				warnings.push({ existingPath: entry.path, similarity });
-			}
-		} catch {
-			// Skip unreadable spells.
-		}
-	}
-
-	return warnings;
 }
 
 function injectProvenanceMetadata(

@@ -177,35 +177,13 @@ export function catalogue(
 
 			const draftsQueued = pendingDrafts(db).length;
 
-			const rankDistribution: Record<string, number> = {};
-			for (const [path, rank] of Object.entries(ranks)) {
-				rankDistribution[path] = rank;
-			}
+			const rankDistribution = { ...ranks };
 
 			const computedAt = new Date(now).toISOString();
 
-			const { id } = projected
-				? { id: 0 }
-				: saveCatalogue(db, {
-						computedAt,
-						totalSpells: spells.length,
-						chapterDistribution,
-						rankDistribution,
-						staleSpells,
-						dormantSpells,
-						oversizedSpells,
-						pendingNotes: pendingNoteCount,
-						notesRouted,
-						orphanClusters,
-						draftsQueued,
-						chapterBalance: chapterBalanceMap,
-						spellHealth: spellHealthMap,
-						sealVelocity: sealVelocityMap,
-					});
-
 			const snapshot: CatalogueSnapshot = {
 				...(warnings.length ? { warnings } : {}),
-				id,
+				id: 0,
 				computedAt,
 				totalSpells: spells.length,
 				chapterDistribution,
@@ -221,6 +199,7 @@ export function catalogue(
 				spellHealth: spellHealthMap,
 				sealVelocity: sealVelocityMap,
 			};
+			if (!projected) snapshot.id = saveCatalogue(db, snapshot).id;
 			if (projected) {
 				projection = snapshot;
 				throw projectionComplete;

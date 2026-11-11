@@ -2,11 +2,9 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { allRanks } from '../git/all_ranks.ts';
 import { isGitAvailable } from '../git/is_git_available.ts';
-import { tier } from '../git/tier.ts';
-import { countBodyLines } from '../spec/count_body_lines.ts';
 import { parseSkillMd } from '../spec/parse_skill_md.ts';
 import { discoverSpells } from './discover_spells.ts';
-import { scanSpellDir } from './scan_spell_dir.ts';
+import { spellFromContent } from './spell_from_content.ts';
 import type { ListSpellsOptions, Spell } from './types.ts';
 
 export function listSpells(root: string, options?: ListSpellsOptions): Spell[] {
@@ -26,20 +24,7 @@ export function listSpells(root: string, options?: ListSpellsOptions): Spell[] {
 
 		const rank = ranks[entry.path] ?? 0;
 
-		results.push({
-			name: entry.name,
-			chapter: entry.chapter,
-			path: entry.path,
-			absolutePath,
-			skillMdPath,
-			description: parsed.frontmatter.description,
-			body: parsed.body,
-			bodyLines: countBodyLines(content),
-			rank,
-			tier: tier(rank),
-			files: scanSpellDir(absolutePath),
-			frontmatter: parsed.frontmatter,
-		});
+		results.push(spellFromContent(root, entry, content, parsed, rank));
 	}
 
 	return results;

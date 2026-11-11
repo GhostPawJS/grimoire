@@ -106,7 +106,8 @@ export const reviewGrimoireTool = defineGrimoireTool<
 	),
 	handler(ctx, input) {
 		try {
-			const limit = input.limit;
+			const limitedTo = <T>(items: T[]) =>
+				input.limit !== undefined ? items.slice(0, input.limit) : items;
 			const sharedWarnings = input.view === 'check' ? [] : sharedGitWarning(ctx);
 			const success = (
 				summary: string,
@@ -164,7 +165,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 					const sorted = Object.entries(all).sort(
 						([, a], [, b]) => b.weightedReads - a.weightedReads,
 					);
-					const limited = limit !== undefined ? sorted.slice(0, limit) : sorted;
+					const limited = limitedTo(sorted);
 					const entities = limited.slice(0, 10).map(([path]) => toSpellPathRef(path));
 					const snapshot = input.view === 'check' ? (readCatalogue(ctx.db) ?? null) : undefined;
 					const first = limited[0];
@@ -185,7 +186,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 					const notes = pendingNotes(ctx.db);
 					const count = pendingNoteCount(ctx.db);
 					const counts = noteCounts(ctx.db);
-					const limited = limit !== undefined ? notes.slice(0, limit) : notes;
+					const limited = limitedTo(notes);
 					const entities = limited.slice(0, 10).map(toNoteRef);
 					return success(
 						`${count} pending note${count === 1 ? '' : 's'} across ${counts.length} source${counts.length === 1 ? '' : 's'}.`,
@@ -197,7 +198,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 				case 'drafts': {
 					if (!ctx.db) return dbRequiredFailure('drafts');
 					const drafts = pendingDrafts(ctx.db);
-					const limited = limit !== undefined ? drafts.slice(0, limit) : drafts;
+					const limited = limitedTo(drafts);
 					const entities = limited.slice(0, 10).map(toDraftRef);
 					return success(
 						`${drafts.length} pending draft${drafts.length === 1 ? '' : 's'}.`,
@@ -221,7 +222,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 								)
 								.join('; '),
 						);
-					const limited = limit !== undefined ? results.slice(0, limit) : results;
+					const limited = limitedTo(results);
 					const entities = invalid.slice(0, 10).map((r) => toSpellPathRef(r.path));
 					const firstInvalid = invalid[0];
 					const next = firstInvalid ? [manageSpellNext('repair', firstInvalid.path)] : [];
@@ -235,7 +236,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 				case 'provenance': {
 					if (!ctx.db) return dbRequiredFailure('provenance');
 					const records = allProvenance(ctx.db);
-					const limited = limit !== undefined ? records.slice(0, limit) : records;
+					const limited = limitedTo(records);
 					const entities = limited.slice(0, 10).map(toProvenanceRef);
 					const first = limited[0];
 					const next = first ? [inspectSpellNext(first.spellPath)] : [];
@@ -249,7 +250,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 				case 'index': {
 					const entries = buildIndex(ctx.root, ctx.gitDir ? { gitDir: ctx.gitDir } : undefined);
 					const formatted = formatIndex(entries);
-					const limited = limit !== undefined ? entries.slice(0, limit) : entries;
+					const limited = limitedTo(entries);
 					const entities = limited.slice(0, 10).map(toIndexEntryRef);
 					const first = limited[0];
 					const next = first ? [inspectSpellNext(first.path, first.name)] : [];
@@ -261,16 +262,6 @@ export const reviewGrimoireTool = defineGrimoireTool<
 							? { formatted }
 							: { entries: limited, formatted, totalEntries: entries.length },
 						{ entities, next, warnings: [] },
-					);
-				}
-
-				default: {
-					const _exhaustive: never = input.view;
-					return toolFailure(
-						'protocol',
-						'invalid_input',
-						`Unknown view: ${_exhaustive as string}`,
-						`The view "${_exhaustive as string}" is not recognized.`,
 					);
 				}
 			}

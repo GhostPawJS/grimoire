@@ -6,7 +6,7 @@ import type { Spell } from '../spells/types.ts';
 import type { ToolEntityRef } from './tool_types.ts';
 
 export function toSpellRef(spell: Spell): ToolEntityRef {
-	return { kind: 'spell', id: spell.path, title: spell.name, state: spell.tier };
+	return toSpellPathRef(spell.path, spell.name, spell.tier);
 }
 
 export function toSpellPathRef(path: string, name?: string, tier?: string): ToolEntityRef {
@@ -34,5 +34,5 @@ export function toProvenanceRef(prov: Provenance): ToolEntityRef {
 }
 
 export function toIndexEntryRef(entry: IndexEntry): ToolEntityRef {
-	return { kind: 'spell', id: entry.path, title: entry.name, state: entry.tier };
+	return toSpellPathRef(entry.path, entry.name, entry.tier);
 }

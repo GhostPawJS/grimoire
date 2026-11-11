@@ -10,17 +10,13 @@ function classifyStatus(code: string): PendingChange['status'] | undefined {
 	return undefined;
 }
 
-function statusPorcelain(ctx: GitContext): string {
-	return execGit(ctx, ['status', '--porcelain', '-uall', '--', '.', ':!.grimoire-git'], {
-		trim: false,
-	});
-}
-
 export function pendingChanges(ctx: GitContext, path?: string): PendingChangesResult[] {
 	if (path !== undefined) resolveSpellPath(ctx.root, path);
 	if (!isGitAvailable()) return [];
 	try {
-		const output = statusPorcelain(ctx);
+		const output = execGit(ctx, ['status', '--porcelain', '-uall', '--', '.', ':!.grimoire-git'], {
+			trim: false,
+		});
 		if (output === '') return [];
 
 		const bySpell = new Map<string, PendingChange[]>();

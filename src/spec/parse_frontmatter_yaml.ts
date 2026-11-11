@@ -1,3 +1,5 @@
+const indentation = (line: string) => line.match(/^\s*/)?.[0].length ?? 0;
+
 export function parseFrontmatterYaml(yamlBlock: string): Record<string, unknown> {
 	const result: Record<string, unknown> = {};
 	const lines = yamlBlock.replace(/\r/g, '').split('\n');
@@ -16,19 +18,17 @@ export function parseFrontmatterYaml(yamlBlock: string): Record<string, unknown>
 			result[key] = currentMap;
 			continue;
 		}
-		const parentIndent = line.match(/^\s*/)?.[0].length ?? 0;
+		const parentIndent = indentation(line);
 		let value: string | boolean;
 		if (/^[>|][+-]?$/.test(raw)) {
 			const block: string[] = [];
 			while (index + 1 < lines.length) {
 				const next = lines[index + 1] ?? '';
-				if (next.trim() && (next.match(/^\s*/)?.[0].length ?? 0) <= parentIndent) break;
+				if (next.trim() && indentation(next) <= parentIndent) break;
 				block.push(next);
 				index++;
 			}
-			const indent = Math.min(
-				...block.filter((l) => l.trim()).map((l) => l.match(/^\s*/)?.[0].length ?? 0),
-			);
+			const indent = Math.min(...block.filter((l) => l.trim()).map((l) => indentation(l)));
 			const text = block.map((l) => (l.trim() ? l.slice(indent) : ''));
 			let scalar = '';
 			for (let i = 0; i < text.length; i++) {
@@ -49,7 +49,7 @@ export function parseFrontmatterYaml(yamlBlock: string): Record<string, unknown>
 			let continued = raw;
 			while (index + 1 < lines.length) {
 				const next = lines[index + 1] ?? '';
-				if (!next.trim() || (next.match(/^\s*/)?.[0].length ?? 0) <= parentIndent) break;
+				if (!next.trim() || indentation(next) <= parentIndent) break;
 				continued += ` ${next.trim()}`;
 				index++;
 			}

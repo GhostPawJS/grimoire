@@ -9,9 +9,9 @@ export function validateInput(schema: JsonSchema, input: unknown, path = '$'): s
 			case 'array':
 				return Array.isArray(input);
 			case 'integer':
-				return typeof input === 'number' && Number.isInteger(input);
+				return Number.isInteger(input);
 			case 'number':
-				return typeof input === 'number' && Number.isFinite(input);
+				return Number.isFinite(input);
 			case 'null':
 				return input === null;
 			default:

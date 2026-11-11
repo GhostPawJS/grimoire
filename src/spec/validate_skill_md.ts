@@ -35,7 +35,7 @@ export function validateSkillMd(
 
 	const { frontmatter, body } = parsed;
 
-	if (!frontmatter.name || frontmatter.name.length === 0) {
+	if (!frontmatter.name) {
 		errors.push('name is required');
 	} else {
 		if (frontmatter.name.length > 64) {
@@ -46,15 +46,14 @@ export function validateSkillMd(
 		}
 	}
 
-	if (!frontmatter.description || frontmatter.description.length === 0) {
+	if (!frontmatter.description) {
 		errors.push('description is required');
 	} else if (frontmatter.description.length > 1024) {
 		errors.push('description must be at most 1024 characters');
 	}
 
 	const bodyLines = body.split('\n');
-	const nonEmptyLines = bodyLines.filter((line) => line.trim() !== '');
-	if (nonEmptyLines.length === 0) {
+	if (!body.trim()) {
 		errors.push('body must have at least one non-empty line');
 	}
 
@@ -62,14 +61,11 @@ export function validateSkillMd(
 		errors.push('compatibility must be at most 500 characters');
 	}
 
-	if (frontmatter.metadata !== undefined) {
-		for (const [_k, v] of Object.entries(frontmatter.metadata)) {
-			if (typeof v !== 'string') {
-				errors.push('metadata values must be strings');
-				break;
-			}
-		}
-	}
+	if (
+		frontmatter.metadata &&
+		Object.values(frontmatter.metadata).some((value) => typeof value !== 'string')
+	)
+		errors.push('metadata values must be strings');
 
 	if (bodyLines.length > 500) {
 		warnings.push('body exceeds 500 lines');
@@ -81,13 +77,8 @@ export function validateSkillMd(
 }
 
 function checkUnknownFields(content: string, warnings: string[], strict = false): void {
-	const parsed = parseSkillMd(content);
-	if (!parsed.ok) return;
-
-	const firstDelim = content.indexOf('---');
-	const afterFirst = firstDelim + 3;
+	const afterFirst = 3;
 	const secondDelim = content.indexOf('\n---', afterFirst);
-	if (secondDelim === -1) return;
 
 	const yamlBlock = content.slice(afterFirst, secondDelim);
 	warnings.push(...frontmatterWarnings(yamlBlock.replace(/^\s*\n/, ''), strict));

@@ -6,13 +6,13 @@ import { type ToolWarning, toolWarning } from './tool_types.ts';
 
 export function sharedGitWarning(ctx: GrimoireToolContext): ToolWarning[] {
 	if (ctx.gitDirExplicit) return [];
+	const destination = resolve(ctx.root, '.grimoire-git');
 	const legacy = resolve(ctx.root, '..', '.grimoire-git');
 	const marker = resolve(legacy, 'MIGRATED_TO');
-	return (!ctx.gitDir || resolve(ctx.gitDir) === resolve(ctx.root, '.grimoire-git')) &&
+	return (!ctx.gitDir || resolve(ctx.gitDir) === destination) &&
 		existsSync(legacy) &&
-		resolveGitDir(ctx.root) === resolve(ctx.root, '.grimoire-git') &&
-		(!existsSync(marker) ||
-			readFileSync(marker, 'utf8').trim() !== resolve(ctx.root, '.grimoire-git'))
+		resolveGitDir(ctx.root) === destination &&
+		(!existsSync(marker) || readFileSync(marker, 'utf8').trim() !== destination)
 		? [
 				toolWarning(
 					'shared_git_dir',

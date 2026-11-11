@@ -3,6 +3,7 @@ import type { GrimoireDb } from '../database.ts';
 import { GrimoireNotFoundError, GrimoireStateError, GrimoireValidationError } from '../errors.ts';
 import { logEvent } from '../events/log_event.ts';
 import { assertGitScope } from '../lib/assert_git_scope.ts';
+import { errorMessage } from '../lib/error_message.ts';
 import { execGit, resolveGitDir } from '../lib/exec_git.ts';
 import { parseSpellPath, resolveInsideRoot, resolveSpellPath } from '../lib/safe_path.ts';
 import { withGitLock } from '../lib/with_git_lock.ts';
@@ -120,7 +121,7 @@ export function seal(
 		)
 			throw error;
 		throw new GrimoireStateError(
-			`Could not seal spell changes: ${error instanceof Error ? error.message : String(error)}. Inspect pending changes and resolve the Git error before retrying.`,
+			`Could not seal spell changes: ${errorMessage(error)}. Inspect pending changes and resolve the Git error before retrying.`,
 		);
 	}
 }

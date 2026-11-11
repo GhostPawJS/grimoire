@@ -1,7 +1,11 @@
 import { type Readable, Writable } from 'node:stream';
+import { errorMessage } from '../lib/error_message.ts';
 import { CliUsageError, readFileValue } from './cli_args.ts';
 import { runCliCommand } from './cli_commands.ts';
+import { cliErrorCode } from './cli_error_code.ts';
 import { cliVersionOutput } from './cli_version.ts';
+import { jsonLine } from './json_line.ts';
+import { readCliStdin } from './read_cli_stdin.ts';
 import { isErrorResult, type JsonSchema, type SurfaceTool } from './surface_types.ts';
 import { validateInput } from './validate_input.ts';
 
@@ -82,6 +86,8 @@ export async function runToolCli<TCtx>(
 			stdout.write(`${JSON.stringify({ ok: false, error: { code: 'cli_error', message } })}\n`);
 		return code;
 	};
+	const failCause = (cause: unknown) =>
+		fail(errorMessage(cause), cause instanceof CliUsageError ? 2 : 70);
 	for (let i = 0; i < args.length; i++) {
 		const token = args[i] as string;
 		if (token === '--') break;
@@ -134,7 +140,7 @@ export async function runToolCli<TCtx>(
 			stdout.write(await options.commands.skill(args));
 			return 0;
 		} catch (error) {
-			return fail(error instanceof Error ? error.message : String(error));
+			return fail(errorMessage(error));
 		}
 	}
 	if (command === 'mcp') {
@@ -160,16 +166,13 @@ export async function runToolCli<TCtx>(
 	}
 	let input: unknown = {};
 	try {
-		const readStdin = async () => {
-			let text = '';
-			for await (const chunk of stdin) text += String(chunk);
-			return text;
-		};
 		if (command === 'call') {
 			if (args.length > 1) return fail('Expected a single JSON argument');
 			const raw = args[0];
 			input = JSON.parse(
-				raw === '-' || (raw === undefined && !stdin.isTTY) ? await readStdin() : (raw ?? '{}'),
+				raw === '-' || (raw === undefined && !stdin.isTTY)
+					? await readCliStdin(stdin)
+					: (raw ?? '{}'),
 			);
 		} else {
 			const values: Record<string, unknown> = {};
@@ -212,7 +215,7 @@ export async function runToolCli<TCtx>(
 						: flag.slice(equal + 1);
 				if (raw === undefined) return fail(`Missing value: ${key}`);
 				if (tool.cli?.fileArgs?.includes(property))
-					raw = raw === '@-' ? await readStdin() : readFileValue(raw, key);
+					raw = raw === '@-' ? await readCliStdin(stdin) : readFileValue(raw, key);
 				if (schema.type === 'array' && !raw.startsWith('[')) {
 					const prior = values[property];
 					values[property] = [
@@ -224,7 +227,7 @@ export async function runToolCli<TCtx>(
 			input = values;
 		}
 	} catch (cause) {
-		return fail(`Invalid input: ${cause instanceof Error ? cause.message : String(cause)}`, 2);
+		return fail(`Invalid input: ${errorMessage(cause)}`, 2);
 	}
 	const errors = validateInput(tool.inputSchema, input);
 	if (errors.length) return fail(errors.join('\n'), 2);
@@ -237,14 +240,11 @@ export async function runToolCli<TCtx>(
 				: {}),
 		});
 	} catch (cause) {
-		return fail(
-			cause instanceof Error ? cause.message : String(cause),
-			cause instanceof CliUsageError ? 2 : 70,
-		);
+		return failCause(cause);
 	}
 	try {
 		const result = await tool.handler(context, input as Record<string, unknown>);
-		stdout.write(`${JSON.stringify(result, null, compact ? undefined : 2)}\n`);
+		stdout.write(jsonLine(result, compact));
 		if (
 			typeof result === 'object' &&
 			result !== null &&
@@ -254,20 +254,9 @@ export async function runToolCli<TCtx>(
 			return 3;
 		if (!isErrorResult(result)) return 0;
 		const code = (result as { error?: { code?: string } }).error?.code;
-		return code === 'validation_failed' || code === 'invalid_input'
-			? 2
-			: code === 'not_found'
-				? 3
-				: code === 'conflict'
-					? 4
-					: code === 'system_error'
-						? 70
-						: 1;
+		return cliErrorCode(code) ?? 1;
 	} catch (cause) {
-		return fail(
-			cause instanceof Error ? cause.message : String(cause),
-			cause instanceof CliUsageError ? 2 : 70,
-		);
+		return failCause(cause);
 	} finally {
 		await options.closeContext?.(context);
 	}
