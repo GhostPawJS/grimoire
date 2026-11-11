@@ -1,0 +1,29 @@
+name: Deprecate npm versions
+
+on:
+  workflow_dispatch:
+    inputs:
+      range:
+        description: "Semver range to deprecate, e.g. <=0.4.2"
+        required: true
+      message:
+        description: "Deprecation message (empty string un-deprecates)"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  deprecate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: "https://registry.npmjs.org"
+      - name: npm deprecate
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          RANGE: ${{ inputs.range }}
+          MESSAGE: ${{ inputs.message }}
+        run: npm deprecate "@ghostpaw/grimoire@${RANGE}" "${MESSAGE}"
