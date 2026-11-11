@@ -282,7 +282,9 @@ export async function runCliCommand<T>(
 		}
 		const stdinIndex =
 			rest[positionalIndexes.at(-1) as number] === '-' ? positionalIndexes.at(-1) : undefined;
-		if (stdinIndex !== undefined || (!rest.length && !stdin.isTTY)) {
+		// The check alias already supplies its view and needs no implicit stdin input.
+		const fixedCheck = entry.tool.name === 'review_grimoire' && entry.fixed.view === 'check';
+		if (stdinIndex !== undefined || (!rest.length && !stdin.isTTY && !fixedCheck)) {
 			if (stdinIndex !== undefined) rest.splice(stdinIndex, 1);
 			let raw = '';
 			for await (const chunk of stdin) raw += String(chunk);

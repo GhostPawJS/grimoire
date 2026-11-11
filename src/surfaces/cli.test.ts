@@ -26,6 +26,50 @@ const tool: SurfaceTool<number> = {
 		input,
 	}),
 };
+
+test('check alias ignores implicit stdin and still accepts explicit stdin JSON', async () => {
+	const review: SurfaceTool<number> = {
+		...tool,
+		name: 'review_grimoire',
+		cli: { noun: 'review', verb: '', positionals: ['view'] },
+		inputSchema: {
+			type: 'object',
+			properties: { view: { type: 'string' }, days: { type: 'integer' } },
+			required: ['view'],
+		},
+	};
+	for (const explicit of [false, true]) {
+		const stdin = explicit
+			? Readable.from(['{"days":7}'])
+			: new Readable({
+					read() {
+						assert.fail('check must not read implicit stdin');
+					},
+				});
+		let output = '';
+		const code = await runToolCli(explicit ? ['check', '-'] : ['check'], {
+			bin: 'test',
+			version: '1.0',
+			description: 'Test CLI',
+			tools: [review],
+			stdin,
+			stdout: new Writable({
+				write(chunk, _encoding, done) {
+					output += String(chunk);
+					done();
+				},
+			}),
+			openContext: (options) => {
+				assert.equal(options.readOnly, true);
+				return 1;
+			},
+		});
+		assert.equal(code, 0);
+		assert.deepEqual(JSON.parse(output).input, { view: 'check', ...(explicit ? { days: 7 } : {}) });
+		stdin.destroy();
+	}
+});
+
 async function invoke(args: string[], input = '') {
 	let out = '';
 	let err = '';
