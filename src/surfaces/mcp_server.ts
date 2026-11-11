@@ -22,6 +22,11 @@ export interface McpServerOptions<TCtx> {
 	instructions?: string;
 	tools: readonly SurfaceTool<TCtx>[];
 	context: () => TCtx | Promise<TCtx>;
+	/** Override context for a call without opening or caching the default context. */
+	contextForCall?: (
+		tool: SurfaceTool<TCtx>,
+		input: Record<string, unknown>,
+	) => TCtx | Promise<TCtx> | undefined;
 	annotations?: (tool: SurfaceTool<TCtx>) => ToolAnnotations;
 	isErrorResult?: (result: unknown) => boolean;
 }
@@ -133,8 +138,12 @@ export function createMcpServer<TCtx>(options: McpServerOptions<TCtx>): McpServe
 				if (errors.length)
 					return result({ content: [{ type: 'text', text: errors.join('\n') }], isError: true });
 				try {
-					context ??= Promise.resolve().then(options.context);
-					const value = await tool.handler(await context, input as Record<string, unknown>);
+					const override = options.contextForCall?.(tool, input as Record<string, unknown>);
+					if (override === undefined) context ??= Promise.resolve().then(options.context);
+					const value = await tool.handler(
+						(await (override ?? context)) as TCtx,
+						input as Record<string, unknown>,
+					);
 					return result({
 						content: [{ type: 'text', text: JSON.stringify(value) ?? 'null' }],
 						...(record(value) ? { structuredContent: value } : {}),

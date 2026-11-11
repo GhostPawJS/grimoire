@@ -85,7 +85,7 @@
     },
     {
       "name": "review_grimoire",
-      "description": "Review chapters, health, resonance, notes, drafts, validation, provenance, or index."
+      "description": "Review check (resonance and saved catalogue), chapters, health, resonance, notes, drafts, validation, provenance, or index."
     },
     {
       "name": "inspect_grimoire_item",

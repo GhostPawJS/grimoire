@@ -123,14 +123,14 @@ Example: `ghostpaw-grimoire call search_grimoire '{"query":"post image VPS"}'`
 
 ## review_grimoire
 
-Review chapters, health, resonance, notes, drafts, validation, provenance, or index.
+Review check (resonance and saved catalogue), chapters, health, resonance, notes, drafts, validation, provenance, or index.
 
 Read-only.
 
 | Parameter | Type | Required | Values / description |
 | --- | --- | --- | --- |
 | strict | boolean | no | Reject invalid YAML and unknown frontmatter. |
-| view | string | yes | chapters, health, resonance, notes, drafts, validation, provenance, index.  |
+| view | string | yes | check, chapters, health, resonance, notes, drafts, validation, provenance, index.  |
 | limit | integer | no | Maximum results to return |
 | now | integer | no | Timestamp override |
 | format | string | no | prompt.  |

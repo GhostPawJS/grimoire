@@ -5,7 +5,7 @@ import { initGrimoireTables } from '../init_grimoire_tables.ts';
 import { CliUsageError } from '../surfaces/cli_args.ts';
 import { configureGrimoireDb } from './configure_grimoire_db.ts';
 
-export async function openGrimoireDb(path: string): Promise<GrimoireDb> {
+export async function openGrimoireDb(path: string, readOnly = false): Promise<GrimoireDb> {
 	const original = process.emitWarning;
 	process.emitWarning = ((warning, ...args: unknown[]) => {
 		const type =
@@ -27,7 +27,7 @@ export async function openGrimoireDb(path: string): Promise<GrimoireDb> {
 	} finally {
 		process.emitWarning = original;
 	}
-	if (path !== ':memory:') {
+	if (!readOnly && path !== ':memory:') {
 		const directory = dirname(path);
 		try {
 			mkdirSync(directory, { recursive: true });
@@ -43,8 +43,9 @@ export async function openGrimoireDb(path: string): Promise<GrimoireDb> {
 			throw new CliUsageError(`Cannot create database directory ${directory}: ${reason}`);
 		}
 	}
-	const db = new sqlite.DatabaseSync(path);
+	const db = new sqlite.DatabaseSync(path, { readOnly });
 	try {
+		if (readOnly) return db as unknown as GrimoireDb;
 		configureGrimoireDb(db as unknown as GrimoireDb, path !== ':memory:');
 		const context = db as unknown as GrimoireDb;
 		initGrimoireTables(context);

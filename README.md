@@ -238,6 +238,8 @@ then `~/.ghostpaw/grimoire`. Relative DB paths resolve against the current direc
 Empty environment values count as unset; `:memory:` retains the home root default.
 `--db` overrides the database only; the environment DB still supplies the default root.
 Explicit root and Git settings always win.
+Explicit `--git-dir` or `GHOSTPAW_GRIMOIRE_GIT_DIR` configuration suppresses the ignored-parent-history warning.
+
 Each root stores Git history in `<ROOT>/.grimoire-git`, excluded from discovery.
 `--git-dir` overrides `GHOSTPAW_GRIMOIRE_GIT_DIR`, which overrides this default.
 A legacy `<parent>/.grimoire-git` is copied into the root only when its configured
@@ -252,7 +254,7 @@ Library callers supply their database and should configure those pragmas before 
 
 ```text
 ghostpaw-grimoire search <query>
-ghostpaw-grimoire review <chapters|health|resonance|notes|drafts|validation|provenance|index>
+ghostpaw-grimoire review <check|chapters|health|resonance|notes|drafts|validation|provenance|index>
 ghostpaw-grimoire inspect <path>
 ghostpaw-grimoire spell inscribe <name> --content TEXT
 ghostpaw-grimoire spell update|hone <path> [flags]
@@ -297,8 +299,21 @@ Catalogue health fields measure honing pressure, rather than a quality rating:
 a fresh seal can have zero pressure. Dormancy has a 14-day grace period after
 the first seal. Catalogue expires pending notes older than 90 days and keeps at
 most 50 pending notes, expiring the oldest first with a `notes_expired` count warning. Deleting a spell purges its events.
-Array flags repeat and a final `-` reads JSON stdin (`spell inscribe <name> -` is supported). Only spell `--content` reads files: `@path` reads the file, `@-` reads stdin, and `@@text` passes a literal `@text`. Every other value, including note text and positionals, is taken literally even if it starts with `@`.
+Array flags repeat and a final `-` reads JSON stdin (`spell inscribe <name> -` is supported). Spell `--content`, `--replace`, `--with`, and `--body` read files: `@path` reads the file, `@-` reads stdin, and `@@text` passes a literal `@text`. Every other value, including note text and positionals, is taken literally even if it starts with `@`.
 Flags use kebab-case and override stdin fields. `--` ends flags.
+All value flags accept `--flag=value`; use this form for dash-leading text, for example
+`spell update general/example --replace="--soul <A>:owner" --with="--soul <B>:owner"`.
+Use `--` to end flag parsing before dash-leading positional arguments.
+`--replace` and `--with` accept UTF-8 `@file` values, `@-` for stdin, and `@@` for a literal leading `@`.
+
+`ghostpaw-grimoire check` (also `review check`) combines current resonance with the
+latest saved catalogue in `data.resonance` and `data.snapshot` (null if none exists).
+It reads an existing database without initialization, migrations, Git migration,
+note routing, or snapshot writes. Missing databases fail without creating files.
+The facade and MCP expose the same operation as `review_grimoire({ view: 'check' })`;
+`--now` and `--limit` apply to resonance. The saved snapshot retains its original timestamp.
+
+
 Database selection uses `--db`, `GHOSTPAW_GRIMOIRE_DB`, then `~/.ghostpaw/grimoire.db`.
 Spell files and Git history follow the full precedence in [State](#state).
 Context initialization may run Git. Scout remote operations need network access;

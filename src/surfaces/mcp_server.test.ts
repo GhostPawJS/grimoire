@@ -154,3 +154,31 @@ test('custom result error predicate overrides default and null arguments are inv
 	const invalid = JSON.parse(JSON.stringify(await call(null)));
 	assert.match(invalid.result.content[0].text, /expected object/);
 });
+
+test('per-call context overrides bypass initialization and preserve the default context cache', async () => {
+	let calls = 0;
+	const server = createMcpServer({
+		name: 'test',
+		version: '1',
+		tools,
+		context: () => ++calls,
+		contextForCall: (_tool, input) => (input.n === 5 ? Promise.resolve(50) : undefined),
+	});
+	const call = async (n: number) =>
+		JSON.parse(
+			(await server.handleLine(
+				JSON.stringify({
+					jsonrpc: '2.0',
+					id: 1,
+					method: 'tools/call',
+					params: { _meta: meta, name: 'echo', arguments: { n } },
+				}),
+			)) ?? 'null',
+		);
+	assert.equal((await call(5)).result.structuredContent.ctx, 50);
+	assert.equal(calls, 0);
+	assert.equal((await call(1)).result.structuredContent.ctx, 1);
+	assert.equal((await call(5)).result.structuredContent.ctx, 50);
+	assert.equal((await call(2)).result.structuredContent.ctx, 1);
+	assert.equal(calls, 1);
+});

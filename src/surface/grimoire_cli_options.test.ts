@@ -52,13 +52,18 @@ test('grimoire noun verb note drop and review notes use a file database', async 
 
 test('grimoire command tree covers every tool and action once without changing MCP metadata', () => {
 	const commands = cliCommands(grimoireSurfaceTools);
-	assert.equal(commands.length, 22);
+	assert.equal(commands.length, 23);
+	assert.deepEqual(commands.find((command) => command.path === 'check')?.fixed, { view: 'check' });
 	assert.equal(new Set(commands.map((command) => command.path)).size, commands.length);
 	for (const tool of grimoireSurfaceTools) {
 		assert.ok(tool.cli, tool.name);
 		const paths = commands.filter((command) => command.tool === tool);
 		const actions = tool.inputSchema.properties?.action?.enum;
-		assert.equal(paths.length, actions?.length ?? 1, tool.name);
+		assert.equal(
+			paths.length,
+			actions?.length ?? (tool.name === 'review_grimoire' ? 2 : 1),
+			tool.name,
+		);
 		if (actions)
 			assert.deepEqual(
 				paths.map((command) => command.fixed.action),

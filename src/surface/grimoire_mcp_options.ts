@@ -6,6 +6,7 @@ import { grimoireMcpSurfaceTools } from './grimoire_surface_tools.ts';
 
 export function grimoireMcpOptions(
 	context: () => GrimoireToolContext | Promise<GrimoireToolContext>,
+	contextForCall?: McpServerOptions<GrimoireToolContext>['contextForCall'],
 ): McpServerOptions<GrimoireToolContext> {
 	return {
 		name: 'ghostpaw-grimoire',
@@ -14,6 +15,7 @@ export function grimoireMcpOptions(
 		instructions: grimoireMcpInstructions,
 		tools: grimoireMcpSurfaceTools,
 		context,
+		...(contextForCall ? { contextForCall } : {}),
 		annotations: (tool) => ({
 			readOnlyHint: tool.readOnly ?? false,
 			destructiveHint: ['inscribe_spell', 'manage_spell', 'manage_draft', 'run_catalogue'].includes(

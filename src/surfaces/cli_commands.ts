@@ -13,28 +13,34 @@ import type { JsonSchema, SurfaceTool } from './surface_types.ts';
 import { validateInput } from './validate_input.ts';
 
 export function cliCommands<T>(tools: readonly SurfaceTool<T>[]) {
-	return tools.flatMap((tool) => {
-		const split = tool.name.indexOf('_');
-		const cli = tool.cli ?? { noun: tool.name.slice(split + 1), verb: tool.name.slice(0, split) };
-		const action =
-			cli.action ??
-			(tool.inputSchema.properties?.action?.enum ? { property: 'action' } : undefined);
-		const actions = action
-			? (tool.inputSchema.properties?.[action.property]?.enum ?? [])
-			: [undefined];
-		return actions.map((value) => {
-			const verb =
-				value === undefined ? cli.verb : (action?.verbs?.[String(value)] ?? String(value));
-			return {
-				tool,
-				description: action?.descriptions?.[String(value)] ?? tool.description,
-				path: [cli.noun, verb].filter(Boolean).join(' '),
-				fixed: action && value !== undefined ? { [action.property]: value } : {},
-				positionals: action?.positionals?.[String(value)] ?? cli.positionals ?? [],
-				flags: action?.flags?.[String(value)],
-			};
-		});
-	});
+	return tools
+		.flatMap((tool) => {
+			const split = tool.name.indexOf('_');
+			const cli = tool.cli ?? { noun: tool.name.slice(split + 1), verb: tool.name.slice(0, split) };
+			const action =
+				cli.action ??
+				(tool.inputSchema.properties?.action?.enum ? { property: 'action' } : undefined);
+			const actions = action
+				? (tool.inputSchema.properties?.[action.property]?.enum ?? [])
+				: [undefined];
+			return actions.map((value) => {
+				const verb =
+					value === undefined ? cli.verb : (action?.verbs?.[String(value)] ?? String(value));
+				return {
+					tool,
+					description: action?.descriptions?.[String(value)] ?? tool.description,
+					path: [cli.noun, verb].filter(Boolean).join(' '),
+					fixed: action && value !== undefined ? { [action.property]: value } : {},
+					positionals: action?.positionals?.[String(value)] ?? cli.positionals ?? [],
+					flags: action?.flags?.[String(value)],
+				};
+			});
+		})
+		.flatMap((command) =>
+			command.tool.name === 'review_grimoire'
+				? [command, { ...command, path: 'check', fixed: { view: 'check' }, positionals: [] }]
+				: [command],
+		);
 }
 export async function runCliCommand<T>(
 	argv: string[],
@@ -45,8 +51,8 @@ export async function runCliCommand<T>(
 	const stdin = options.stdin ?? process.stdin;
 	const args = [...argv];
 	const tree = cliCommands(options.tools);
-	let json = argv.includes('--json'),
-		quiet = argv.includes('--quiet') || argv.includes('-q'),
+	let json = false,
+		quiet = false,
 		compact = false,
 		help = false;
 	let db: string | undefined;
@@ -98,12 +104,14 @@ export async function runCliCommand<T>(
 				const value = flag.includes('=')
 					? flag.slice(flag.indexOf('=') + 1)
 					: args.splice(i + 1, 1)[0];
-				if (!value || value.startsWith('--')) throw new CliUsageError(`${key} requires a path`);
+				if (!value || (!flag.includes('=') && value.startsWith('--')))
+					throw new CliUsageError(`${key} requires a path`);
 				if (key === '--root') root = value;
 				else gitDir = value;
 			} else if (flag === '--db' || flag?.startsWith('--db=')) {
 				db = flag === '--db' ? args.splice(i + 1, 1)[0] : flag.slice(5);
-				if (!db || /^--[a-z]/i.test(db)) throw new CliUsageError('--db requires a path');
+				if (!db || (flag === '--db' && /^--[a-z]/i.test(db)))
+					throw new CliUsageError('--db requires a path');
 			} else if (flag === '--json') json = true;
 			else if (flag === '--quiet' || flag === '-q') quiet = true;
 			else if (flag === '--compact') compact = true;
@@ -111,7 +119,19 @@ export async function runCliCommand<T>(
 			else if (['--version', '-V', '-v'].includes(flag ?? '')) {
 				if (!quiet) stdout.write(cliVersionOutput(options.version, argv, { bin: options.bin }));
 				return 0;
-			} else if (flag !== '--no-color') continue;
+			} else if (flag !== '--no-color') {
+				const valueFlag =
+					['--replace', '--with', '--append-section', '--body'].includes(flag ?? '') ||
+					options.tools.some((tool) =>
+						Object.entries(tool.inputSchema.properties ?? {}).some(
+							([name, schema]) =>
+								schema.type !== 'boolean' &&
+								flag === `--${name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`,
+						),
+					);
+				if (valueFlag) i++;
+				continue;
+			}
 			args.splice(i--, 1);
 		}
 		if (args[0] === 'version') {
@@ -176,8 +196,13 @@ export async function runCliCommand<T>(
 					...(spec.flags ?? []).filter(
 						(flag) => !['replace', 'append-section'].includes(flag.name),
 					),
-					{ name: 'replace', type: 'array', description: 'Exact text; repeat with --with.' },
-					{ name: 'with', type: 'array', description: 'Replacement text.' },
+					{
+						name: 'replace',
+						type: 'array',
+						file: true,
+						description: 'Exact text; repeat with --with.',
+					},
+					{ name: 'with', type: 'array', file: true, description: 'Replacement text.' },
 					{ name: 'append-section', type: 'string', description: 'New section heading.' },
 					{ name: 'body', type: 'string', file: true, description: 'Section body.' },
 				];
@@ -282,8 +307,8 @@ export async function runCliCommand<T>(
 				const value = token.includes('=') ? token.slice(token.indexOf('=') + 1) : rest[i + 1];
 				if (value === undefined || (!token.includes('=') && value.startsWith('--')))
 					throw new CliUsageError(`${key} requires a value`);
-				if (key === '--replace') old.push(value);
-				else if (key === '--with') replacements.push(value);
+				if (key === '--replace') old.push(readFileValue(value, '--replace'));
+				else if (key === '--with') replacements.push(readFileValue(value, '--with'));
 				else if (key === '--append-section') heading = value;
 				else body = readFileValue(value, '--body');
 				rest.splice(i, token.includes('=') ? 1 : 2);
@@ -312,7 +337,12 @@ export async function runCliCommand<T>(
 				`${missing.length ? `Missing required argument: ${missing.join(', ')}.` : errors.join('\n')} Usage: ${spec.command} ${entry.positionals.map((name) => `<${name}>`).join(' ')} [flags]. See ${spec.command} --help.`,
 			);
 		}
-		const context = await options.openContext(contextOptions());
+		const context = await options.openContext({
+			...contextOptions(),
+			...(entry.tool.name === 'review_grimoire' && input.view === 'check'
+				? { readOnly: true }
+				: {}),
+		});
 		try {
 			const result = await entry.tool.handler(context, input);
 			const record = result as {

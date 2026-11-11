@@ -5,6 +5,7 @@ import type { GrimoireToolContext } from './tool_metadata.ts';
 import { type ToolWarning, toolWarning } from './tool_types.ts';
 
 export function sharedGitWarning(ctx: GrimoireToolContext): ToolWarning[] {
+	if (ctx.gitDirExplicit) return [];
 	const legacy = resolve(ctx.root, '..', '.grimoire-git');
 	const marker = resolve(legacy, 'MIGRATED_TO');
 	return (!ctx.gitDir || resolve(ctx.gitDir) === resolve(ctx.root, '.grimoire-git')) &&

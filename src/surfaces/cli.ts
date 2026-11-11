@@ -18,7 +18,12 @@ export interface ToolCliOptions<TCtx> {
 		compact?: boolean,
 	) => string;
 	tools: readonly SurfaceTool<TCtx>[];
-	openContext(opts: { db?: string; root?: string; gitDir?: string }): TCtx | Promise<TCtx>;
+	openContext(opts: {
+		db?: string;
+		root?: string;
+		gitDir?: string;
+		readOnly?: boolean;
+	}): TCtx | Promise<TCtx>;
 	closeContext?: (ctx: TCtx) => void | Promise<void>;
 	commands?: {
 		mcp?: (opts: { db?: string; root?: string; gitDir?: string }) => unknown | Promise<unknown>;
@@ -78,23 +83,20 @@ export async function runToolCli<TCtx>(
 		return code;
 	};
 	for (let i = 0; i < args.length; i++) {
-		if (args[i] === '--root' || args[i] === '--git-dir') {
-			const key = args[i];
-			const value = args[i + 1];
-			if (!value || value.startsWith('--')) return fail(`${key} requires a path`);
+		const token = args[i] as string;
+		if (token === '--') break;
+		const key = token.split('=')[0];
+		if (['--root', '--git-dir', '--db'].includes(key ?? '')) {
+			const inline = token.includes('=');
+			const value = inline ? token.slice(token.indexOf('=') + 1) : args[i + 1];
+			if (!value || (!inline && value.startsWith('--'))) return fail(`${key} requires a path`);
 			if (key === '--root') root = value;
-			else gitDir = value;
-			args.splice(i, 2);
-			i--;
-		} else if (args[i] === '--db') {
-			if (!args[i + 1] || /^--[a-z]/i.test(args[i + 1] ?? '')) return fail('--db requires a path');
-			db = args[i + 1];
-			args.splice(i, 2);
-			i--;
-		} else if (args[i] === '--compact') {
+			else if (key === '--git-dir') gitDir = value;
+			else db = value;
+			args.splice(i--, inline ? 1 : 2);
+		} else if (token === '--compact') {
 			compact = true;
-			args.splice(i, 1);
-			i--;
+			args.splice(i--, 1);
 		}
 	}
 	const ctxOptions = {
@@ -228,7 +230,12 @@ export async function runToolCli<TCtx>(
 	if (errors.length) return fail(errors.join('\n'), 2);
 	let context: TCtx;
 	try {
-		context = await options.openContext(ctxOptions);
+		context = await options.openContext({
+			...ctxOptions,
+			...(tool.name === 'review_grimoire' && (input as Record<string, unknown>).view === 'check'
+				? { readOnly: true }
+				: {}),
+		});
 	} catch (cause) {
 		return fail(
 			cause instanceof Error ? cause.message : String(cause),

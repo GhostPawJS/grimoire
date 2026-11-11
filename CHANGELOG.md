@@ -4,6 +4,10 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+- Suppress ignored-parent Git warnings when a Git directory is explicitly configured.
+- Support dash-leading CLI values with `--flag=value`, the `--` separator, and `@file` replacement text.
+- Add read-only `check` / `review check` and facade/MCP check view combining resonance with the saved catalogue without initialization or migrations.
+
 ## [0.7.2] - 2026-11-10
 
 ### Changed

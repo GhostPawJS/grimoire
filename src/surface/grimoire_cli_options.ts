@@ -39,6 +39,7 @@ export const grimoireCliOptions: ToolCliOptions<GrimoireToolContext> = {
 	openContext: async (options) => {
 		const { openGrimoireContext } = await import('./open_grimoire_context.ts');
 		return openGrimoireContext({
+			...(options.readOnly ? { readOnly: true } : {}),
 			...(options.db === undefined ? {} : { dbPath: options.db }),
 			...(options.root === undefined ? {} : { root: options.root }),
 			...(options.gitDir === undefined ? {} : { gitDir: options.gitDir }),

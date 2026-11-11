@@ -35,6 +35,7 @@ import type { ToolResult } from './tool_types.ts';
 import { toolFailure, toolSuccess, toolWarning } from './tool_types.ts';
 
 type ReviewView =
+	| 'check'
 	| 'chapters'
 	| 'health'
 	| 'resonance'
@@ -67,7 +68,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 >({
 	name: reviewGrimoireToolName,
 	description:
-		'Review chapters, health, resonance, notes, drafts, validation, provenance, or index.',
+		'Review check (resonance and saved catalogue), chapters, health, resonance, notes, drafts, validation, provenance, or index.',
 	whenToUse: 'Review grimoire state by view.',
 	whenNotToUse: 'Inspect one spell with inspect_grimoire_item.',
 	sideEffects: 'none',
@@ -87,6 +88,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 				description: 'Reject invalid YAML and unknown frontmatter.',
 			},
 			view: enumSchema('Review view', [
+				'check',
 				'chapters',
 				'health',
 				'resonance',
@@ -105,7 +107,7 @@ export const reviewGrimoireTool = defineGrimoireTool<
 	handler(ctx, input) {
 		try {
 			const limit = input.limit;
-			const sharedWarnings = sharedGitWarning(ctx);
+			const sharedWarnings = input.view === 'check' ? [] : sharedGitWarning(ctx);
 			const success = (
 				summary: string,
 				data: Record<string, unknown>,
@@ -154,8 +156,9 @@ export const reviewGrimoireTool = defineGrimoireTool<
 					);
 				}
 
+				case 'check':
 				case 'resonance': {
-					if (!ctx.db) return dbRequiredFailure('resonance');
+					if (!ctx.db) return dbRequiredFailure(input.view);
 					const resOptions = input.now !== undefined ? { now: input.now } : undefined;
 					const all = allResonance(ctx.db, resOptions);
 					const sorted = Object.entries(all).sort(
@@ -163,11 +166,16 @@ export const reviewGrimoireTool = defineGrimoireTool<
 					);
 					const limited = limit !== undefined ? sorted.slice(0, limit) : sorted;
 					const entities = limited.slice(0, 10).map(([path]) => toSpellPathRef(path));
+					const snapshot = input.view === 'check' ? (readCatalogue(ctx.db) ?? null) : undefined;
 					const first = limited[0];
 					const next = first ? [inspectSpellNext(first[0])] : [];
 					return success(
 						`Resonance data for ${sorted.length} spell${sorted.length === 1 ? '' : 's'}.`,
-						{ resonance: Object.fromEntries(limited), totalSpells: sorted.length },
+						{
+							resonance: Object.fromEntries(limited),
+							totalSpells: sorted.length,
+							...(input.view === 'check' ? { snapshot } : {}),
+						},
 						{ entities, next, warnings: [] },
 					);
 				}

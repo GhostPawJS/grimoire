@@ -8,6 +8,8 @@ export type GrimoireToolContext = {
 	root: string;
 	db?: GrimoireDb | undefined;
 	gitDir?: string | undefined;
+	/** Whether gitDir came from explicit configuration rather than automatic resolution. */
+	gitDirExplicit?: boolean;
 };
 
 export type JsonSchemaType =

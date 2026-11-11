@@ -136,5 +136,5 @@ export function parseCliArgs(argv: string[], spec: CliSpec): Record<string, unkn
 export function renderCliHelp(spec: CliSpec): string {
 	const describe = (arg: CliArgument) =>
 		`${arg.type}${arg.enum ? ` (${arg.enum.join('|')})` : ''}${arg.required ? ' required' : ''}${arg.file ? ' (@file, @- stdin, @@ literal @)' : ''}  ${arg.description ?? ''}`;
-	return `Usage: ${spec.command} ${(spec.positionals ?? []).map((arg) => `<${arg.name}${arg.variadic ? '...' : ''}>`).join(' ')} [flags]\n${spec.description ?? ''}\n\nPositionals:\n${(spec.positionals ?? []).map((arg) => `  ${arg.name}  ${describe(arg)}`).join('\n')}\nFlags:\n${(spec.flags ?? []).map((arg) => `  --${arg.name}${arg.short ? `, -${arg.short}` : ''}  ${describe(arg)}`).join('\n')}\n`;
+	return `Usage: ${spec.command} ${(spec.positionals ?? []).map((arg) => `<${arg.name}${arg.variadic ? '...' : ''}>`).join(' ')} [flags]\nUse --flag=value for dash-leading values; -- ends flag parsing.\n${spec.description ?? ''}\n\nPositionals:\n${(spec.positionals ?? []).map((arg) => `  ${arg.name}  ${describe(arg)}`).join('\n')}\nFlags:\n${(spec.flags ?? []).map((arg) => `  --${arg.name}${arg.short ? `, -${arg.short}` : ''}  ${describe(arg)}`).join('\n')}\n`;
 }
