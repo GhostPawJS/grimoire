@@ -20,6 +20,9 @@ On Windows, use install.ps1 from the same repository; it also verifies SHA256SUM
 
 ## CLI cheat sheet
 
+Default DB opens print "using default db <absolute path>" on stderr; suppress with -q/--quiet or GHOSTPAW_QUIET=1.
+GHOSTPAW_GRIMOIRE_REQUIRE_EXPLICIT=1 refuses default DB opens and bare spell hone (exit 2, no writes). Set --db or GHOSTPAW_GRIMOIRE_DB; --root/--git-dir and GHOSTPAW_GRIMOIRE_ROOT/GHOSTPAW_GRIMOIRE_GIT_DIR select spell storage separately.
+Hone paths or --all (every pending edit). Bare hone warns and lists paths; bare hone will require --all in a future minor. --all with paths exits 2. --paths and --note-ids/--note_ids are accepted.
 State: DB = --db / GHOSTPAW_GRIMOIRE_DB / ~/.ghostpaw/grimoire.db; root = --root / GHOSTPAW_GRIMOIRE_ROOT / <DB parent>/grimoire when GHOSTPAW_GRIMOIRE_DB names a file / ~/.ghostpaw/grimoire.
 Git history lives at <ROOT>/.grimoire-git; precedence: --git-dir / GHOSTPAW_GRIMOIRE_GIT_DIR / <ROOT>/.grimoire-git. Empty env values are unset; :memory: does not select a filesystem root. --db overrides the DB file only, not the environment-derived root.
 A spell is <chapter>/<name>/SKILL.md with optional scripts/, references/, and assets/. Copy the folder to export it.

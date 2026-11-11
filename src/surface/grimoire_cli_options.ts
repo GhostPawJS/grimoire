@@ -3,9 +3,13 @@ import type { ToolCliOptions } from '../surfaces/cli.ts';
 import { jsonLine } from '../surfaces/json_line.ts';
 import type { GrimoireToolContext } from '../tools/tool_metadata.ts';
 import { grimoireVersion } from '../version.ts';
+import { defaultGrimoireDb } from './default_grimoire_db.ts';
 import { grimoireSurfaceTools } from './grimoire_surface_tools.ts';
+import { openGrimoireContext } from './open_grimoire_context.ts';
+import { renderGrimoireSkillCommand } from './render_grimoire_skill_command.ts';
 import { resolveGrimoireDbPath } from './resolve_grimoire_db_path.ts';
 import { resolveGrimoireRoot } from './resolve_grimoire_root.ts';
+import { serveGrimoireMcp } from './serve_grimoire_mcp.ts';
 
 function contextOptions(options: { db?: string; root?: string; gitDir?: string }) {
 	return {
@@ -19,9 +23,10 @@ export const grimoireCliOptions: ToolCliOptions<GrimoireToolContext> = {
 	bin: 'ghostpaw-grimoire',
 	version: grimoireVersion,
 	description: 'Local procedural knowledge',
+	defaultDbPath: defaultGrimoireDb,
 	describeDb: (options) => {
 		const root = resolveGrimoireRoot(options);
-		return `State: DB ${resolveGrimoireDbPath(options.db ? { flag: options.db } : {})}\nRoot ${root}\nGit ${resolve(options.gitDir ?? (process.env.GHOSTPAW_GRIMOIRE_GIT_DIR || undefined) ?? join(root, '.grimoire-git'))}\nEnvironment: GHOSTPAW_GRIMOIRE_DB, GHOSTPAW_GRIMOIRE_ROOT, GHOSTPAW_GRIMOIRE_GIT_DIR`;
+		return `State: DB ${resolveGrimoireDbPath(options.db ? { flag: options.db } : {})}\nRoot ${root}\nGit ${resolve(options.gitDir ?? (process.env.GHOSTPAW_GRIMOIRE_GIT_DIR || undefined) ?? join(root, '.grimoire-git'))}\nEnvironment: GHOSTPAW_GRIMOIRE_DB, GHOSTPAW_GRIMOIRE_ROOT, GHOSTPAW_GRIMOIRE_GIT_DIR\nDefault DB notice: stderr; suppress with -q/--quiet or GHOSTPAW_QUIET=1. GHOSTPAW_GRIMOIRE_REQUIRE_EXPLICIT=1 refuses default DB and bare hone; pass spell paths or --all.`;
 	},
 	tools: grimoireSurfaceTools,
 	formatResult: (result, tool, _input, quiet, compact) => {
@@ -46,7 +51,6 @@ export const grimoireCliOptions: ToolCliOptions<GrimoireToolContext> = {
 		return `${record.summary}\n${hash ? `${data?.commitHash && record.outcome !== 'no_op' ? 'commit' : 'rollback'} ${hash.slice(0, 8)}\n` : ''}`;
 	},
 	openContext: async (options) => {
-		const { openGrimoireContext } = await import('./open_grimoire_context.ts');
 		return openGrimoireContext({
 			...(options.readOnly ? { readOnly: true } : {}),
 			...contextOptions(options),
@@ -55,13 +59,11 @@ export const grimoireCliOptions: ToolCliOptions<GrimoireToolContext> = {
 	closeContext: (ctx) => ctx.db?.close(),
 	commands: {
 		mcp: async (options) => {
-			const { serveGrimoireMcp } = await import('./serve_grimoire_mcp.ts');
 			await serveGrimoireMcp({
 				...contextOptions(options),
 			});
 		},
 		skill: async (args) => {
-			const { renderGrimoireSkillCommand } = await import('./render_grimoire_skill_command.ts');
 			return renderGrimoireSkillCommand(args);
 		},
 	},

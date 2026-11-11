@@ -1,4 +1,5 @@
 import type { GrimoireDb } from './database.ts';
+import { defaultGrimoireDb } from './surface/default_grimoire_db.ts';
 import { grimoireMcpOptions } from './surface/grimoire_mcp_options.ts';
 import { openGrimoireContext } from './surface/open_grimoire_context.ts';
 import { createMcpServer } from './surfaces/mcp_server.ts';
@@ -17,5 +18,10 @@ export type * from './surfaces/surface_types.ts';
 export function createGrimoireMcpServer(
 	options: { db?: GrimoireDb; dbPath?: string; root?: string; gitDir?: string } = {},
 ) {
-	return createMcpServer(grimoireMcpOptions(() => openGrimoireContext(options)));
+	return createMcpServer(
+		grimoireMcpOptions(() => {
+			if (!options.db) defaultGrimoireDb(options.dbPath, true);
+			return openGrimoireContext(options);
+		}),
+	);
 }

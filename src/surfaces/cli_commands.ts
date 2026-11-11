@@ -1,3 +1,4 @@
+import { pendingSealPaths } from '../git/seal.ts';
 import { errorMessage } from '../lib/error_message.ts';
 import type { ToolCliOptions } from './cli.ts';
 import {
@@ -201,6 +202,16 @@ export async function runCliCommand<T>(
 				];
 			}
 
+			if (command.path === 'spell hone')
+				spec.flags = [
+					...(spec.flags ?? []),
+					{
+						name: 'all',
+						type: 'boolean',
+						description:
+							'Seal every pending edit; bare hone warns and will require --all in a future minor.',
+					},
+				];
 			return spec;
 		};
 		if (
@@ -321,6 +332,21 @@ export async function runCliCommand<T>(
 			...updateInput,
 			...entry.fixed,
 		};
+		const hone = entry.path === 'spell hone';
+		const all = (input as Record<string, unknown>).all;
+		if (hone) {
+			delete (input as Record<string, unknown>).all;
+			if (all && (input as { paths?: string[] }).paths?.length)
+				throw new CliUsageError('--all cannot be combined with spell paths');
+			if (
+				!all &&
+				!(input as { paths?: string[] }).paths?.length &&
+				process.env.GHOSTPAW_GRIMOIRE_REQUIRE_EXPLICIT === '1'
+			)
+				throw new CliUsageError(
+					'pass spell paths or --all; bare hone will require --all in a future minor',
+				);
+		}
 		const errors = validateInput(entry.tool.inputSchema, input);
 		if (errors.length) {
 			const missing = errors
@@ -337,6 +363,12 @@ export async function runCliCommand<T>(
 				: {}),
 		});
 		try {
+			if (hone && !all && !(input as { paths?: string[] }).paths?.length) {
+				const paths = pendingSealPaths(context as import('../git/types.ts').GitContext);
+				stderr.write(
+					`WARNING: sealing pending edits: ${paths.join(', ')}\npass spell paths or --all; bare hone will require --all in a future minor\n`,
+				);
+			}
 			const result = await entry.tool.handler(context, input);
 			const record = result as {
 				ok?: boolean;

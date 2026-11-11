@@ -13,6 +13,7 @@ export interface ToolCliOptions<TCtx> {
 	bin: string;
 	version: string;
 	description: string;
+	defaultDbPath?: () => string | undefined;
 	describeDb?: (options: { db?: string; root?: string; gitDir?: string }) => string;
 	formatResult?: (
 		result: unknown,
@@ -41,6 +42,21 @@ export async function runToolCli<TCtx>(
 	argv: string[],
 	options: ToolCliOptions<TCtx>,
 ): Promise<number> {
+	const original = options;
+	options = {
+		...options,
+		openContext: (opts) => {
+			const path = opts.db === undefined ? original.defaultDbPath?.() : undefined;
+			const end = argv.indexOf('--');
+			if (
+				path &&
+				process.env.GHOSTPAW_QUIET !== '1' &&
+				!argv.slice(0, end < 0 ? argv.length : end).some((arg) => arg === '-q' || arg === '--quiet')
+			)
+				(original.stderr ?? process.stderr).write(`using default db ${path}\n`);
+			return original.openContext(opts);
+		},
+	};
 	const end = argv.indexOf('--');
 	if (
 		argv
@@ -145,6 +161,11 @@ export async function runToolCli<TCtx>(
 	}
 	if (command === 'mcp') {
 		if (!options.commands?.mcp) return fail('mcp command unavailable');
+		try {
+			if (db === undefined) options.defaultDbPath?.();
+		} catch (cause) {
+			return failCause(cause);
+		}
 		await options.commands.mcp(ctxOptions);
 		return 0;
 	}

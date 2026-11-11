@@ -35,6 +35,18 @@ function extractSpellPaths(porcelain: string): string[] {
 	return [...paths];
 }
 
+export function pendingSealPaths(ctx: GitContext): string[] {
+	if (!hasGitRepository(ctx)) return [];
+	return extractSpellPaths(statusPorcelain(ctx)).filter((path) => {
+		try {
+			parseSpellPath(path);
+			return !path.startsWith('.');
+		} catch {
+			return false;
+		}
+	});
+}
+
 function unchangedSeal(ctx: GitContext, paths?: string[]): SealResult {
 	const last = history(ctx).find(
 		(entry) =>
@@ -70,17 +82,7 @@ export function seal(
 				)
 					throw new GrimoireNotFoundError(`Spell not found: ${path}`);
 			}
-			const status = statusPorcelain(ctx);
-			let spellPaths = paths?.length
-				? paths
-				: extractSpellPaths(status).filter((p) => {
-						try {
-							parseSpellPath(p);
-							return !p.startsWith('.');
-						} catch {
-							return false;
-						}
-					});
+			let spellPaths = paths?.length ? paths : pendingSealPaths(ctx);
 			assertGitScope(ctx, []);
 			if (!spellPaths.length) return unchangedSeal(ctx, paths);
 			const scoped = spellPaths.map((p) => `${p}/`);

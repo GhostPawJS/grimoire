@@ -4,6 +4,11 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+- Announce built-in default database use on stderr in CLI/MCP, with quiet suppression and opt-in `GHOSTPAW_GRIMOIRE_REQUIRE_EXPLICIT=1` refusal before writes.
+- Add CLI `spell hone --all`; warn with pending paths before bare hone, refuse it in strict mode, and reject `--all` with paths.
+- Clarify database selection and sealing in the CLI help, skill and cheat sheet; preserve sandbox guidance.
+- Share CLI module imports statically to reduce bundle overhead without dropping documentation.
+
 - Reduce bundle sizes by 2-4% by sharing spell, scouting, database-mapping and CLI logic; command behavior is unchanged.
 - Fix the CLI `check` alias waiting for stdin before opening existing, missing, or unmigrated databases.
 - Suppress ignored-parent Git warnings when a Git directory is explicitly configured.

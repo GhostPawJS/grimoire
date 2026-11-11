@@ -608,3 +608,17 @@ If this package helps your project, consider sponsoring its maintenance:
 ---
 
 **[Anonyfox](https://anonyfox.com) • [MIT License](LICENSE)**
+
+The CLI and MCP print `using default db <absolute path>` on stderr when opening
+the built-in `~/.ghostpaw/grimoire.db`. Suppress the notice with `-q`/`--quiet`
+or `GHOSTPAW_QUIET=1`; help, version and skill commands do not open the DB.
+Set `GHOSTPAW_GRIMOIRE_REQUIRE_EXPLICIT=1` to refuse default DB opens (exit 2
+before creating files). Set `--db` or `GHOSTPAW_GRIMOIRE_DB` explicitly;
+`--root`/`--git-dir` and `GHOSTPAW_GRIMOIRE_ROOT`/`GHOSTPAW_GRIMOIRE_GIT_DIR`
+select spell storage separately and do not make the DB explicit.
+
+`spell hone <path...>` seals selected spells; `spell hone --all` seals every
+pending edit. Bare `spell hone` still seals all but warns on stderr and lists
+the paths: pass spell paths or --all; bare hone will require --all in a future
+minor. Strict mode refuses bare hone with exit 2 and leaves edits pending.
+Combining `--all` with paths is a usage error (exit 2).
