@@ -4,6 +4,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+## [0.7.3] - 2026-11-11
+
 - Announce built-in default database use on stderr in CLI/MCP, with quiet suppression and opt-in `GHOSTPAW_GRIMOIRE_REQUIRE_EXPLICIT=1` refusal before writes.
 - Add CLI `spell hone --all`; warn with pending paths before bare hone, refuse it in strict mode, and reject `--all` with paths.
 - Document database selection, the strict mode and `--all` in the CLI help, skill and cheat sheet.
@@ -287,7 +289,8 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 - Initial procedural knowledge library, tool facade, documentation, and browser demo. Early setup and demo improvements are grouped here.
 
-[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.7.2...HEAD
+[Unreleased]: https://github.com/GhostPawJS/grimoire/compare/v0.7.3...HEAD
+[0.7.3]: https://github.com/GhostPawJS/grimoire/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/GhostPawJS/grimoire/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/GhostPawJS/grimoire/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/GhostPawJS/grimoire/compare/v0.6.1...v0.7.0
