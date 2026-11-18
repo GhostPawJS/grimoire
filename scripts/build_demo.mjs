@@ -62,16 +62,32 @@ async function writeHtmlShell() {
 <meta property="og:image:alt" content="An open book drawn in cyan light with a ghost paw on its page and a violet rune, beside the line: Your agent edits its SKILL.md. Who keeps the history?" />
 <meta name="twitter:card" content="summary_large_image" />
 <!-- ghostpaw-docs-shell -->
-<style>.pre{max-width:42rem;margin:4rem auto;padding:0 1.25rem;font:400 1rem/1.6 system-ui,sans-serif;color:#dce7f3}.pre h1{font-size:1.6rem;line-height:1.25;margin:0 0 .75rem}.pre a{color:#62e6f2}.pre li{margin:.25rem 0}#app:not(:empty)~.pre{display:none}@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}</style>
+<style>.pre{max-width:42rem;margin:4rem auto;padding:0 1.25rem;font:400 1rem/1.6 system-ui,sans-serif;color:#dce7f3}.pre h1{font-size:1.6rem;line-height:1.25;margin:0 0 .75rem}.pre h2{font-size:1.15rem;margin:1.5rem 0 .5rem}.pre code{font-family:ui-monospace,Menlo,monospace;font-size:.9em}.pre a{color:#62e6f2}.pre li{margin:.25rem 0}#app:not(:empty)~.pre{display:none}@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}</style>
 <style>${minifyCss(css)}</style>
 </head>
 <body>
 <div id="app"></div>
 <main class="pre">
 <h1>Spell Forge: the @ghostpaw/grimoire interactive demo</h1>
-<p>Write skills as SKILL.md files, record evidence about them and watch their rank change. This page loads the library into your browser with an in-memory SQLite database. It needs JavaScript; the demo appears here once it has loaded.</p>
+<p>Write skills as SKILL.md files, record evidence about them and watch their rank change. This page loads the library into your browser with an in-memory SQLite database (sql.js with FTS5). Nothing is sent anywhere, and closing the tab discards the data. It needs JavaScript; the demo appears here once it has loaded.</p>
+<h2>Six views, one library</h2>
+<ul>
+<li><strong>Dashboard</strong>: overview of the grimoire and the weighted reads from its event log.</li>
+<li><strong>Chapters</strong>: spells grouped by chapter.</li>
+<li><strong>Inscribe</strong>: spells are SKILL.md files with YAML frontmatter and a short procedural body; the editor shows the parsed frontmatter and validation while you type.</li>
+<li><strong>Notes</strong>: observations that can later be distilled into a spell or routed toward a chapter.</li>
+<li><strong>Catalogue</strong>: a run computes staleness, health, orphan note clusters and chapter balance from your spells and notes.</li>
+<li><strong>Scout</strong>: searches a pre-seeded marketplace snapshot locally, or the public GitHub search API in live mode, and adopts a result with its provenance.</li>
+</ul>
+<h2>The same operations from the command line</h2>
+<p>Every view maps to a CLI command, for example <code>ghostpaw-grimoire spell inscribe &lt;name&gt; --content TEXT</code>, <code>note drop &lt;content&gt; --source &lt;source&gt;</code>, <code>catalogue run</code> and <code>scout search &lt;query&gt;</code>. Results print to stdout; <code>-q</code> only silences the default-database notice on stderr. Rank counts sealed git commits, and <code>spell rollback &lt;path&gt; &lt;ref&gt;</code> restores an earlier version for review.</p>
+<h2>Read next</h2>
 <ul>
 <li><a href="https://grimoire.ghostpaw.dev/">What @ghostpaw/grimoire is, with a worked example</a></li>
+<li><a href="https://github.com/GhostPawJS/grimoire#cli">CLI reference</a></li>
+<li><a href="https://github.com/GhostPawJS/grimoire/blob/main/docs/entities/SPELLS.md">Spells: frontmatter, chapters and companion files</a></li>
+<li><a href="https://github.com/GhostPawJS/grimoire/blob/main/docs/entities/NOTES.md">Notes as evidence for honing</a></li>
+<li><a href="https://github.com/GhostPawJS/grimoire/blob/main/docs/entities/HEALTH.md">Catalogue snapshots and health scores</a></li>
 <li><a href="https://github.com/GhostPawJS/grimoire#readme">README on GitHub</a></li>
 <li><a href="https://www.npmjs.com/package/@ghostpaw/grimoire">@ghostpaw/grimoire on npm</a></li>
 <li><a href="https://ghostpaw.dev/">All GhostPaw libraries</a></li>

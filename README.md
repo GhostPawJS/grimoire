@@ -278,7 +278,7 @@ Global flags can appear anywhere: `--db <path>`, `--root <path>`, `--git-dir <pa
 `NO_COLOR` is accepted; output uses no terminal colors.
 Noun-verb commands print the full tool result as JSON with `--json` or when
 stdout is piped. Write results contain compact metadata by default; `--verbose` includes full spell content.
-`-q`, `--quiet`, or `GHOSTPAW_QUIET=1` suppresses the default database notice on stderr. Command results and errors are still printed. `--compact` removes JSON indentation.
+`-q`, `--quiet`, or `GHOSTPAW_QUIET=1` suppresses the default database notice on stderr. Command results and errors are still printed. `--compact` removes JSON indentation. Usage lines and missing-argument errors list required flags, for example `note drop <content> --source <source>`.
 
 Use `help spell`, bare `spell`, or `spell update --help` for schema-derived help.
 `skill --list` lists bundled guides; `skill <guide>` prints the guide.
