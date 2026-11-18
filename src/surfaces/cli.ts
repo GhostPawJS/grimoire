@@ -1,4 +1,4 @@
-import { type Readable, Writable } from 'node:stream';
+import type { Readable, Writable } from 'node:stream';
 import { errorMessage } from '../lib/error_message.ts';
 import { CliUsageError, readFileValue } from './cli_args.ts';
 import { runCliCommand } from './cli_commands.ts';
@@ -63,25 +63,14 @@ export async function runToolCli<TCtx>(
 			.slice(0, end < 0 ? argv.length : end)
 			.some((arg) => ['--version', '-V', '-v'].includes(arg))
 	) {
-		if (!(argv.includes('--quiet') || argv.includes('-q')))
-			(options.stdout ?? process.stdout).write(
-				cliVersionOutput(options.version, argv, { bin: options.bin }),
-			);
+		(options.stdout ?? process.stdout).write(
+			cliVersionOutput(options.version, argv, { bin: options.bin }),
+		);
 		return 0;
 	}
 	const modern = await runCliCommand(argv, options);
 	if (modern !== undefined) return modern;
-	const quiet = argv.includes('--quiet') || argv.includes('-q');
 	const explicitJson = argv.includes('--json') && !argv.includes('tools');
-	if (quiet)
-		options = {
-			...options,
-			stdout: new Writable({
-				write(_chunk, _encoding, cb) {
-					cb();
-				},
-			}),
-		};
 	const stdout = options.stdout ?? process.stdout;
 	const stderr = options.stderr ?? process.stderr;
 	const stdin = options.stdin ?? process.stdin;

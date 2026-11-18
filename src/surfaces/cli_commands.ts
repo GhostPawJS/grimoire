@@ -8,6 +8,7 @@ import {
 	parseCliArgs,
 	readFileValue,
 	renderCliHelp,
+	renderCliUsage,
 } from './cli_args.ts';
 import { cliCompletion } from './cli_completion.ts';
 import { cliErrorCode } from './cli_error_code.ts';
@@ -64,7 +65,7 @@ export async function runCliCommand<T>(
 	const args = [...argv];
 	const tree = cliCommands(options.tools);
 	let json = false,
-		quiet = false,
+		quiet = process.env.GHOSTPAW_QUIET === '1',
 		compact = false,
 		help = false;
 	let db: string | undefined;
@@ -81,7 +82,7 @@ export async function runCliCommand<T>(
 		errorCode = code === 2 ? 'usage_error' : 'internal_error',
 	) => {
 		stderr.write(`${message}\n`);
-		if (json && !quiet)
+		if (json)
 			stdout.write(`${JSON.stringify({ ok: false, error: { code: errorCode, message } })}\n`);
 		return code;
 	};
@@ -125,7 +126,7 @@ export async function runCliCommand<T>(
 			else if (flag === '--compact') compact = true;
 			else if (flag === '--help' || flag === '-h') help = true;
 			else if (['--version', '-V', '-v'].includes(flag ?? '')) {
-				if (!quiet) stdout.write(cliVersionOutput(options.version, argv, { bin: options.bin }));
+				stdout.write(cliVersionOutput(options.version, argv, { bin: options.bin }));
 				return 0;
 			} else if (flag !== '--no-color') {
 				const valueFlag =
@@ -141,7 +142,7 @@ export async function runCliCommand<T>(
 			args.splice(i--, 1);
 		}
 		if (args[0] === 'version') {
-			if (!quiet) stdout.write(cliVersionOutput(options.version, argv, { bin: options.bin }));
+			stdout.write(cliVersionOutput(options.version, argv, { bin: options.bin }));
 			return 0;
 		}
 		if (args[0] === 'help') {
@@ -173,6 +174,7 @@ export async function runCliCommand<T>(
 			const spec: CliSpec = {
 				command: `${options.bin} ${command.path}`,
 				description: command.tool.description,
+				requiredFields: command.tool.inputSchema.required,
 				positionals: command.positionals.map((name) => ({
 					...argument(name, properties[name] ?? {}),
 					...(properties[name]?.type === 'array'
@@ -189,8 +191,7 @@ export async function runCliCommand<T>(
 					)
 					.map(([name, schema]) => ({
 						...argument(cliFlagName(name), schema),
-						required: false,
-						description: `${schema.description ?? ''}${command.tool.inputSchema.required?.includes(name) ? ' (required)' : ''}`,
+						description: `${schema.description ?? ''}${command.tool.inputSchema.required?.includes(name) ? (command.positionals.includes(name) ? ' (required unless given positionally)' : ' (required)') : ''}`,
 					})),
 			};
 			if (command.tool.name === 'update_spell') {
@@ -228,28 +229,25 @@ export async function runCliCommand<T>(
 			args.length === entry.path.split(' ').length &&
 			positionalChoices?.length
 		) {
-			if (!quiet)
-				stdout.write(
-					`Usage: ${options.bin} ${entry.path} <view>\n${positionalChoices.map((value) => `  ${entry.path} ${String(value)}  Review the ${String(value)} view.`).join('\n')}\n`,
-				);
+			stdout.write(
+				`Usage: ${options.bin} ${entry.path} <view>\n${positionalChoices.map((value) => `  ${entry.path} ${String(value)}  Review the ${String(value)} view.`).join('\n')}\n`,
+			);
 			return 0;
 		}
 		if (help) {
 			const matches = tree.filter((command) => command.path.startsWith(args.join(' ')));
 			if (!entry && !matches.length) throw new CliUsageError(`Unknown command: ${args.join(' ')}`);
-			if (!quiet)
-				stdout.write(
-					entry
-						? renderCliHelp(specFor(entry))
-						: `${options.bin} ${options.version}\n${options.description}\n${options.describeDb ? `\n${options.describeDb(contextOptions())}\n` : ''}\nCommands:\n${matches.map((command) => `  ${command.path}  ${command.description}`).join('\n')}\n  mcp, skill, tools [--json], describe <tool>, call <tool> [JSON|-], completions <bash|zsh|fish>, version\nGlobal flags: --db <path>, --root <path>, --git-dir <path>, --json, -q, --quiet, --compact, --help/-h, --version/-V/-v, --no-color\n`,
-				);
+			stdout.write(
+				entry
+					? renderCliHelp(specFor(entry))
+					: `${options.bin} ${options.version}\n${options.description}\n${options.describeDb ? `\n${options.describeDb(contextOptions())}\n` : ''}\nCommands:\n${matches.map((command) => `  ${command.path}  ${command.description}`).join('\n')}\n  mcp, skill, tools [--json], describe <tool>, call <tool> [JSON|-], completions <bash|zsh|fish>, version\nGlobal flags: --db <path>, --root <path>, --git-dir <path>, --json, -q, --quiet, --compact, --help/-h, --version/-V/-v, --no-color\n`,
+			);
 			return 0;
 		}
 		if (args[0] === 'completions' || args[0] === 'completion') {
 			const shell = args[1];
 			if (!['bash', 'zsh', 'fish'].includes(shell ?? ''))
 				throw new CliUsageError('Expected completion shell: bash, zsh or fish');
-			if (quiet) return 0;
 			stdout.write(
 				cliCompletion(
 					options.bin,
@@ -353,7 +351,7 @@ export async function runCliCommand<T>(
 				.map((error) => /^\$\.([^:]+): required$/.exec(error)?.[1])
 				.filter(Boolean);
 			throw new CliUsageError(
-				`${missing.length ? `Missing required argument: ${missing.join(', ')}.` : errors.join('\n')} Usage: ${spec.command} ${entry.positionals.map((name) => `<${name}>`).join(' ')} [flags]. See ${spec.command} --help.`,
+				`${missing.length ? `Missing required argument: ${missing.join(', ')}.` : errors.join('\n')} ${renderCliUsage(spec)}. See ${spec.command} --help.`,
 			);
 		}
 		const context = await options.openContext({
@@ -399,14 +397,14 @@ export async function runCliCommand<T>(
 						compact,
 					),
 				);
-			if ((json || !(stdout as { isTTY?: boolean }).isTTY) && !quiet) writeJson();
+			if (json || !(stdout as { isTTY?: boolean }).isTTY) writeJson();
 			else if (!code && options.formatResult) {
-				stdout.write(options.formatResult(result, entry.tool, input, quiet, compact));
+				stdout.write(options.formatResult(result, entry.tool, input, false, compact));
 				const warnings = (result as { warnings?: { code?: string; message?: string }[] }).warnings;
 				if (!quiet)
 					for (const warning of warnings ?? [])
 						if (warning.code !== 'empty_result') stderr.write(`warning: ${warning.message}\n`);
-			} else if (!quiet && !code) writeJson();
+			} else if (!code) writeJson();
 			return code;
 		} finally {
 			await options.closeContext?.(context);

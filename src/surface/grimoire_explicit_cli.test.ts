@@ -254,3 +254,56 @@ test('standalone MCP refuses the default database before creating storage', () =
 		f.close();
 	}
 });
+
+for (const isTTY of [true, false]) {
+	test(`quiet inspect, hone and update preserve ${isTTY ? 'terminal' : 'piped'} stdout and omit the default DB notice`, () => {
+		const f = fixture();
+		try {
+			// Inspect records reads and computes time-decayed resonance. Keep each read at seal time.
+			const env = {
+				NODE_OPTIONS: `--import=data:text/javascript,Date.now=()=>1700000000000;process.stdout.isTTY=${isTTY}`,
+			};
+			const run = (args: string[], extra = {}) => f.run(args, { ...env, ...extra });
+			const content =
+				'---\nname: sample\ndescription: Test procedure\n---\n# Procedure\n\nVerify the build.';
+			const added = run(['spell', 'inscribe', 'sample', '--chapter', 'ops', '--content', content]);
+			assert.equal(added.status, 0, added.stderr);
+			for (const args of [
+				['inspect', 'ops/sample'],
+				['spell', 'hone', 'ops/sample'],
+				['spell', 'update', 'ops/sample', '--content', content],
+			]) {
+				const normal = run(args);
+				assert.equal(normal.status, 0, normal.stderr);
+				assert.ok(normal.stdout.length > 0);
+				assert.equal(normal.stderr, `using default db ${join(f.dir, '.ghostpaw/grimoire.db')}\n`);
+				for (const result of [
+					run(['-q', ...args]),
+					run([...args, '--quiet']),
+					run(args, { GHOSTPAW_QUIET: '1' }),
+				]) {
+					assert.deepEqual(result, { status: 0, stdout: normal.stdout, stderr: '' });
+				}
+			}
+		} finally {
+			f.close();
+		}
+	});
+}
+
+test('note drop help and missing-source error show the same required flag', () => {
+	const f = fixture();
+	try {
+		const usage = 'Usage: ghostpaw-grimoire note drop <content> --source <source> [flags]';
+		const help = f.run(['note', 'drop', '--help']);
+		assert.equal(help.status, 0);
+		assert.equal(help.stdout.split('\n')[0], usage);
+		assert.match(help.stdout, /--content [^\n]*\(required unless given positionally\)/);
+		const missing = f.run(['note', 'drop', 'Verify the build', '-q']);
+		assert.equal(missing.status, 2);
+		assert.ok(missing.stderr.includes('Missing required argument: source'));
+		assert.ok(missing.stderr.includes(usage));
+	} finally {
+		f.close();
+	}
+});

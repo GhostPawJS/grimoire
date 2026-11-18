@@ -221,7 +221,10 @@ test('noun verb commands use schema parsing, help, JSON, quiet and stdin', async
 		).input,
 		{ someValue: 2, enabled: true },
 	);
-	assert.equal((await invoke(['tool', 'test', '--some-value=2', '--quiet'])).out, '');
+	assert.deepEqual(
+		await invoke(['tool', 'test', '--some-value=2', '--quiet']),
+		await invoke(['tool', 'test', '--some-value=2']),
+	);
 	assert.match((await invoke(['tool', 'test', '--help'])).out, /--some-value/);
 	assert.match((await invoke(['help', 'tool'])).out, /tool test/);
 	for (const shell of ['bash', 'zsh', 'fish'])
@@ -335,7 +338,7 @@ test('-q matches --quiet before and after modern, legacy and informational comma
 			const withFlag = (flag: string) => (before ? [flag, ...args] : [...args, flag]);
 			const long = await invoke(withFlag('--quiet'));
 			const short = await invoke(withFlag('-q'));
-			assert.equal(long.out, '');
+			assert.deepEqual(long, await invoke(args));
 			assert.deepEqual(short, long, JSON.stringify(withFlag('-q')));
 		}
 	}

@@ -355,3 +355,7 @@ Inspect history supplies rollback hashes. Write results are compact unless `verb
 `review_grimoire` accepts `format: 'prompt'` for the index block alone.
 Both `noteIds` and `note_ids` are accepted by hone and draft submit.
 Rank counts distinct commits per spell, and uncheckpointed spells remain searchable.
+
+For CLI integrations, `-q`, `--quiet`, and `GHOSTPAW_QUIET=1` silence the default
+database notice on stderr. Command results remain available on stdout and errors
+on stderr. Use `note drop <content> --source <source>` to record a note.

@@ -29,8 +29,7 @@ export const grimoireCliOptions: ToolCliOptions<GrimoireToolContext> = {
 		return `State: DB ${resolveGrimoireDbPath(options.db ? { flag: options.db } : {})}\nRoot ${root}\nGit ${resolve(options.gitDir ?? (process.env.GHOSTPAW_GRIMOIRE_GIT_DIR || undefined) ?? join(root, '.grimoire-git'))}\nEnvironment: GHOSTPAW_GRIMOIRE_DB, GHOSTPAW_GRIMOIRE_ROOT, GHOSTPAW_GRIMOIRE_GIT_DIR\nDefault DB notice: stderr; suppress with -q/--quiet or GHOSTPAW_QUIET=1. GHOSTPAW_GRIMOIRE_REQUIRE_EXPLICIT=1 refuses default DB and bare hone; pass spell paths or --all.`;
 	},
 	tools: grimoireSurfaceTools,
-	formatResult: (result, tool, _input, quiet, compact) => {
-		if (quiet) return '';
+	formatResult: (result, tool, _input, _quiet, compact) => {
 		if (compact && tool.name === 'inspect_grimoire_item' && (result as { ok?: boolean }).ok) {
 			const record = result as {
 				data: { spell: { content?: string; body?: string }; history?: unknown[] };

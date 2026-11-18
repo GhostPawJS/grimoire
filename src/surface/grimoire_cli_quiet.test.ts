@@ -5,7 +5,7 @@ import { runToolCli } from '../surfaces/cli.ts';
 import { grimoireCliOptions } from './grimoire_cli_options.ts';
 import { resolveGrimoireDbPath } from './resolve_grimoire_db_path.ts';
 
-test('quiet aliases keep stdout and stderr empty with the default database path', async () => {
+test('quiet aliases preserve informational stdout and keep stderr empty with the default database path', async () => {
 	const invoke = async (args: string[]) => {
 		let out = '';
 		let err = '';
@@ -34,9 +34,13 @@ test('quiet aliases keep stdout and stderr empty with the default database path'
 	assert.ok(normal.out.includes(`State: DB ${resolveGrimoireDbPath()}`));
 	assert.equal(normal.err, '');
 	for (const command of ['--help', '--version', 'tools']) {
+		const expected = await invoke([command]);
+		assert.ok(expected.out.length > 0);
+		assert.equal(expected.err, '');
+		assert.equal(expected.code, 0);
 		for (const flag of ['-q', '--quiet']) {
-			assert.deepEqual(await invoke([flag, command]), { code: 0, out: '', err: '' });
-			assert.deepEqual(await invoke([command, flag]), { code: 0, out: '', err: '' });
+			assert.deepEqual(await invoke([flag, command]), expected);
+			assert.deepEqual(await invoke([command, flag]), expected);
 		}
 	}
 });

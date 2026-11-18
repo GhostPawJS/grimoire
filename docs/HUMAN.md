@@ -315,7 +315,7 @@ ghostpaw-grimoire spell shelve|unshelve|delete|repair <path>
 ghostpaw-grimoire spell move <path> <target>
 ghostpaw-grimoire spell rollback <path> <ref>
 ghostpaw-grimoire spell repair-all
-ghostpaw-grimoire note drop <content> --source SOURCE
+ghostpaw-grimoire note drop <content> --source <source>
 ghostpaw-grimoire draft submit <title> --rationale TEXT --note-ids ID --chapter NAME
 ghostpaw-grimoire draft approve|dismiss <draftId>
 ghostpaw-grimoire catalogue run
@@ -331,7 +331,7 @@ Global flags can appear anywhere: `--db <path>`, `--json`, `-q, --quiet`,
 `NO_COLOR` is accepted; output uses no terminal colors.
 Noun-verb commands print the full tool result as JSON with `--json` or when
 stdout is piped. Terminal output shows the summary and payload.
-`-q, --quiet` suppresses stdout. `--compact` removes JSON indentation.
+`-q`, `--quiet`, or `GHOSTPAW_QUIET=1` suppresses the default database notice on stderr. Command results and errors are still printed. `--compact` removes JSON indentation.
 
 Use `help spell` or `spell update --help` for schema-derived help.
 Array flags repeat, object flags accept JSON, and `-` reads JSON stdin. Only spell `--content` reads files: `@path` reads the file, `@-` reads stdin, and `@@text` passes a literal `@text`. Every other value, including note text and positionals, is taken literally even if it starts with `@`.

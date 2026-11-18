@@ -22,6 +22,8 @@ export interface CliSpec {
 	description?: string;
 	flags?: readonly CliArgument[];
 	positionals?: readonly CliArgument[];
+	/** Required schema fields can also come from stdin and are validated after parsing. */
+	requiredFields?: readonly string[] | undefined;
 }
 export class CliUsageError extends Error {
 	readonly exitCode = 2;
@@ -133,8 +135,24 @@ export function parseCliArgs(argv: string[], spec: CliSpec): Record<string, unkn
 	}
 	return values;
 }
+export function renderCliUsage(spec: CliSpec): string {
+	const positionals = spec.positionals ?? [];
+	const requiredFlags = (spec.flags ?? []).filter(
+		(arg) =>
+			(arg.required || spec.requiredFields?.includes(keyOf(arg.name))) &&
+			!positionals.some((pos) => keyOf(pos.name) === keyOf(arg.name)),
+	);
+	return [
+		`Usage: ${spec.command}`,
+		...positionals.map((arg) => `<${arg.name}${arg.variadic ? '...' : ''}>`),
+		...requiredFlags.map((arg) =>
+			arg.type === 'boolean' ? `--${arg.name}` : `--${arg.name} <${arg.name}>`,
+		),
+		'[flags]',
+	].join(' ');
+}
 export function renderCliHelp(spec: CliSpec): string {
 	const describe = (arg: CliArgument) =>
 		`${arg.type}${arg.enum ? ` (${arg.enum.join('|')})` : ''}${arg.required ? ' required' : ''}${arg.file ? ' (@file, @- stdin, @@ literal @)' : ''}  ${arg.description ?? ''}`;
-	return `Usage: ${spec.command} ${(spec.positionals ?? []).map((arg) => `<${arg.name}${arg.variadic ? '...' : ''}>`).join(' ')} [flags]\nUse --flag=value for dash-leading values; -- ends flag parsing.\n${spec.description ?? ''}\n\nPositionals:\n${(spec.positionals ?? []).map((arg) => `  ${arg.name}  ${describe(arg)}`).join('\n')}\nFlags:\n${(spec.flags ?? []).map((arg) => `  --${arg.name}${arg.short ? `, -${arg.short}` : ''}  ${describe(arg)}`).join('\n')}\n`;
+	return `${renderCliUsage(spec)}\nUse --flag=value for dash-leading values; -- ends flag parsing.\n${spec.description ?? ''}\n\nPositionals:\n${(spec.positionals ?? []).map((arg) => `  ${arg.name}  ${describe(arg)}`).join('\n')}\nFlags:\n${(spec.flags ?? []).map((arg) => `  --${arg.name}${arg.short ? `, -${arg.short}` : ''}  ${describe(arg)}`).join('\n')}\n`;
 }

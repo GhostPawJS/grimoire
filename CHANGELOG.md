@@ -4,6 +4,11 @@ All notable changes are documented here using [Keep a Changelog 1.1.0](https://k
 
 ## [Unreleased]
 
+### Fixed
+
+- Preserve CLI command output in quiet mode while suppressing the default database notice.
+- Show required flags such as `note drop --source` in command usage and identify flags that can be supplied positionally.
+
 ## [0.7.3] - 2026-11-11
 
 - Announce built-in default database use on stderr in CLI/MCP, with quiet suppression and opt-in `GHOSTPAW_GRIMOIRE_REQUIRE_EXPLICIT=1` refusal before writes.
